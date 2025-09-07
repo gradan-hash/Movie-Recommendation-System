@@ -82,7 +82,7 @@ export const useUserStore = defineStore('user', () => {
             await loadFromLocalStorage()
             
             // Show success toast
-            globalToast.loginSuccess(user.displayName || user.email)
+            globalToast.loginSuccess(user.displayName || user.email || undefined)
             
             return user
           } else {
@@ -134,7 +134,7 @@ export const useUserStore = defineStore('user', () => {
             isAuthenticated.value = true
             
             // Show success toast
-            globalToast.registerSuccess(user.displayName || user.email)
+            globalToast.registerSuccess(user.displayName || user.email || 'User')
             
             return user
           } else {
