@@ -36,8 +36,8 @@
         </span>
       </h2>
 
-      <!-- Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <!-- Grid - Mobile First: 2 cols, SM: 3, MD: 4, LG: 5, XL: 6 -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-6">
         <MovieCard
           v-for="movie in movies"
           :key="movie.id"
@@ -50,16 +50,16 @@
         />
       </div>
 
-      <!-- Load More Button -->
-      <div v-if="showLoadMore" class="text-center mt-8">
+      <!-- Load More Button - Mobile Optimized -->
+      <div v-if="showLoadMore" class="text-center mt-6 md:mt-8 px-4">
         <button
           @click="$emit('load-more')"
           :disabled="loadingMore"
-          class="bg-gray-800 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full sm:w-auto bg-gray-800 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm md:text-base"
         >
-          <span v-if="loadingMore" class="flex items-center gap-2">
+          <span v-if="loadingMore" class="flex items-center justify-center gap-2">
             <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Loading...
+            <span>Loading...</span>
           </span>
           <span v-else>Load More Movies</span>
         </button>

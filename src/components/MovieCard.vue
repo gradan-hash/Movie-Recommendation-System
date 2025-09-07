@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="group relative bg-gray-800 rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+    class="group relative bg-gray-800 rounded-lg md:rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
     @click="emit('click', movie)"
   >
     <!-- Movie Poster -->
@@ -13,76 +13,62 @@
         loading="lazy"
       />
       
-      <!-- Gradient overlay on hover -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <!-- Gradient overlay - Always visible on mobile, hover on desktop -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"></div>
       
-      <!-- Rating badge -->
-      <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
-        <span class="text-yellow-400 text-sm">⭐</span>
-        <span class="text-white text-sm font-semibold">{{ formattedRating }}</span>
+      <!-- Rating badge - Larger on mobile -->
+      <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1 md:px-3 md:py-1.5 flex items-center gap-1">
+        <span class="text-yellow-400 text-xs md:text-sm">⭐</span>
+        <span class="text-white text-xs md:text-sm font-semibold">{{ formattedRating }}</span>
       </div>
 
-      <!-- Like button -->
+      <!-- Like button - Larger and more touch-friendly on mobile -->
       <button
         @click.stop="toggleLike"
-        class="absolute top-2 right-2 w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/90 hover:scale-110"
+        class="absolute top-2 right-2 w-9 h-9 md:w-10 md:h-10 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 hover:bg-black/90 active:scale-95"
         :class="{ 'text-red-500': isLiked, 'text-white hover:text-red-400': !isLiked }"
       >
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
         </svg>
       </button>
-    </div>
 
-    <!-- Movie Info -->
-    <div class="p-4">
-      <h3 class="text-white font-bold text-lg mb-2 line-clamp-2 leading-tight">
-        {{ movie.title }}
-      </h3>
-      
-      <p class="text-gray-300 text-sm mb-3 line-clamp-3 leading-relaxed">
-        {{ movie.overview || 'No description available.' }}
-      </p>
-      
-      <div class="flex items-center justify-between text-sm">
-        <span class="text-gray-400">{{ releaseYear }}</span>
-        <span class="text-gray-400">{{ movie.vote_count }} votes</span>
-      </div>
-    </div>
-
-    <!-- Hover overlay with action buttons -->
-    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-      <div class="flex flex-col gap-3">
-        <!-- Watch Button (Primary) -->
+      <!-- Mobile Action Buttons - Always visible on mobile -->
+      <div class="absolute bottom-2 left-2 right-2 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+        <!-- Watch Button (Primary) - Mobile optimized -->
         <button 
           @click.stop="handleWatchClick"
           :disabled="isAuthLoading"
-          class="bg-red-600 text-white px-6 py-3 rounded-full font-bold text-lg hover:bg-red-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 bg-red-600 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg font-bold text-sm md:text-base hover:bg-red-700 transition-all duration-200 active:scale-95 flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg v-if="!isAuthLoading" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="!isAuthLoading" class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
           </svg>
-          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg v-else class="w-4 h-4 md:w-5 md:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          {{ isAuthLoading ? 'Checking...' : 'Watch Now' }}
+          <span class="hidden sm:inline">{{ isAuthLoading ? 'Checking...' : 'Watch' }}</span>
         </button>
-        
-        <!-- Secondary Actions -->
-        <div class="flex gap-2">
-          <button 
-            @click.stop="emit('view-details', movie)"
-            class="bg-gray-700 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-gray-600 transition-colors duration-200"
-          >
-            Details
-          </button>
-          <button 
-            @click.stop="toggleLike"
-            class="bg-gray-700 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-1"
-          >
-            {{ isLiked ? '❤️' : '🤍' }}
-          </button>
+      </div>
+    </div>
+
+    <!-- Movie Info - Reduced padding on mobile -->
+    <div class="p-3 md:p-4">
+      <h3 class="text-white font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2 leading-tight">
+        {{ movie.title }}
+      </h3>
+      
+      <!-- Hide overview on mobile to save space, show on hover/larger screens -->
+      <p class="text-gray-300 text-xs md:text-sm mb-2 md:mb-3 line-clamp-2 md:line-clamp-3 leading-relaxed hidden sm:block">
+        {{ movie.overview || 'No description available.' }}
+      </p>
+      
+      <div class="flex items-center justify-between text-xs md:text-sm">
+        <span class="text-gray-400 font-medium">{{ releaseYear }}</span>
+        <div class="flex items-center gap-1 text-yellow-400">
+          <span>⭐</span>
+          <span class="text-white font-semibold">{{ formattedRating }}</span>
         </div>
       </div>
     </div>

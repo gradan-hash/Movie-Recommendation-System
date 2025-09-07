@@ -1,31 +1,31 @@
 <template>
   <div class="home-view">
-    <!-- Hero Section -->
-    <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+    <!-- Hero Section - Mobile First -->
+    <section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
       <!-- Background with Gradient -->
       <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-red-900/20 to-purple-900/20"></div>
       
-      <!-- Animated Background Elements -->
-      <div class="absolute inset-0 opacity-30">
-        <div class="absolute top-20 left-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+      <!-- Animated Background Elements - Smaller on mobile -->
+      <div class="absolute inset-0 opacity-20 md:opacity-30">
+        <div class="absolute top-10 left-5 md:top-20 md:left-10 w-32 h-32 md:w-72 md:h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-10 right-5 md:bottom-20 md:right-10 w-48 h-48 md:w-96 md:h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 md:w-80 md:h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
       </div>
 
-      <!-- Hero Content -->
-      <div class="relative z-10 text-center px-4 max-w-6xl mx-auto">
-        <!-- Main Heading -->
-        <div class="mb-8">
-          <h1 class="text-6xl md:text-8xl font-black bg-gradient-to-r from-white via-red-200 to-purple-200 bg-clip-text text-transparent mb-4 animate-fade-in">
+      <!-- Hero Content - Mobile First -->
+      <div class="relative z-10 text-center px-4 w-full max-w-6xl mx-auto">
+        <!-- Main Heading - Mobile First -->
+        <div class="mb-6 md:mb-8">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black bg-gradient-to-r from-white via-red-200 to-purple-200 bg-clip-text text-transparent mb-3 md:mb-4 animate-fade-in">
             CinemaAI
           </h1>
-          <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
             Discover your next favorite movie with <span class="text-red-400 font-semibold">AI-powered recommendations</span> and explore thousands of films from around the world
           </p>
         </div>
 
-        <!-- Search Bar -->
-        <div class="mb-14">
+        <!-- Search Bar - Mobile Optimized -->
+        <div class="mb-8 md:mb-14">
           <SearchBar
             :is-searching="moviesStore.loading"
             :total-results="moviesStore.totalResults"
@@ -52,29 +52,31 @@
       
       <div class="relative container mx-auto px-4 py-16">
 
-      <!-- Liked Movies Section (when user has liked movies) -->
-      <section v-if="userStore.hasLikedMovies && !moviesStore.isSearching" class="mb-16">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div>
-            <h2 class="text-3xl font-bold text-white flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center">
+      <!-- Liked Movies Section - Mobile First -->
+      <section v-if="userStore.hasLikedMovies && !moviesStore.isSearching" class="mb-12 md:mb-16">
+        <div class="flex flex-col gap-4 mb-6 md:mb-8">
+          <div class="text-center md:text-left">
+            <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center justify-center md:justify-start gap-3 mb-2">
+              <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl">
                 ❤️
               </div>
               Your Favorites
             </h2>
-            <p class="text-gray-400 text-lg">{{ userStore.likedMoviesCount }} movies in your collection</p>
+            <p class="text-gray-400 text-base md:text-lg">{{ userStore.likedMoviesCount }} movies in your collection</p>
           </div>
-          <div class="flex gap-3">
+          
+          <!-- Action Buttons - Mobile Stack -->
+          <div class="flex flex-col sm:flex-row gap-2 md:gap-3">
             <router-link 
               to="/favorites"
-              class="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-3 rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all duration-200 font-medium"
+              class="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-4 py-3 md:px-6 rounded-lg md:rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all duration-200 font-medium text-center text-sm md:text-base"
             >
               View All →
             </router-link>
             <button 
               v-if="userStore.canGetRecommendations"
               @click="goToRecommendations"
-              class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-6 py-3 rounded-xl hover:from-purple-500 hover:to-purple-400 transition-all duration-200 flex items-center gap-2 font-medium shadow-lg shadow-purple-500/25"
+              class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-3 md:px-6 rounded-lg md:rounded-xl hover:from-purple-500 hover:to-purple-400 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-lg shadow-purple-500/25 text-sm md:text-base"
             >
               🤖 Get AI Recommendations
             </button>
@@ -82,7 +84,8 @@
         </div>
         
         <div class="relative">
-          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
+          <!-- Mobile: 2 cols, SM: 3 cols, MD: 4 cols, LG: 6 cols, XL: 8 cols -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-6">
             <div
               v-for="(movie, index) in userStore.likedMovies.slice(0, 8)"
               :key="movie.id"
@@ -168,40 +171,42 @@
         </div>
       </section>
 
-      <!-- Content Categories Section -->
+      <!-- Content Categories Section - Mobile First -->
       <section class="relative">
-        <!-- Category Tabs -->
-        <div class="flex flex-col gap-6 mb-8">
-          <!-- Tab Navigation -->
-          <div class="flex items-center justify-center">
-            <div class="bg-gray-800/80 backdrop-blur-lg rounded-2xl p-2 border border-gray-700/50">
-              <div class="flex gap-2">
+        <!-- Category Tabs - Mobile Optimized -->
+        <div class="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
+          <!-- Tab Navigation - Full Width on Mobile -->
+          <div class="flex items-center justify-center px-2">
+            <div class="bg-gray-800/80 backdrop-blur-lg rounded-xl md:rounded-2xl p-1 md:p-2 border border-gray-700/50 w-full max-w-md">
+              <div class="flex gap-1 md:gap-2">
                 <button
                   @click="setActiveCategory('movie')"
-                  class="relative px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  class="relative flex-1 px-3 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-medium transition-all duration-300 text-sm md:text-base"
                   :class="activeCategory === 'movie' 
                     ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
                 >
-                  <span class="relative z-10 flex items-center gap-2">
-                    🎬 Movies
+                  <span class="relative z-10 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-base">🎬</span>
+                    <span>Movies</span>
                     <span v-if="moviesStore.totalResults && activeCategory === 'movie'" 
-                          class="text-xs bg-white/20 px-2 py-1 rounded-full">
+                          class="text-xs bg-white/20 px-1 md:px-2 py-0.5 md:py-1 rounded-full hidden sm:inline">
                       {{ formatNumber(moviesStore.totalResults) }}
                     </span>
                   </span>
                 </button>
                 <button
                   @click="setActiveCategory('tv')"
-                  class="relative px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  class="relative flex-1 px-3 py-2 md:px-6 md:py-3 rounded-lg md:rounded-xl font-medium transition-all duration-300 text-sm md:text-base"
                   :class="activeCategory === 'tv' 
                     ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
                 >
-                  <span class="relative z-10 flex items-center gap-2">
-                    📺 TV Series
+                  <span class="relative z-10 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-base">📺</span>
+                    <span>TV Series</span>
                     <span v-if="tvStore.totalResults && activeCategory === 'tv'" 
-                          class="text-xs bg-white/20 px-2 py-1 rounded-full">
+                          class="text-xs bg-white/20 px-1 md:px-2 py-0.5 md:py-1 rounded-full hidden sm:inline">
                       {{ formatNumber(tvStore.totalResults) }}
                     </span>
                   </span>
@@ -210,18 +215,18 @@
             </div>
           </div>
 
-          <!-- Section Title -->
-          <div class="text-center">
-            <h2 class="text-3xl font-bold text-white flex items-center justify-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-gradient-to-r rounded-2xl flex items-center justify-center text-xl"
+          <!-- Section Title - Mobile Centered -->
+          <div class="text-center px-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center justify-center gap-2 md:gap-3 mb-2">
+              <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl"
                    :class="activeCategory === 'movie' 
                      ? 'from-red-500 to-red-600' 
                      : 'from-purple-500 to-purple-600'">
                 {{ currentSectionIcon }}
               </div>
-              {{ currentSectionTitle }}
+              <span class="text-xl md:text-3xl">{{ currentSectionTitle }}</span>
             </h2>
-            <p class="text-gray-400 text-lg" v-if="currentTotalResults">
+            <p class="text-gray-400 text-sm md:text-lg" v-if="currentTotalResults">
               {{ currentTotalResults.toLocaleString() }} {{ activeCategory === 'movie' ? 'movies' : 'series' }} found
             </p>
           </div>

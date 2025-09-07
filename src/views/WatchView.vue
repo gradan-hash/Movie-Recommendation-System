@@ -1,22 +1,22 @@
 <template>
   <div class="watch-view min-h-screen bg-black text-white">
-    <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center min-h-screen">
+    <!-- Loading State - Mobile Optimized -->
+    <div v-if="loading" class="flex items-center justify-center min-h-screen px-4">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto"></div>
-        <p class="text-xl mt-4 text-gray-300">Loading movie...</p>
+        <div class="animate-spin rounded-full h-16 w-16 md:h-32 md:w-32 border-b-2 border-red-500 mx-auto"></div>
+        <p class="text-lg md:text-xl mt-4 text-gray-300">Loading movie...</p>
       </div>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="flex items-center justify-center min-h-screen">
+    <!-- Error State - Mobile Optimized -->
+    <div v-else-if="error" class="flex items-center justify-center min-h-screen px-4">
       <div class="text-center max-w-md">
-        <div class="text-6xl mb-4">⚠️</div>
-        <h1 class="text-3xl font-bold mb-4">Oops! Something went wrong</h1>
-        <p class="text-gray-300 mb-6">{{ error }}</p>
+        <div class="text-4xl md:text-6xl mb-4">⚠️</div>
+        <h1 class="text-2xl md:text-3xl font-bold mb-4">Oops! Something went wrong</h1>
+        <p class="text-gray-300 mb-6 text-sm md:text-base">{{ error }}</p>
         <button 
           @click="$router.go(-1)"
-          class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+          class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold transition-colors w-full sm:w-auto"
         >
           Go Back
         </button>
@@ -28,30 +28,56 @@
       
       <!-- Video Player Section -->
       <section class="relative bg-black">
-        <!-- Video Container -->
-        <div class="relative w-full" :class="isFullWatchMode ? 'h-screen' : 'aspect-video max-h-[80vh]'">
+        <!-- Video Container - Mobile First -->
+        <div class="relative w-full" :class="isFullWatchMode ? 'h-screen' : 'aspect-video max-h-[60vh] md:max-h-[80vh]'">
           
-          <!-- YouTube Player Container -->
-          <div 
-            v-if="hasStartedWatching && getBestVideo()?.site === 'YouTube'"
-            class="relative w-full h-full bg-black"
-            ref="youtubePlayerContainer"
-          >
+          <!-- YouTube Player (Auto-start) -->
+          <div v-if="hasStartedWatching && currentVideo" class="relative w-full h-full bg-black">
             <!-- YouTube Player -->
             <div 
-              id="youtube-player" 
-              class="w-full h-full"
-            ></div>
-            
-            <!-- Loading Overlay -->
-            <div 
-              v-if="playerLoading"
-              class="absolute inset-0 bg-black/90 flex items-center justify-center"
+              class="relative w-full h-full bg-black"
+              ref="youtubePlayerContainer"
             >
-              <div class="text-center">
-                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4"></div>
-                <p class="text-white text-lg">Loading video...</p>
+              <div 
+                id="youtube-player" 
+                class="w-full h-full"
+              ></div>
+              
+              <!-- Video Info Overlay - Mobile Optimized -->
+              <div class="absolute top-2 left-2 md:top-4 md:left-4 bg-black/70 backdrop-blur-sm px-2 py-1 md:px-4 md:py-2 rounded-lg max-w-[calc(100%-1rem)] md:max-w-none">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  <span class="text-white text-xs md:text-sm font-medium truncate">
+                    {{ currentVideo.type }} • {{ currentVideo.name }}
+                  </span>
+                </div>
               </div>
+
+              <!-- Loading Overlay -->
+              <div 
+                v-if="playerLoading"
+                class="absolute inset-0 bg-black/90 flex items-center justify-center"
+              >
+                <div class="text-center">
+                  <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4"></div>
+                  <p class="text-white text-lg">Loading video...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Video Available -->
+          <div v-else-if="hasStartedWatching && !currentVideo" class="absolute inset-0 bg-black flex items-center justify-center">
+            <div class="text-center">
+              <div class="text-6xl mb-4">⚠️</div>
+              <h3 class="text-2xl font-bold text-white mb-4">No Videos Available</h3>
+              <p class="text-gray-300 mb-6">No videos are currently available for this movie.</p>
+              <button 
+                @click="$router.go(-1)"
+                class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-lg text-white font-semibold transition-colors"
+              >
+                Go Back
+              </button>
             </div>
           </div>
 
@@ -304,6 +330,97 @@
         </div>
       </section>
 
+      <!-- Netflix-like Video Selector -->
+      <section v-if="!isFullWatchMode && movieVideos.length > 1" class="bg-gradient-to-b from-gray-800 to-gray-900 py-8">
+        <div class="max-w-7xl mx-auto px-6">
+          <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+              🎥
+            </div>
+            Trailers & Videos
+          </h2>
+          
+          <!-- Video List (First 5 + Show More) -->
+          <div class="space-y-4">
+            <div 
+              v-for="(video) in displayedVideos" 
+              :key="video.key"
+              class="group flex gap-4 p-4 rounded-xl transition-all duration-300 cursor-pointer"
+              :class="currentVideo?.key === video.key 
+                ? 'bg-red-600/20 border border-red-500/50' 
+                : 'bg-gray-800/50 hover:bg-gray-800/80'"
+              @click="switchToVideo(video)"
+            >
+              <!-- Video Number -->
+              <div class="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:bg-red-600 transition-colors">
+                {{ sortedVideos.findIndex(v => v.key === video.key) + 1 }}
+              </div>
+
+              <!-- Video Thumbnail -->
+              <div class="flex-shrink-0 w-24 h-16 bg-gray-700 rounded-lg overflow-hidden">
+                <img 
+                  :src="getVideoThumbnail(video)"
+                  :alt="video.name"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Video Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-white font-semibold text-base mb-1 group-hover:text-red-300 transition-colors line-clamp-1">
+                      {{ video.name }}
+                    </h3>
+                    <div class="flex items-center gap-3 text-sm text-gray-400 mb-2">
+                      <span class="px-2 py-1 bg-gray-700 rounded text-xs font-medium">
+                        {{ video.type }}
+                      </span>
+                      <span v-if="video.official" class="px-2 py-1 bg-blue-600 rounded text-xs font-medium text-white">
+                        Official
+                      </span>
+                      <span class="text-gray-500">{{ getVideoQuality(video) }}</span>
+                    </div>
+                    <p class="text-gray-300 text-sm leading-relaxed line-clamp-2">
+                      {{ getVideoDescription(video) }}
+                    </p>
+                  </div>
+                  
+                  <!-- Play Button -->
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors">
+                      <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Show More/Less Button -->
+          <div v-if="sortedVideos.length > 5" class="text-center mt-6">
+            <button
+              @click="showAllVideos = !showAllVideos"
+              class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 flex items-center gap-2 mx-auto"
+            >
+              <span>{{ showAllVideos ? 'Show Less' : `Show All ${sortedVideos.length} Videos` }}</span>
+              <svg 
+                class="w-4 h-4 transition-transform duration-300"
+                :class="showAllVideos ? 'rotate-180' : ''"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- Similar Content Recommendations (Completely Separated at Bottom) -->
       <section v-if="!isFullWatchMode && hasStartedWatching" class="bg-black py-16 mt-12 border-t-2 border-gray-800">
         <div class="max-w-7xl mx-auto px-6">
@@ -474,6 +591,8 @@ const error = ref<string | null>(null)
 const hasStartedWatching = ref(false)
 const isFullWatchMode = ref(false)
 const showMovieInfo = ref(false)
+const currentVideo = ref<MovieVideo | null>(null)
+const showAllVideos = ref(false)
 const watchTimer = ref<number | null>(null)
 
 // Video data from TMDB
@@ -509,6 +628,44 @@ const contentType = computed(() => isMovie.value ? 'movie' : 'series')
 const progressPercentage = computed(() => {
   if (duration.value === 0) return 0
   return (currentTime.value / duration.value) * 100
+})
+
+// Netflix-like sorted videos
+const sortedVideos = computed(() => {
+  if (movieVideos.value.length === 0) return []
+  
+  // Sort by priority: Official trailers first, then other types
+  const priorityOrder = ['Trailer', 'Featurette', 'Clip', 'Teaser', 'Behind the Scenes']
+  
+  return [...movieVideos.value]
+    .filter(v => v.site === 'YouTube')
+    .sort((a, b) => {
+      // Official videos first
+      if (a.official !== b.official) {
+        return b.official ? 1 : -1
+      }
+      
+      // Then by type priority
+      const aIndex = priorityOrder.indexOf(a.type)
+      const bIndex = priorityOrder.indexOf(b.type)
+      const aPriority = aIndex === -1 ? 999 : aIndex
+      const bPriority = bIndex === -1 ? 999 : bIndex
+      
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority
+      }
+      
+      // Finally by name alphabetically
+      return a.name.localeCompare(b.name)
+    })
+})
+
+// Videos to display (first 5 or all if expanded)
+const displayedVideos = computed(() => {
+  if (showAllVideos.value || sortedVideos.value.length <= 5) {
+    return sortedVideos.value
+  }
+  return sortedVideos.value.slice(0, 5)
 })
 
 // Methods
@@ -585,10 +742,76 @@ const startWatching = async () => {
   
   hasStartedWatching.value = true
   
-  // Initialize YouTube Player
-  await initializeYouTubePlayer()
+  // Wait for videos to be available, then auto-select the best one
+  if (movieVideos.value.length > 0) {
+    // Find the best video directly from movieVideos
+    const bestVideo = getBestAvailableVideo()
+    if (bestVideo) {
+      currentVideo.value = bestVideo
+      console.log(`🎬 Auto-selected video: ${bestVideo.name}`)
+      
+      // Initialize YouTube Player with best video
+      await initializeYouTubePlayer()
+    } else {
+      console.error('❌ No suitable video found')
+    }
+  } else {
+    console.warn('⚠️ No videos loaded yet')
+  }
   
-  console.log(`🎬 Movie started: ${title}`)
+  console.log(`🎬 Watch interface ready: ${title}`)
+}
+
+// Helper function to get best video directly from movieVideos
+const getBestAvailableVideo = (): MovieVideo | null => {
+  if (movieVideos.value.length === 0) return null
+  
+  // Priority: Official trailers > Any trailers > Clips > Other types
+  const priorities = ['Trailer', 'Featurette', 'Clip', 'Teaser', 'Behind the Scenes']
+  
+  // First try official videos
+  for (const type of priorities) {
+    const video = movieVideos.value.find(v => 
+      v.type === type && 
+      v.site === 'YouTube' && 
+      v.official === true
+    )
+    if (video) {
+      console.log(`🎬 Found official ${type}: ${video.name}`)
+      return video
+    }
+  }
+  
+  // Then try any videos of these types
+  for (const type of priorities) {
+    const video = movieVideos.value.find(v => 
+      v.type === type && 
+      v.site === 'YouTube'
+    )
+    if (video) {
+      console.log(`🎬 Found ${type}: ${video.name}`)
+      return video
+    }
+  }
+  
+  // Fallback to any YouTube video
+  const fallback = movieVideos.value.find(v => v.site === 'YouTube')
+  if (fallback) {
+    console.log(`🎬 Using fallback video: ${fallback.name}`)
+    return fallback
+  }
+  
+  return null
+}
+
+const switchToVideo = async (video: MovieVideo) => {
+  if (currentVideo.value?.key === video.key) return
+  
+  console.log(`🎬 Switching to video: ${video.name}`)
+  currentVideo.value = video
+  
+  // Re-initialize player with new video
+  await initializeYouTubePlayer()
 }
 
 const toggleFullWatchMode = () => {
@@ -616,22 +839,81 @@ const loadYouTubeAPI = (): Promise<void> => {
   })
 }
 
+// Netflix-like helper functions
+const getVideoThumbnail = (_video: MovieVideo): string => {
+  // Use movie poster as thumbnail (YouTube thumbnails require API key)
+  return getBackdropUrl(content.value?.backdrop_path ?? content.value?.poster_path ?? null)
+}
+
+const getVideoDescription = (video: MovieVideo): string => {
+  const descriptions = {
+    'Trailer': 'Official movie trailer showcasing key scenes and highlights',
+    'Teaser': 'Short preview giving a taste of what\'s to come',
+    'Clip': 'Exclusive scene or behind-the-scenes footage',
+    'Featurette': 'In-depth look at the making of the movie',
+    'Behind the Scenes': 'Exclusive behind-the-scenes content'
+  }
+  
+  return descriptions[video.type as keyof typeof descriptions] || 'Video content from the movie'
+}
+
+const getVideoQuality = (video: MovieVideo): string => {
+  if (video.size) {
+    const qualities = {
+      1080: 'Full HD',
+      720: 'HD',
+      480: 'SD',
+      360: 'SD',
+      240: 'Low'
+    }
+    return qualities[video.size as keyof typeof qualities] || 'HD'
+  }
+  
+  return video.official ? 'HD' : 'SD'
+}
+
+// Enhanced video search - also searches for full movies on YouTube  
+
 // Initialize YouTube Player
 const initializeYouTubePlayer = async () => {
   try {
     playerLoading.value = true
     
+    if (!currentVideo.value || currentVideo.value.site !== 'YouTube') {
+      console.error('❌ No current video or not YouTube:', currentVideo.value)
+      throw new Error(`No video available`)
+    }
+
+    console.log(`🎬 Initializing player with video:`, {
+      name: currentVideo.value.name,
+      key: currentVideo.value.key,
+      type: currentVideo.value.type,
+      official: currentVideo.value.official
+    })
+    
     // Load YouTube API
     await loadYouTubeAPI()
     
-    const video = getBestVideo()
-    if (!video || video.site !== 'YouTube') {
-      throw new Error('No YouTube video available')
+    // Scroll to top when starting video
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Destroy existing player if it exists
+    if (youtubePlayer.value && youtubePlayer.value.destroy) {
+      console.log('🔄 Destroying existing player')
+      youtubePlayer.value.destroy()
+      youtubePlayer.value = null
     }
+
+    // Wait a bit for cleanup
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    console.log(`🎬 Creating YouTube player with video ID: ${currentVideo.value.key}`)
 
     // Create YouTube Player
     youtubePlayer.value = new window.YT.Player('youtube-player', {
-      videoId: video.key,
+      videoId: currentVideo.value.key,
+      width: '100%',
+      height: '100%',
       playerVars: {
         autoplay: 1,
         controls: 0,
@@ -641,7 +923,8 @@ const initializeYouTubePlayer = async () => {
         modestbranding: 1,
         fs: 0,
         cc_load_policy: 0,
-        disablekb: 1
+        disablekb: 1,
+        origin: window.location.origin
       },
       events: {
         onReady: onPlayerReady,
@@ -652,7 +935,7 @@ const initializeYouTubePlayer = async () => {
     
   } catch (error) {
     console.error('❌ Failed to initialize YouTube player:', error)
-    videoError.value = 'Failed to initialize video player'
+    videoError.value = `Failed to load video: ${error}`
   } finally {
     playerLoading.value = false
   }
@@ -695,8 +978,23 @@ const onPlayerStateChange = (event: any) => {
 }
 
 const onPlayerError = (event: any) => {
-  console.error('❌ YouTube player error:', event.data)
-  videoError.value = 'Video playback error'
+  const errorCodes = {
+    2: 'Invalid video ID',
+    5: 'HTML5 player error',
+    100: 'Video not found or private',
+    101: 'Video not available in this country',
+    150: 'Video not available in this country'
+  }
+  
+  const errorMessage = errorCodes[event.data as keyof typeof errorCodes] || `Unknown error (${event.data})`
+  console.error('❌ YouTube player error:', {
+    code: event.data,
+    message: errorMessage,
+    videoKey: currentVideo.value?.key,
+    videoName: currentVideo.value?.name
+  })
+  
+  videoError.value = `Video playback error: ${errorMessage}`
 }
 
 // Player Update Interval
@@ -781,9 +1079,8 @@ const formatTime = (seconds: number): string => {
 }
 
 const getCurrentVideoInfo = (): string => {
-  const video = getBestVideo()
-  if (video) {
-    return `${video.type} • YouTube • ${video.name}`
+  if (currentVideo.value) {
+    return `${currentVideo.value.type} • YouTube • ${currentVideo.value.name}`
   }
   return 'No video information available'
 }
@@ -867,34 +1164,27 @@ const watchSimilarContent = (item: Movie | TVSeries) => {
 
 
 // Get best available video from TMDB API
-const getBestVideo = (): MovieVideo | null => {
-  if (movieVideos.value.length === 0) return null
-  
-  // Priority: Official trailers > Trailers > Clips > Teasers
-  const priorities = ['Trailer', 'Clip', 'Teaser', 'Featurette']
-  
-  for (const type of priorities) {
-    const video = movieVideos.value.find(v => 
-      v.type === type && 
-      v.site === 'YouTube' && 
-      v.official === true
-    )
-    if (video) return video
-  }
-  
-  // Fallback to any YouTube video
-  const fallback = movieVideos.value.find(v => v.site === 'YouTube')
-  return fallback || null
-}
 
 
 
-// Watch for content changes to auto-start and load similar content
+// Watch for content changes to load videos and then auto-start
 watch(
   () => content.value,
   async (newContent) => {
     if (newContent) {
-      // Auto-start playback when content is loaded
+      console.log(`🎬 Content loaded: ${newContent.title || newContent.name}`)
+      // Content is loaded, videos should be loading now
+      // startWatching will be called after videos are loaded
+    }
+  }
+)
+
+// Watch for videos being loaded, then auto-start
+watch(
+  () => movieVideos.value.length,
+  async (videoCount) => {
+    if (videoCount > 0 && content.value && !hasStartedWatching.value) {
+      console.log(`🎬 ${videoCount} videos loaded, auto-starting...`)
       await startWatching()
     }
   }
@@ -919,6 +1209,7 @@ watch(
       hasStartedWatching.value = false
       isFullWatchMode.value = false
       showMovieInfo.value = false
+      currentVideo.value = null
       youtubePlayer.value = null
       currentTime.value = 0
       duration.value = 0
