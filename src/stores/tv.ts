@@ -2,11 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { 
   getPopularTVSeries,
-  searchTVSeries,
-  getTrendingTVSeries,
-  getTopRatedTVSeries
-} from '@/api/tmdb'
-import type { TVSeries, PopularTVSeriesResponse } from '@/types/movie'
+  searchTVSeries as searchTVSeriesApi} from '@/api/tmdb'
+import type { TVSeries } from '@/types/movie'
 
 export const useTVStore = defineStore('tv', () => {
   // State
@@ -106,7 +103,7 @@ export const useTVStore = defineStore('tv', () => {
 
       console.log(`🔍 TV Store: Searching TV series - "${query}" page ${page}`)
       
-      const response = await searchTVSeries(query, page)
+      const response = await searchTVSeriesApi(query, page)
       
       if (response.success && response.data) {
         const newSeries = response.data.results

@@ -91,7 +91,7 @@ export const usePerformance = () => {
           metrics.value.renderTime = Math.round(entry.duration)
         } else if (entry.entryType === 'navigation') {
           const navigationEntry = entry as PerformanceNavigationTiming
-          metrics.value.totalLoadTime = Math.round(navigationEntry.loadEventEnd - navigationEntry.navigationStart)
+          metrics.value.totalLoadTime = Math.round(navigationEntry.loadEventEnd - navigationEntry.startTime)
         }
       })
     })
@@ -188,7 +188,7 @@ export const usePerformance = () => {
 
   // Debounce function for performance
   const debounce = <T extends (...args: any[]) => any>(func: T, delay: number): T => {
-    let timeoutId: NodeJS.Timeout | null = null
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
     
     return ((...args: any[]) => {
       if (timeoutId) clearTimeout(timeoutId)

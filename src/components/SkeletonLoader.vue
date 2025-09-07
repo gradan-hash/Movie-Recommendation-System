@@ -113,7 +113,7 @@ interface Props {
   customClass?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   type: 'box',
   count: 6
 })
