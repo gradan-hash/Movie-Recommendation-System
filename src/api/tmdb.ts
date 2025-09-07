@@ -10,9 +10,7 @@ import type {
   TVSeriesDetails,
   SearchTVSeriesResponse,
   PopularTVSeriesResponse,
-  MediaItem,
-  MediaType
-} from '@/types/movie'
+  MediaItem} from '@/types/movie'
 
 // TMDB API Response types
 export interface TMDBApiResponse<T> {

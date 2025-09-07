@@ -177,15 +177,15 @@
             <div class="bg-gray-800/80 backdrop-blur-lg rounded-2xl p-2 border border-gray-700/50">
               <div class="flex gap-2">
                 <button
-                  @click="setActiveCategory('movies')"
+                  @click="setActiveCategory('movie')"
                   class="relative px-6 py-3 rounded-xl font-medium transition-all duration-300"
-                  :class="activeCategory === 'movies' 
+                  :class="activeCategory === 'movie' 
                     ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
                 >
                   <span class="relative z-10 flex items-center gap-2">
                     🎬 Movies
-                    <span v-if="moviesStore.totalResults && activeCategory === 'movies'" 
+                    <span v-if="moviesStore.totalResults && activeCategory === 'movie'" 
                           class="text-xs bg-white/20 px-2 py-1 rounded-full">
                       {{ formatNumber(moviesStore.totalResults) }}
                     </span>
@@ -214,7 +214,7 @@
           <div class="text-center">
             <h2 class="text-3xl font-bold text-white flex items-center justify-center gap-3 mb-2">
               <div class="w-12 h-12 bg-gradient-to-r rounded-2xl flex items-center justify-center text-xl"
-                   :class="activeCategory === 'movies' 
+                   :class="activeCategory === 'movie' 
                      ? 'from-red-500 to-red-600' 
                      : 'from-purple-500 to-purple-600'">
                 {{ currentSectionIcon }}
@@ -222,7 +222,7 @@
               {{ currentSectionTitle }}
             </h2>
             <p class="text-gray-400 text-lg" v-if="currentTotalResults">
-              {{ currentTotalResults.toLocaleString() }} {{ activeCategory === 'movies' ? 'movies' : 'series' }} found
+              {{ currentTotalResults.toLocaleString() }} {{ activeCategory === 'movie' ? 'movies' : 'series' }} found
             </p>
           </div>
         </div>
@@ -256,7 +256,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 
-import type { Movie, TVSeries, MediaType } from '@/types/movie'
+import type { Movie, MediaType } from '@/types/movie'
 
 import SearchBar from '@/components/SearchBar.vue'
 import MovieGrid from '@/components/MovieGrid.vue'
@@ -273,54 +273,64 @@ const userStore = useUserStore()
 const tvStore = useTVStore()
 
 // State
-const selectedMovie = ref<Movie | null>(null)
 const currentAction = ref<string>('')
 const hoveringMovie = ref<Movie | null>(null)
 const hoverTimer = ref<number | null>(null)
-const activeCategory = ref<MediaType>('movies')
+const activeCategory = ref<MediaType>('movie')
 
 // Computed (welcome section removed - now using hero section)
 
 const currentSectionTitle = computed(() => {
-  const isSearching = activeCategory.value === 'movies' ? moviesStore.isSearching : tvStore.isSearching
-  const searchQuery = activeCategory.value === 'movies' ? moviesStore.searchQuery : tvStore.searchQuery
+  const isSearching = activeCategory.value === 'movie' ? moviesStore.isSearching : tvStore.isSearching
+  const searchQuery = activeCategory.value === 'movie' ? moviesStore.searchQuery : tvStore.searchQuery
   
   if (isSearching) {
     return `Search Results for "${searchQuery}"`
   }
   
-  return activeCategory.value === 'movies' ? 'Popular Movies' : 'Popular TV Series'
+  return activeCategory.value === 'movie' ? 'Popular Movies' : 'Popular TV Series'
 })
 
 const currentSectionIcon = computed(() => {
-  const isSearching = activeCategory.value === 'movies' ? moviesStore.isSearching : tvStore.isSearching
+  const isSearching = activeCategory.value === 'movie' ? moviesStore.isSearching : tvStore.isSearching
   
   if (isSearching) return '🔍'
-  return activeCategory.value === 'movies' ? '🎬' : '📺'
+  return activeCategory.value === 'movie' ? '🎬' : '📺'
 })
 
 const currentTotalResults = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.totalResults : tvStore.totalResults
+  return activeCategory.value === 'movie' ? moviesStore.totalResults : tvStore.totalResults
 })
 
 const currentLoading = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.loading : tvStore.loading
+  return activeCategory.value === 'movie' ? moviesStore.loading : tvStore.loading
 })
 
 const currentLoadingMore = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.loadingMore : tvStore.loadingMore
+  return activeCategory.value === 'movie' ? moviesStore.loadingMore : tvStore.loadingMore
 })
 
 const currentError = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.error : tvStore.error
+  return activeCategory.value === 'movie' ? moviesStore.error : tvStore.error
 })
 
 const currentCanLoadMore = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.canLoadMore : tvStore.canLoadMore
+  return activeCategory.value === 'movie' ? moviesStore.canLoadMore : tvStore.canLoadMore
 })
 
 const currentContent = computed(() => {
-  return activeCategory.value === 'movies' ? moviesStore.getCurrentMovies : tvStore.getCurrentSeries
+  if (activeCategory.value === 'movie') {
+    return moviesStore.getCurrentMovies
+  } else {
+    // Map TVSeries[] to Movie[]-like objects for MovieGrid
+    return tvStore.getCurrentSeries.map((series: any) => ({
+      ...series,
+      title: series.name,
+      release_date: series.first_air_date,
+      original_title: series.original_name || series.name,
+      video: false // TV series don't have this, set to false or handle as needed
+    }))
+  }
 })
 
 // Methods
@@ -329,7 +339,7 @@ const setActiveCategory = async (category: MediaType) => {
   
   activeCategory.value = category
   
-  if (category === 'movies') {
+  if (category === 'movie') {
     if (!moviesStore.hasPopularMovies) {
       await loadPopularMovies()
     }
@@ -353,7 +363,7 @@ const loadPopularTVSeries = async () => {
 const onSearch = async (query: string) => {
   currentAction.value = 'search'
   
-  if (activeCategory.value === 'movies') {
+  if (activeCategory.value === 'movie') {
     await moviesStore.searchMovies(query)
   } else {
     await tvStore.searchTVSeries(query)
@@ -361,7 +371,7 @@ const onSearch = async (query: string) => {
 }
 
 const onSearchClear = async () => {
-  if (activeCategory.value === 'movies') {
+  if (activeCategory.value === 'movie') {
     moviesStore.clearSearchResults()
     if (!moviesStore.hasPopularMovies) {
       await loadPopularMovies()
@@ -396,7 +406,7 @@ const goToRecommendations = () => {
 }
 
 const retryCurrentAction = async () => {
-  if (activeCategory.value === 'movies') {
+  if (activeCategory.value === 'movie') {
     if (currentAction.value === 'search') {
       await moviesStore.searchMovies(moviesStore.searchQuery)
     } else {
@@ -412,7 +422,7 @@ const retryCurrentAction = async () => {
 }
 
 const loadMoreContent = async () => {
-  if (activeCategory.value === 'movies') {
+  if (activeCategory.value === 'movie') {
     await moviesStore.loadMoreMovies()
   } else {
     await tvStore.loadMoreTVSeries()
@@ -432,9 +442,6 @@ const getMoviePoster = (posterPath: string | null): string => {
   return tmdbService.getImageUrl(posterPath, 'w300')
 }
 
-const formatYear = (dateString: string): string => {
-  return tmdbService.formatReleaseDate(dateString)
-}
 
 // Netflix-like interaction: prompt for auth when liking movies
 const handleMovieLike = (movie: Movie) => {

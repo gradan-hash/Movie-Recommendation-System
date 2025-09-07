@@ -432,6 +432,14 @@
 </template>
 
 <script setup lang="ts">
+// Add YouTube API types to window
+declare global {
+  interface Window {
+    YT: any
+    onYouTubeIframeAPIReady: () => void
+  }
+}
+
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { TMDBAPI, getSimilarMovies, getSimilarTVSeries, getMovieRecommendations, getTVSeriesRecommendations } from '@/api/tmdb'
@@ -481,9 +489,6 @@ const currentTime = ref(0)
 const duration = ref(0)
 const volume = ref(100)
 const isMuted = ref(false)
-const showSettings = ref(false)
-const selectedQuality = ref('720')
-const availableQualities = ref([480, 720, 1080])
 const progressBar = ref<HTMLElement | null>(null)
 
 // Player update interval
@@ -760,22 +765,7 @@ const seekTo = (event: MouseEvent) => {
   currentTime.value = newTime
 }
 
-const toggleFullscreen = () => {
-  const playerElement = document.getElementById('youtube-player')?.parentElement
-  if (!playerElement) return
-  
-  if (!document.fullscreenElement) {
-    playerElement.requestFullscreen()
-  } else {
-    document.exitFullscreen()
-  }
-}
 
-const changeQuality = () => {
-  // YouTube API doesn't provide direct quality control for embedded videos
-  // This would typically require a premium YouTube API or different video source
-  console.log(`Quality changed to: ${selectedQuality.value}p`)
-}
 
 // Utility Methods
 const formatTime = (seconds: number): string => {
@@ -1001,6 +991,7 @@ onUnmounted(() => {
 
 /* Custom Slider Styles */
 .slider {
+  appearance: none;
   -webkit-appearance: none;
   background: transparent;
 }

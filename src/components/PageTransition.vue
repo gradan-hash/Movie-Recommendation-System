@@ -75,7 +75,7 @@ const onBeforeLeave = (el: Element) => {
   htmlEl.style.transition = `all ${props.duration}ms ${props.easing}`
 }
 
-const onLeave = (el: Element, done: () => void) => {
+const onLeave = (_el: Element, done: () => void) => {
   setTimeout(() => {
     done()
   }, props.duration)

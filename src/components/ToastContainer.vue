@@ -67,7 +67,7 @@
 
           <!-- Progress Bar -->
           <div 
-            v-if="notification.duration > 0"
+            v-if="(notification.duration ?? 0) > 0"
             class="absolute bottom-0 left-0 h-1 bg-white/20 rounded-full transition-all duration-300 ease-linear"
             :class="getProgressClasses(notification.type)"
             :style="{ 
@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { globalToast, type ToastNotification } from '@/services/toast'
 
 // State
@@ -91,11 +91,12 @@ let progressInterval: number | null = null
 
 // Computed
 const getProgressWidth = (notification: ToastNotification): number => {
-  if (notification.duration <= 0) return 100
+  const duration = notification.duration ?? 0
+  if (duration <= 0) return 100
   
   const elapsed = Date.now() - notification.createdAt
-  const remaining = Math.max(0, notification.duration - elapsed)
-  return (remaining / notification.duration) * 100
+  const remaining = Math.max(0, duration - elapsed)
+  return (remaining / duration) * 100
 }
 
 // Methods
@@ -123,19 +124,19 @@ const getIconClasses = (type: ToastNotification['type']): string => {
   return typeClasses[type]
 }
 
-const getTitleClasses = (type: ToastNotification['type']): string => {
+const getTitleClasses = (_type: ToastNotification['type']): string => {
   return 'text-white'
 }
 
-const getMessageClasses = (type: ToastNotification['type']): string => {
+const getMessageClasses = (_type: ToastNotification['type']): string => {
   return 'text-white/90'
 }
 
-const getActionClasses = (type: ToastNotification['type']): string => {
+const getActionClasses = (_type: ToastNotification['type']): string => {
   return 'text-white/90 hover:text-white'
 }
 
-const getCloseClasses = (type: ToastNotification['type']): string => {
+const getCloseClasses = (_type: ToastNotification['type']): string => {
   return 'text-white/70 hover:text-white'
 }
 

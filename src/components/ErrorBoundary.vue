@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onErrorCaptured, onMounted } from 'vue'
+import { ref, onErrorCaptured, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { globalToast } from '@/services/toast'
 
@@ -250,7 +250,7 @@ const handleReport = () => {
 }
 
 // Vue error handling
-onErrorCaptured((err, instance, info) => {
+onErrorCaptured((err, _instance, info) => {
   handleError(err, info)
   return false // Prevent error from propagating
 })
@@ -274,7 +274,7 @@ onMounted(() => {
   window.addEventListener('error', (event) => {
     const target = event.target as HTMLScriptElement | HTMLLinkElement
     if (target && (target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
-      const error = new Error(`Failed to load ${target.tagName.toLowerCase()}: ${target.src || target.href}`)
+      const error = new Error(`Failed to load ${target.tagName.toLowerCase()}: ${target instanceof HTMLScriptElement ? target.src : target.href}`)
       handleError(error, 'Resource Loading Error')
     }
   }, true)
