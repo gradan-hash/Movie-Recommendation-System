@@ -29,6 +29,7 @@
               Search
             </router-link>
             <router-link 
+              v-if="userStore.isAuthenticated"
               to="/favorites" 
               class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
               active-class="text-white font-semibold"
@@ -39,7 +40,7 @@
               </span>
             </router-link>
             <router-link 
-              v-if="userStore.canGetRecommendations"
+              v-if="userStore.isAuthenticated && userStore.canGetRecommendations"
               to="/recommendations" 
               class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
               active-class="text-white font-semibold"
@@ -49,6 +50,46 @@
                 New
               </span>
             </router-link>
+
+            <!-- Authentication UI -->
+            <div v-if="userStore.isAuthenticated" class="flex items-center gap-3">
+              <!-- User Profile Button -->
+              <router-link 
+                to="/profile"
+                class="flex items-center gap-2 text-red-100 hover:text-white transition-colors"
+                active-class="text-white font-semibold"
+              >
+                <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm font-semibold">
+                  {{ userStore.userInitials }}
+                </div>
+                <span class="hidden lg:inline">{{ userStore.userDisplayName }}</span>
+              </router-link>
+
+              <!-- Logout Button -->
+              <button
+                @click="handleLogout"
+                class="text-red-100 hover:text-white transition-colors text-sm"
+                :disabled="loggingOut"
+              >
+                {{ loggingOut ? 'Signing out...' : 'Sign Out' }}
+              </button>
+            </div>
+
+            <!-- Login/Register Buttons -->
+            <div v-else class="flex items-center gap-3">
+              <button
+                @click="openAuthModal('login')"
+                class="text-red-100 hover:text-white transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                @click="openAuthModal('register')"
+                class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Sign Up
+              </button>
+            </div>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -81,26 +122,64 @@
             >
               🔍 Search
             </router-link>
-            <router-link 
-              to="/favorites" 
-              @click="closeMobileMenu"
-              class="text-red-100 hover:text-white transition-colors flex items-center gap-2"
-              active-class="text-white font-semibold"
-            >
-              ❤️ Favorites
-              <span v-if="userStore.likedMoviesCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {{ userStore.likedMoviesCount }}
-              </span>
-            </router-link>
-            <router-link 
-              v-if="userStore.canGetRecommendations"
-              to="/recommendations" 
-              @click="closeMobileMenu"
-              class="text-red-100 hover:text-white transition-colors"
-              active-class="text-white font-semibold"
-            >
-              🤖 AI Recommendations
-            </router-link>
+            
+            <!-- Authenticated Mobile Menu -->
+            <template v-if="userStore.isAuthenticated">
+              <router-link 
+                to="/favorites" 
+                @click="closeMobileMenu"
+                class="text-red-100 hover:text-white transition-colors flex items-center gap-2"
+                active-class="text-white font-semibold"
+              >
+                ❤️ Favorites
+                <span v-if="userStore.likedMoviesCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  {{ userStore.likedMoviesCount }}
+                </span>
+              </router-link>
+              <router-link 
+                v-if="userStore.canGetRecommendations"
+                to="/recommendations" 
+                @click="closeMobileMenu"
+                class="text-red-100 hover:text-white transition-colors"
+                active-class="text-white font-semibold"
+              >
+                🤖 AI Recommendations
+              </router-link>
+              <router-link 
+                to="/profile" 
+                @click="closeMobileMenu"
+                class="text-red-100 hover:text-white transition-colors flex items-center gap-2"
+                active-class="text-white font-semibold"
+              >
+                <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-semibold">
+                  {{ userStore.userInitials }}
+                </div>
+                👤 {{ userStore.userDisplayName }}
+              </router-link>
+              <button
+                @click="handleLogout"
+                class="text-left text-red-100 hover:text-white transition-colors"
+                :disabled="loggingOut"
+              >
+                🚪 {{ loggingOut ? 'Signing out...' : 'Sign Out' }}
+              </button>
+            </template>
+
+            <!-- Guest Mobile Menu -->
+            <template v-else>
+              <button
+                @click="openAuthModal('login')"
+                class="text-left text-red-100 hover:text-white transition-colors"
+              >
+                🔐 Sign In
+              </button>
+              <button
+                @click="openAuthModal('register')"
+                class="text-left bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                📝 Sign Up
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -120,18 +199,28 @@
         Professional Vue Router Architecture ✨
       </div>
     </footer>
+
+    <!-- Authentication Modal -->
+    <AuthModal 
+      :is-open="userStore.showAuthModal"
+      :initial-mode="userStore.authModalMode"
+      @close="userStore.closeAuthModal"
+      @success="onAuthSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import AuthModal from '@/components/AuthModal.vue'
 
 // Store
 const userStore = useUserStore()
 
-// Mobile menu state
+// State
 const showMobileMenu = ref(false)
+const loggingOut = ref(false)
 
 // Methods
 const toggleMobileMenu = () => {
@@ -142,8 +231,31 @@ const closeMobileMenu = () => {
   showMobileMenu.value = false
 }
 
+const openAuthModal = (mode: 'login' | 'register') => {
+  userStore.openAuthModal(mode)
+  closeMobileMenu()
+}
+
+const handleLogout = async () => {
+  loggingOut.value = true
+  closeMobileMenu()
+  
+  try {
+    await userStore.logout()
+  } catch (error) {
+    console.error('Logout failed:', error)
+  } finally {
+    loggingOut.value = false
+  }
+}
+
+const onAuthSuccess = (type: 'login' | 'register' | 'reset') => {
+  console.log(`Authentication success: ${type}`)
+}
+
 // Initialize user store
 onMounted(() => {
+  userStore.initializeAuth()
   userStore.loadFromLocalStorage()
 })
 </script>

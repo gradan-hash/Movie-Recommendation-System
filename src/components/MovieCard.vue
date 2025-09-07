@@ -52,19 +52,33 @@
 
     <!-- Hover overlay with action buttons -->
     <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-      <div class="flex gap-3">
+      <div class="flex flex-col gap-3">
+        <!-- Watch Button (Primary) -->
         <button 
-          @click.stop="emit('view-details', movie)"
-          class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors duration-200"
+          @click.stop="emit('watch', movie)"
+          class="bg-red-600 text-white px-6 py-3 rounded-full font-bold text-lg hover:bg-red-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
         >
-          View Details
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
+          </svg>
+          Watch Now
         </button>
-        <button 
-          @click.stop="toggleLike"
-          class="bg-red-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-red-700 transition-colors duration-200"
-        >
-          {{ isLiked ? 'Unlike' : 'Like' }}
-        </button>
+        
+        <!-- Secondary Actions -->
+        <div class="flex gap-2">
+          <button 
+            @click.stop="emit('view-details', movie)"
+            class="bg-gray-700 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-gray-600 transition-colors duration-200"
+          >
+            Details
+          </button>
+          <button 
+            @click.stop="toggleLike"
+            class="bg-gray-700 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-gray-600 transition-colors duration-200 flex items-center gap-1"
+          >
+            {{ isLiked ? '❤️' : '🤍' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -90,6 +104,7 @@ const emit = defineEmits<{
   click: [movie: Movie]
   'view-details': [movie: Movie]
   'toggle-like': [movie: Movie]
+  watch: [movie: Movie]
 }>()
 
 // Reactive state
@@ -117,8 +132,8 @@ const onImageError = () => {
 }
 
 const toggleLike = () => {
-  // Emit to parent component
-  // Parent will handle the actual like/unlike logic
+  // Emit to parent component with authentication requirement
+  // Parent will handle the actual like/unlike logic and authentication check
   emit('toggle-like', props.movie)
 }
 </script>

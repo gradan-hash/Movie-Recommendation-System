@@ -52,6 +52,7 @@
           @click="$emit('movie-click', movie)"
           @view-details="$emit('view-details', movie)"
           @toggle-like="$emit('toggle-like', movie)"
+          @watch="$emit('watch-movie', movie)"
         />
       </div>
 
@@ -113,6 +114,7 @@ defineEmits<{
   'movie-click': [movie: Movie]
   'view-details': [movie: Movie]
   'toggle-like': [movie: Movie]
+  'watch-movie': [movie: Movie]
   'load-more': []
   'retry': []
 }>()

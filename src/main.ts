@@ -15,6 +15,7 @@ app.use(pinia)
 // Mount the app
 app.mount('#app')
 
-// Initialize user store with localStorage data
+// Initialize user store with authentication and localStorage data
 const userStore = useUserStore()
+userStore.initializeAuth()
 userStore.loadFromLocalStorage()

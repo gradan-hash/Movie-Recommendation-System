@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
+import { authService } from '@/services/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +19,8 @@ const router = createRouter({
     {
       path: '/favorites',
       name: 'favorites', 
-      component: () => import('@/views/FavoritesView.vue')
+      component: () => import('@/views/FavoritesView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/movie/:id',
@@ -27,9 +29,30 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/watch/movie/:id',
+      name: 'watch-movie',
+      component: () => import('@/views/WatchView.vue'),
+      props: true,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/watch/series/:id',
+      name: 'watch-series',
+      component: () => import('@/views/WatchView.vue'),
+      props: true,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/recommendations',
       name: 'recommendations',
-      component: () => import('@/views/RecommendationsView.vue')
+      component: () => import('@/views/RecommendationsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/ProfileView.vue'),
+      meta: { requiresAuth: true }
     },
     // 404 handling
     {
@@ -44,6 +67,25 @@ const router = createRouter({
     } else {
       return { top: 0 }
     }
+  }
+})
+
+// Route guards
+router.beforeEach((to, _from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const isAuthenticated = authService.isAuthenticated()
+
+  if (requiresAuth && !isAuthenticated) {
+    // Redirect to home with a query parameter to indicate auth is needed
+    next({ 
+      name: 'home', 
+      query: { 
+        redirect: to.fullPath,
+        auth: 'required'
+      } 
+    })
+  } else {
+    next()
   }
 })
 

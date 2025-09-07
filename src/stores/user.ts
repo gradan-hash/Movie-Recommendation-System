@@ -1,9 +1,20 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Movie } from '@/types/movie'
+import { AuthAPI, type AuthResponse } from '@/api/auth'
+import { authService, type User } from '@/services/auth'
 
 export const useUserStore = defineStore('user', () => {
-  // State
+  // Authentication State
+  const currentUser = ref<User | null>(null)
+  const isAuthenticated = ref(false)
+  const authLoading = ref(true)
+
+  // Auth Modal State
+  const showAuthModal = ref(false)
+  const authModalMode = ref<'login' | 'register'>('login')
+
+  // Movie Preferences State
   const likedMovies = ref<Movie[]>([])
   const preferences = ref({
     darkMode: true,
@@ -23,7 +34,229 @@ export const useUserStore = defineStore('user', () => {
 
   const canGetRecommendations = computed(() => likedMovies.value.length >= 3)
 
-  // Actions
+  // Authentication Computed
+  const userDisplayName = computed(() => currentUser.value?.displayName || currentUser.value?.email || 'User')
+  const userInitials = computed(() => {
+    const name = userDisplayName.value
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+  })
+
+  // Auth Modal Actions
+  const openAuthModal = (mode: 'login' | 'register' = 'login') => {
+    authModalMode.value = mode
+    showAuthModal.value = true
+    console.log(`🔐 Store: Auth modal opened in ${mode} mode`)
+  }
+
+  const closeAuthModal = () => {
+    showAuthModal.value = false
+    console.log('🔐 Store: Auth modal closed')
+  }
+
+  // Authentication Actions using API endpoints
+  const login = async (email: string, password: string) => {
+    authLoading.value = true
+    try {
+      console.log('🔐 Store: Attempting login via API endpoint')
+      
+      const response: AuthResponse = await AuthAPI.login({ email, password })
+      
+      if (response.success && response.data) {
+        console.log('✅ Store: Login API response successful')
+        
+        // Map API response to User type
+        const user: User = {
+          uid: response.data.uid,
+          email: response.data.email,
+          displayName: response.data.displayName,
+          photoURL: null,
+          emailVerified: response.data.emailVerified
+        }
+        
+        currentUser.value = user
+        isAuthenticated.value = true
+        await loadFromLocalStorage()
+        
+        return user
+      } else {
+        console.error('❌ Store: Login API failed:', response.error)
+        throw new Error(response.error || 'Login failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Store: Login error:', error.message)
+      throw error
+    } finally {
+      authLoading.value = false
+    }
+  }
+
+  const register = async (email: string, password: string, displayName?: string) => {
+    authLoading.value = true
+    try {
+      console.log('📝 Store: Attempting registration via API endpoint')
+      
+      const response: AuthResponse = await AuthAPI.register({ 
+        email, 
+        password, 
+        displayName 
+      })
+      
+      if (response.success && response.data) {
+        console.log('✅ Store: Registration API response successful')
+        
+        // Map API response to User type
+        const user: User = {
+          uid: response.data.uid,
+          email: response.data.email,
+          displayName: response.data.displayName,
+          photoURL: null,
+          emailVerified: response.data.emailVerified
+        }
+        
+        currentUser.value = user
+        isAuthenticated.value = true
+        
+        return user
+      } else {
+        console.error('❌ Store: Registration API failed:', response.error)
+        throw new Error(response.error || 'Registration failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Store: Registration error:', error.message)
+      throw error
+    } finally {
+      authLoading.value = false
+    }
+  }
+
+  const logout = async () => {
+    try {
+      console.log('🚪 Store: Attempting logout via API endpoint')
+      
+      const response: AuthResponse = await AuthAPI.logout()
+      
+      if (response.success) {
+        console.log('✅ Store: Logout API response successful')
+        
+        currentUser.value = null
+        isAuthenticated.value = false
+        clearUserData()
+      } else {
+        console.error('❌ Store: Logout API failed:', response.error)
+        throw new Error(response.error || 'Logout failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Store: Logout error:', error.message)
+      throw error
+    }
+  }
+
+  const resetPassword = async (email: string) => {
+    try {
+      console.log('🔄 Store: Attempting password reset via API endpoint')
+      
+      const response: AuthResponse = await AuthAPI.resetPassword({ email })
+      
+      if (response.success) {
+        console.log('✅ Store: Password reset API response successful')
+      } else {
+        console.error('❌ Store: Password reset API failed:', response.error)
+        throw new Error(response.error || 'Password reset failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Store: Password reset error:', error.message)
+      throw error
+    }
+  }
+
+  const updateProfile = async (displayName?: string, photoURL?: string) => {
+    try {
+      console.log('👤 Store: Attempting profile update via API endpoint')
+      
+      const response: AuthResponse = await AuthAPI.updateProfile(displayName, photoURL)
+      
+      if (response.success && response.data) {
+        console.log('✅ Store: Profile update API response successful')
+        
+        // Update local user state
+        if (currentUser.value) {
+          currentUser.value.displayName = response.data.displayName
+          currentUser.value.photoURL = photoURL || currentUser.value.photoURL
+        }
+      } else {
+        console.error('❌ Store: Profile update API failed:', response.error)
+        throw new Error(response.error || 'Profile update failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Store: Profile update error:', error.message)
+      throw error
+    }
+  }
+
+  const clearUserData = () => {
+    likedMovies.value = []
+    preferences.value = {
+      darkMode: true,
+      autoPlay: false,
+      showAdultContent: false,
+      preferredLanguage: 'en'
+    }
+    // Clear localStorage
+    localStorage.removeItem('cinemaai-user-data')
+  }
+
+  // Initialize authentication state
+  const initializeAuth = () => {
+    console.log('🔧 Store: Initializing auth state')
+    
+    // Check Firebase configuration first
+    const configCheck = AuthAPI.checkConfiguration()
+    if (!configCheck.isValid) {
+      console.error('❌ Store: Firebase configuration invalid:', configCheck.errors)
+      authLoading.value = false
+      return
+    }
+    
+    console.log('✅ Store: Firebase configuration valid')
+    
+    // Set up auth state listener
+    authService.onAuthStateChange((user) => {
+      console.log('🔄 Store: Auth state changed:', user ? `User: ${user.uid}` : 'No user')
+      
+      currentUser.value = user
+      isAuthenticated.value = !!user
+      authLoading.value = false
+      
+      if (user) {
+        loadFromLocalStorage()
+      } else {
+        clearUserData()
+      }
+    })
+
+    // Check current user via API
+    const currentUserResponse = AuthAPI.getCurrentUser()
+    if (currentUserResponse.success && currentUserResponse.data) {
+      console.log('✅ Store: Found current user via API:', currentUserResponse.data.uid)
+      
+      const user: User = {
+        uid: currentUserResponse.data.uid,
+        email: currentUserResponse.data.email,
+        displayName: currentUserResponse.data.displayName,
+        photoURL: null,
+        emailVerified: currentUserResponse.data.emailVerified
+      }
+      
+      currentUser.value = user
+      isAuthenticated.value = true
+    } else {
+      console.log('ℹ️ Store: No current user found')
+    }
+    
+    authLoading.value = false
+  }
+
+  // Movie Actions
   const likeMovie = (movie: Movie) => {
     const exists = likedMovies.value.find(liked => liked.id === movie.id)
     if (!exists) {
@@ -165,18 +398,43 @@ export const useUserStore = defineStore('user', () => {
   })
 
   return {
-    // State
+    // Authentication State
+    currentUser,
+    isAuthenticated,
+    authLoading,
+    
+    // Auth Modal State
+    showAuthModal,
+    authModalMode,
+    
+    // Movie State
     likedMovies,
     preferences,
     
-    // Computed
+    // Authentication Computed
+    userDisplayName,
+    userInitials,
+    
+    // Movie Computed
     likedMovieIds,
     likedMoviesCount,
     hasLikedMovies,
     canGetRecommendations,
     getMovieStats,
     
-    // Actions
+    // Auth Modal Actions
+    openAuthModal,
+    closeAuthModal,
+    
+    // Authentication Actions
+    login,
+    register,
+    logout,
+    resetPassword,
+    updateProfile,
+    initializeAuth,
+    
+    // Movie Actions
     likeMovie,
     unlikeMovie,
     toggleLike,
