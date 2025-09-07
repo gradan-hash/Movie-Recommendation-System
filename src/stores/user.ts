@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { globalLoader } from '@/services/loader'
+import { globalToast } from '@/services/toast'
 import type { Movie } from '@/types/movie'
 import { AuthAPI, type AuthResponse } from '@/api/auth'
 import { authService, type User } from '@/services/auth'
@@ -55,142 +57,215 @@ export const useUserStore = defineStore('user', () => {
 
   // Authentication Actions using API endpoints
   const login = async (email: string, password: string) => {
-    authLoading.value = true
-    try {
-      console.log('🔐 Store: Attempting login via API endpoint')
-      
-      const response: AuthResponse = await AuthAPI.login({ email, password })
-      
-      if (response.success && response.data) {
-        console.log('✅ Store: Login API response successful')
-        
-        // Map API response to User type
-        const user: User = {
-          uid: response.data.uid,
-          email: response.data.email,
-          displayName: response.data.displayName,
-          photoURL: null,
-          emailVerified: response.data.emailVerified
+    return globalLoader.wrapAPICall(
+      async () => {
+        authLoading.value = true
+        try {
+          console.log('🔐 Store: Attempting login via API endpoint')
+          
+          const response: AuthResponse = await AuthAPI.login({ email, password })
+          
+          if (response.success && response.data) {
+            console.log('✅ Store: Login API response successful')
+            
+            // Map API response to User type
+            const user: User = {
+              uid: response.data.uid,
+              email: response.data.email,
+              displayName: response.data.displayName,
+              photoURL: null,
+              emailVerified: response.data.emailVerified
+            }
+            
+            currentUser.value = user
+            isAuthenticated.value = true
+            await loadFromLocalStorage()
+            
+            // Show success toast
+            globalToast.loginSuccess(user.displayName || user.email)
+            
+            return user
+          } else {
+            console.error('❌ Store: Login API failed:', response.error)
+            throw new Error(response.error || 'Login failed')
+          }
+        } catch (error: any) {
+          console.error('❌ Store: Login error:', error.message)
+          
+          // Show error toast
+          globalToast.authError(error.message || 'Failed to sign in. Please try again.')
+          
+          throw error
+        } finally {
+          authLoading.value = false
         }
-        
-        currentUser.value = user
-        isAuthenticated.value = true
-        await loadFromLocalStorage()
-        
-        return user
-      } else {
-        console.error('❌ Store: Login API failed:', response.error)
-        throw new Error(response.error || 'Login failed')
-      }
-    } catch (error: any) {
-      console.error('❌ Store: Login error:', error.message)
-      throw error
-    } finally {
-      authLoading.value = false
-    }
+      },
+      'Signing you in...',
+      `login-${email}`
+    )
   }
 
   const register = async (email: string, password: string, displayName?: string) => {
-    authLoading.value = true
-    try {
-      console.log('📝 Store: Attempting registration via API endpoint')
-      
-      const response: AuthResponse = await AuthAPI.register({ 
-        email, 
-        password, 
-        displayName 
-      })
-      
-      if (response.success && response.data) {
-        console.log('✅ Store: Registration API response successful')
-        
-        // Map API response to User type
-        const user: User = {
-          uid: response.data.uid,
-          email: response.data.email,
-          displayName: response.data.displayName,
-          photoURL: null,
-          emailVerified: response.data.emailVerified
+    return globalLoader.wrapAPICall(
+      async () => {
+        authLoading.value = true
+        try {
+          console.log('📝 Store: Attempting registration via API endpoint')
+          
+          const response: AuthResponse = await AuthAPI.register({ 
+            email, 
+            password, 
+            displayName 
+          })
+          
+          if (response.success && response.data) {
+            console.log('✅ Store: Registration API response successful')
+            
+            // Map API response to User type
+            const user: User = {
+              uid: response.data.uid,
+              email: response.data.email,
+              displayName: response.data.displayName,
+              photoURL: null,
+              emailVerified: response.data.emailVerified
+            }
+            
+            currentUser.value = user
+            isAuthenticated.value = true
+            
+            // Show success toast
+            globalToast.registerSuccess(user.displayName || user.email)
+            
+            return user
+          } else {
+            console.error('❌ Store: Registration API failed:', response.error)
+            throw new Error(response.error || 'Registration failed')
+          }
+        } catch (error: any) {
+          console.error('❌ Store: Registration error:', error.message)
+          
+          // Show error toast
+          globalToast.authError(error.message || 'Failed to create account. Please try again.')
+          
+          throw error
+        } finally {
+          authLoading.value = false
         }
-        
-        currentUser.value = user
-        isAuthenticated.value = true
-        
-        return user
-      } else {
-        console.error('❌ Store: Registration API failed:', response.error)
-        throw new Error(response.error || 'Registration failed')
-      }
-    } catch (error: any) {
-      console.error('❌ Store: Registration error:', error.message)
-      throw error
-    } finally {
-      authLoading.value = false
-    }
+      },
+      'Creating your account...',
+      `register-${email}`
+    )
   }
 
   const logout = async () => {
-    try {
-      console.log('🚪 Store: Attempting logout via API endpoint')
-      
-      const response: AuthResponse = await AuthAPI.logout()
-      
-      if (response.success) {
-        console.log('✅ Store: Logout API response successful')
-        
-        currentUser.value = null
-        isAuthenticated.value = false
-        clearUserData()
-      } else {
-        console.error('❌ Store: Logout API failed:', response.error)
-        throw new Error(response.error || 'Logout failed')
-      }
-    } catch (error: any) {
-      console.error('❌ Store: Logout error:', error.message)
-      throw error
-    }
+    return globalLoader.wrapAPICall(
+      async () => {
+        try {
+          console.log('🚪 Store: Attempting logout via API endpoint')
+          
+          const response: AuthResponse = await AuthAPI.logout()
+          
+          if (response.success) {
+            console.log('✅ Store: Logout API response successful')
+            
+            currentUser.value = null
+            isAuthenticated.value = false
+            clearUserData()
+            
+            // Show success toast
+            globalToast.logoutSuccess()
+          } else {
+            console.error('❌ Store: Logout API failed:', response.error)
+            throw new Error(response.error || 'Logout failed')
+          }
+        } catch (error: any) {
+          console.error('❌ Store: Logout error:', error.message)
+          
+          // Show error toast
+          globalToast.authError(error.message || 'Failed to sign out. Please try again.')
+          
+          throw error
+        }
+      },
+      'Signing you out...',
+      'logout'
+    )
   }
 
   const resetPassword = async (email: string) => {
-    try {
-      console.log('🔄 Store: Attempting password reset via API endpoint')
-      
-      const response: AuthResponse = await AuthAPI.resetPassword({ email })
-      
-      if (response.success) {
-        console.log('✅ Store: Password reset API response successful')
-      } else {
-        console.error('❌ Store: Password reset API failed:', response.error)
-        throw new Error(response.error || 'Password reset failed')
-      }
-    } catch (error: any) {
-      console.error('❌ Store: Password reset error:', error.message)
-      throw error
-    }
+    return globalLoader.wrapAPICall(
+      async () => {
+        try {
+          console.log('🔄 Store: Attempting password reset via API endpoint')
+          
+          const response: AuthResponse = await AuthAPI.resetPassword({ email })
+          
+          if (response.success) {
+            console.log('✅ Store: Password reset API response successful')
+            
+            // Show success toast
+            globalToast.success(
+              'Password Reset Sent',
+              'Check your email for password reset instructions',
+              { icon: '📧', duration: 5000 }
+            )
+          } else {
+            console.error('❌ Store: Password reset API failed:', response.error)
+            throw new Error(response.error || 'Password reset failed')
+          }
+        } catch (error: any) {
+          console.error('❌ Store: Password reset error:', error.message)
+          
+          // Show error toast
+          globalToast.authError(error.message || 'Failed to send password reset email.')
+          
+          throw error
+        }
+      },
+      'Sending password reset...',
+      `reset-password-${email}`
+    )
   }
 
   const updateProfile = async (displayName?: string, photoURL?: string) => {
-    try {
-      console.log('👤 Store: Attempting profile update via API endpoint')
-      
-      const response: AuthResponse = await AuthAPI.updateProfile(displayName, photoURL)
-      
-      if (response.success && response.data) {
-        console.log('✅ Store: Profile update API response successful')
-        
-        // Update local user state
-        if (currentUser.value) {
-          currentUser.value.displayName = response.data.displayName
-          currentUser.value.photoURL = photoURL || currentUser.value.photoURL
+    return globalLoader.wrapAPICall(
+      async () => {
+        try {
+          console.log('👤 Store: Attempting profile update via API endpoint')
+          
+          const response: AuthResponse = await AuthAPI.updateProfile(displayName, photoURL)
+          
+          if (response.success && response.data) {
+            console.log('✅ Store: Profile update API response successful')
+            
+            // Update local user state
+            if (currentUser.value) {
+              currentUser.value.displayName = response.data.displayName
+              currentUser.value.photoURL = photoURL || currentUser.value.photoURL
+            }
+            
+            // Show success toast
+            globalToast.success(
+              'Profile Updated',
+              'Your profile has been updated successfully',
+              { icon: '👤', duration: 3000 }
+            )
+          } else {
+            console.error('❌ Store: Profile update API failed:', response.error)
+            throw new Error(response.error || 'Profile update failed')
+          }
+        } catch (error: any) {
+          console.error('❌ Store: Profile update error:', error.message)
+          
+          // Show error toast  
+          globalToast.authError(error.message || 'Failed to update profile.')
+          
+          throw error
         }
-      } else {
-        console.error('❌ Store: Profile update API failed:', response.error)
-        throw new Error(response.error || 'Profile update failed')
-      }
-    } catch (error: any) {
-      console.error('❌ Store: Profile update error:', error.message)
-      throw error
-    }
+      },
+      'Updating your profile...',
+      'update-profile'
+    )
   }
 
   const clearUserData = () => {
@@ -219,41 +294,37 @@ export const useUserStore = defineStore('user', () => {
     
     console.log('✅ Store: Firebase configuration valid')
     
-    // Set up auth state listener
+    // Set up auth state listener - this handles persistence automatically
     authService.onAuthStateChange((user) => {
+      const wasLoading = authLoading.value
+      const wasAuthenticated = isAuthenticated.value
+      
       console.log('🔄 Store: Auth state changed:', user ? `User: ${user.uid}` : 'No user')
+      console.log('📊 Store: Previous state - Loading:', wasLoading, 'Authenticated:', wasAuthenticated)
       
       currentUser.value = user
       isAuthenticated.value = !!user
       authLoading.value = false
       
       if (user) {
+        console.log('✅ Store: User authenticated, loading data')
         loadFromLocalStorage()
+        
+        // Close auth modal if it was open
+        if (showAuthModal.value) {
+          console.log('🔐 Store: Closing auth modal - user is now authenticated')
+          closeAuthModal()
+        }
       } else {
+        console.log('ℹ️ Store: No user, clearing data')
         clearUserData()
       }
+      
+      console.log('📊 Store: New state - Loading:', authLoading.value, 'Authenticated:', isAuthenticated.value)
     })
 
-    // Check current user via API
-    const currentUserResponse = AuthAPI.getCurrentUser()
-    if (currentUserResponse.success && currentUserResponse.data) {
-      console.log('✅ Store: Found current user via API:', currentUserResponse.data.uid)
-      
-      const user: User = {
-        uid: currentUserResponse.data.uid,
-        email: currentUserResponse.data.email,
-        displayName: currentUserResponse.data.displayName,
-        photoURL: null,
-        emailVerified: currentUserResponse.data.emailVerified
-      }
-      
-      currentUser.value = user
-      isAuthenticated.value = true
-    } else {
-      console.log('ℹ️ Store: No current user found')
-    }
-    
-    authLoading.value = false
+    // Let Firebase handle the persistence - don't check immediately
+    console.log('⏳ Store: Waiting for Firebase auth state...')
   }
 
   // Movie Actions
@@ -263,6 +334,9 @@ export const useUserStore = defineStore('user', () => {
       likedMovies.value.push(movie)
       saveToLocalStorage()
       console.log(`❤️ Liked: ${movie.title}`)
+      
+      // Show success toast
+      globalToast.movieLiked(movie.title)
     }
   }
 
@@ -272,6 +346,9 @@ export const useUserStore = defineStore('user', () => {
       const removedMovie = likedMovies.value.splice(index, 1)[0]
       saveToLocalStorage()
       console.log(`💔 Unliked: ${removedMovie.title}`)
+      
+      // Show info toast
+      globalToast.movieUnliked(removedMovie.title)
     }
   }
 

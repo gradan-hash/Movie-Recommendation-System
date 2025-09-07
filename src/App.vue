@@ -185,9 +185,15 @@
       </div>
     </header>
 
-    <!-- Main Content Router View -->
-    <main>
-      <router-view />
+    <!-- Main Content Router View with Smooth Transitions -->
+    <main class="relative">
+      <PageTransition type="cinema">
+        <router-view v-slot="{ Component, route }">
+          <KeepAlive :include="['HomeView', 'SearchView']" :max="3">
+            <component :is="Component" :key="route.path" />
+          </KeepAlive>
+        </router-view>
+      </PageTransition>
     </main>
 
     <!-- Footer redo footer show about us contact infor etc and etc  -->
@@ -207,16 +213,29 @@
       @close="userStore.closeAuthModal"
       @success="onAuthSuccess"
     />
+
+    <!-- Global Loader -->
+    <GlobalLoader />
+
+    <!-- Toast Notifications -->
+    <ToastContainer />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, KeepAlive } from 'vue'
 import { useUserStore } from '@/stores/user'
 import AuthModal from '@/components/AuthModal.vue'
+import GlobalLoader from '@/components/GlobalLoader.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
+import PageTransition from '@/components/PageTransition.vue'
+import { usePerformance } from '@/composables/usePerformance'
 
 // Store
 const userStore = useUserStore()
+
+// Performance optimization
+const { startMonitoring, preloadResource, applyCriticalOptimizations } = usePerformance()
 
 // State
 const showMobileMenu = ref(false)
@@ -253,10 +272,29 @@ const onAuthSuccess = (type: 'login' | 'register' | 'reset') => {
   console.log(`Authentication success: ${type}`)
 }
 
-// Initialize user store
-onMounted(() => {
+// Initialize user store and performance optimizations
+onMounted(async () => {
+  // Initialize authentication
   userStore.initializeAuth()
   userStore.loadFromLocalStorage()
+  
+  // Apply performance optimizations
+  applyCriticalOptimizations()
+  startMonitoring()
+  
+  // Preload critical resources
+  preloadResource('/api/movies/popular', 'fetch')
+  preloadResource('https://www.youtube.com/iframe_api', 'script')
+  
+  // Optimize images for better loading
+  setTimeout(() => {
+    const images = document.querySelectorAll('img:not([data-src])')
+    images.forEach((img) => {
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', 'lazy')
+      }
+    })
+  }, 100)
 })
 </script>
 

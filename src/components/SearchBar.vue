@@ -157,13 +157,8 @@ const debounceTimer = ref<ReturnType<typeof setTimeout>>()
 // Popular search suggestions
 const suggestions = ref([
   'Marvel Universe',
-  'Christopher Nolan', 
   'Sci-Fi Thrillers',
-  'Oscar Winners 2024',
-  'Netflix Originals',
   'Horror Classics',
-  'Rom-Com Favorites',
-  'Mind-Bending Movies'
 ])
 
 // Quick filters

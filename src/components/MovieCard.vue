@@ -55,13 +55,18 @@
       <div class="flex flex-col gap-3">
         <!-- Watch Button (Primary) -->
         <button 
-          @click.stop="emit('watch', movie)"
-          class="bg-red-600 text-white px-6 py-3 rounded-full font-bold text-lg hover:bg-red-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+          @click.stop="handleWatchClick"
+          :disabled="isAuthLoading"
+          class="bg-red-600 text-white px-6 py-3 rounded-full font-bold text-lg hover:bg-red-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="!isAuthLoading" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
           </svg>
-          Watch Now
+          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isAuthLoading ? 'Checking...' : 'Watch Now' }}
         </button>
         
         <!-- Secondary Actions -->
@@ -86,6 +91,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useUserStore } from '@/stores'
 import { tmdbService } from '@/services/tmdb'
 import type { Movie } from '@/types/movie'
 
@@ -107,13 +113,17 @@ const emit = defineEmits<{
   watch: [movie: Movie]
 }>()
 
+// Store
+const userStore = useUserStore()
+
 // Reactive state
 const imageError = ref(false)
 
 // Computed properties
+const isAuthLoading = computed(() => userStore.authLoading)
 const posterUrl = computed(() => {
   if (imageError.value || !props.movie.poster_path) {
-    return 'https://via.placeholder.com/300x450/374151/9CA3AF?text=No+Image'
+    return 'https://unsplash.com/photos/a-row-of-red-seats-in-a-theater-6dVGbYs-jRw'
   }
   return tmdbService.getImageUrl(props.movie.poster_path, 'w500')
 })
@@ -136,12 +146,24 @@ const toggleLike = () => {
   // Parent will handle the actual like/unlike logic and authentication check
   emit('toggle-like', props.movie)
 }
+
+const handleWatchClick = () => {
+  // Check if auth is still loading to avoid race conditions
+  if (userStore.authLoading) {
+    console.log('⏳ Auth still loading, please wait...')
+    return
+  }
+  
+  // Emit to parent - parent will handle auth checking and navigation
+  emit('watch', props.movie)
+}
 </script>
 
 <style scoped>
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -149,6 +171,7 @@ const toggleLike = () => {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

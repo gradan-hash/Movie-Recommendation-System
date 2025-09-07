@@ -25,7 +25,7 @@
         </div>
 
         <!-- Search Bar -->
-        <div class="mb-12">
+        <div class="mb-14">
           <SearchBar
             :is-searching="moviesStore.loading"
             :total-results="moviesStore.totalResults"
@@ -35,25 +35,6 @@
           />
         </div>
 
-        <!-- Stats Row -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-12">
-          <div class="text-center">
-            <div class="text-3xl font-bold text-red-400 mb-2">500K+</div>
-            <div class="text-gray-400 text-sm">Movies</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl font-bold text-purple-400 mb-2">10M+</div>
-            <div class="text-gray-400 text-sm">Reviews</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl font-bold text-blue-400 mb-2">AI</div>
-            <div class="text-gray-400 text-sm">Powered</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl font-bold text-green-400 mb-2">Free</div>
-            <div class="text-gray-400 text-sm">Forever</div>
-          </div>
-        </div>
       </div>
 
       <!-- Scroll Down Indicator -->
@@ -187,103 +168,86 @@
         </div>
       </section>
 
-      <!-- Movies Section -->
+      <!-- Content Categories Section -->
       <section class="relative">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div>
-            <h2 class="text-3xl font-bold text-white flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-red-500 rounded-2xl flex items-center justify-center text-xl">
+        <!-- Category Tabs -->
+        <div class="flex flex-col gap-6 mb-8">
+          <!-- Tab Navigation -->
+          <div class="flex items-center justify-center">
+            <div class="bg-gray-800/80 backdrop-blur-lg rounded-2xl p-2 border border-gray-700/50">
+              <div class="flex gap-2">
+                <button
+                  @click="setActiveCategory('movies')"
+                  class="relative px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  :class="activeCategory === 'movies' 
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
+                >
+                  <span class="relative z-10 flex items-center gap-2">
+                    🎬 Movies
+                    <span v-if="moviesStore.totalResults && activeCategory === 'movies'" 
+                          class="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      {{ formatNumber(moviesStore.totalResults) }}
+                    </span>
+                  </span>
+                </button>
+                <button
+                  @click="setActiveCategory('tv')"
+                  class="relative px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                  :class="activeCategory === 'tv' 
+                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
+                >
+                  <span class="relative z-10 flex items-center gap-2">
+                    📺 TV Series
+                    <span v-if="tvStore.totalResults && activeCategory === 'tv'" 
+                          class="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      {{ formatNumber(tvStore.totalResults) }}
+                    </span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Title -->
+          <div class="text-center">
+            <h2 class="text-3xl font-bold text-white flex items-center justify-center gap-3 mb-2">
+              <div class="w-12 h-12 bg-gradient-to-r rounded-2xl flex items-center justify-center text-xl"
+                   :class="activeCategory === 'movies' 
+                     ? 'from-red-500 to-red-600' 
+                     : 'from-purple-500 to-purple-600'">
                 {{ currentSectionIcon }}
               </div>
               {{ currentSectionTitle }}
             </h2>
-            <p class="text-gray-400 text-lg" v-if="moviesStore.totalResults">
-              {{ moviesStore.totalResults.toLocaleString() }} movies found
+            <p class="text-gray-400 text-lg" v-if="currentTotalResults">
+              {{ currentTotalResults.toLocaleString() }} {{ activeCategory === 'movies' ? 'movies' : 'series' }} found
             </p>
           </div>
         </div>
 
-        <!-- Movies Grid -->
+        <!-- Content Grid -->
         <MovieGrid
-          :movies="moviesStore.getCurrentMovies"
-          :loading="moviesStore.loading"
-          :loading-more="moviesStore.loadingMore"
-          :error="moviesStore.error"
-          :show-load-more="moviesStore.canLoadMore"
-          :total-results="moviesStore.totalResults"
+          :movies="currentContent"
+          :loading="currentLoading"
+          :loading-more="currentLoadingMore"
+          :error="currentError"
+          :show-load-more="currentCanLoadMore"
+          :total-results="currentTotalResults"
           :liked-movie-ids="userStore.likedMovieIds"
           @movie-click="viewMovieDetails"
           @view-details="viewMovieDetails"
           @toggle-like="handleMovieLike"
           @watch-movie="handleWatchMovie"
-          @load-more="moviesStore.loadMoreMovies"
+          @load-more="loadMoreContent"
           @retry="retryCurrentAction"
         />
       </section>
       </div>
     </div>
 
-    <!-- Movie Details Modal -->
-    <div 
-      v-if="selectedMovie"
-      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-      @click="closeMovieDetails"
-    >
-      <div 
-        class="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-        @click.stop
-      >
-        <div class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-2xl font-bold text-white">{{ selectedMovie.title }}</h2>
-            <button
-              @click="closeMovieDetails"
-              class="text-gray-400 hover:text-white text-2xl"
-            >
-              ×
-            </button>
-          </div>
-          
-          <div class="flex gap-6">
-            <img
-              :src="getMoviePoster(selectedMovie.poster_path)"
-              :alt="selectedMovie.title"
-              class="w-32 h-48 object-cover rounded-lg"
-            />
-            
-            <div class="flex-1">
-              <div class="flex items-center gap-4 mb-4">
-                <div class="flex items-center gap-1">
-                  <span class="text-yellow-400">⭐</span>
-                  <span class="font-semibold">{{ selectedMovie.vote_average.toFixed(1) }}</span>
-                </div>
-                <span class="text-gray-400">{{ formatYear(selectedMovie.release_date) }}</span>
-                <button
-                  @click="handleWatchMovie(selectedMovie)"
-                  class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
-                  </svg>
-                  Watch Now
-                </button>
-                <button
-                  @click="userStore.toggleLike(selectedMovie)"
-                  class="flex items-center gap-1 px-3 py-1 rounded-full transition-colors"
-                  :class="userStore.isMovieLiked(selectedMovie.id) ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'"
-                >
-                  {{ userStore.isMovieLiked(selectedMovie.id) ? '❤️ Liked' : '🤍 Like' }}
-                </button>
-              </div>
-              
-              <p class="text-gray-300 leading-relaxed">
-                {{ selectedMovie.overview }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- No modal needed - navigate directly to watch page -->
   </div>
 </template>
 
@@ -292,11 +256,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 
-import type { Movie } from '@/types/movie'
+import type { Movie, TVSeries, MediaType } from '@/types/movie'
 
 import SearchBar from '@/components/SearchBar.vue'
 import MovieGrid from '@/components/MovieGrid.vue'
-import { useMoviesStore, useUserStore } from '@/stores'
+import { useMoviesStore, useUserStore, useTVStore } from '@/stores'
 import { tmdbService } from '@/services/tmdb'
 
 // Router
@@ -306,42 +270,107 @@ const route = useRoute()
 // Stores
 const moviesStore = useMoviesStore()
 const userStore = useUserStore()
+const tvStore = useTVStore()
 
 // State
 const selectedMovie = ref<Movie | null>(null)
 const currentAction = ref<string>('')
 const hoveringMovie = ref<Movie | null>(null)
 const hoverTimer = ref<number | null>(null)
+const activeCategory = ref<MediaType>('movies')
 
 // Computed (welcome section removed - now using hero section)
 
 const currentSectionTitle = computed(() => {
-  if (moviesStore.isSearching) {
-    return `Search Results for "${moviesStore.searchQuery}"`
+  const isSearching = activeCategory.value === 'movies' ? moviesStore.isSearching : tvStore.isSearching
+  const searchQuery = activeCategory.value === 'movies' ? moviesStore.searchQuery : tvStore.searchQuery
+  
+  if (isSearching) {
+    return `Search Results for "${searchQuery}"`
   }
-  return 'Popular Movies'
+  
+  return activeCategory.value === 'movies' ? 'Popular Movies' : 'Popular TV Series'
 })
 
 const currentSectionIcon = computed(() => {
-  if (moviesStore.isSearching) return '🔍'
-  return '🔥'
+  const isSearching = activeCategory.value === 'movies' ? moviesStore.isSearching : tvStore.isSearching
+  
+  if (isSearching) return '🔍'
+  return activeCategory.value === 'movies' ? '🎬' : '📺'
+})
+
+const currentTotalResults = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.totalResults : tvStore.totalResults
+})
+
+const currentLoading = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.loading : tvStore.loading
+})
+
+const currentLoadingMore = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.loadingMore : tvStore.loadingMore
+})
+
+const currentError = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.error : tvStore.error
+})
+
+const currentCanLoadMore = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.canLoadMore : tvStore.canLoadMore
+})
+
+const currentContent = computed(() => {
+  return activeCategory.value === 'movies' ? moviesStore.getCurrentMovies : tvStore.getCurrentSeries
 })
 
 // Methods
+const setActiveCategory = async (category: MediaType) => {
+  if (activeCategory.value === category) return
+  
+  activeCategory.value = category
+  
+  if (category === 'movies') {
+    if (!moviesStore.hasPopularMovies) {
+      await loadPopularMovies()
+    }
+  } else {
+    if (!tvStore.hasPopularSeries) {
+      await loadPopularTVSeries()
+    }
+  }
+}
+
 const loadPopularMovies = async () => {
   currentAction.value = 'popular'
   await moviesStore.loadPopularMovies()
 }
 
+const loadPopularTVSeries = async () => {
+  currentAction.value = 'popular'
+  await tvStore.loadPopularTVSeries()
+}
+
 const onSearch = async (query: string) => {
   currentAction.value = 'search'
-  await moviesStore.searchMovies(query)
+  
+  if (activeCategory.value === 'movies') {
+    await moviesStore.searchMovies(query)
+  } else {
+    await tvStore.searchTVSeries(query)
+  }
 }
 
 const onSearchClear = async () => {
-  moviesStore.clearSearchResults()
-  if (!moviesStore.hasPopularMovies) {
-    await loadPopularMovies()
+  if (activeCategory.value === 'movies') {
+    moviesStore.clearSearchResults()
+    if (!moviesStore.hasPopularMovies) {
+      await loadPopularMovies()
+    }
+  } else {
+    tvStore.clearSearchResults()
+    if (!tvStore.hasPopularSeries) {
+      await loadPopularTVSeries()
+    }
   }
 }
 
@@ -358,11 +387,8 @@ const onQuickSearch = async (filter: string) => {
 }
 
 const viewMovieDetails = (movie: Movie) => {
-  selectedMovie.value = movie
-}
-
-const closeMovieDetails = () => {
-  selectedMovie.value = null
+  // Navigate directly to watch page instead of modal
+  router.push(`/watch/movie/${movie.id}`)
 }
 
 const goToRecommendations = () => {
@@ -370,11 +396,36 @@ const goToRecommendations = () => {
 }
 
 const retryCurrentAction = async () => {
-  if (currentAction.value === 'search') {
-    await moviesStore.searchMovies(moviesStore.searchQuery)
+  if (activeCategory.value === 'movies') {
+    if (currentAction.value === 'search') {
+      await moviesStore.searchMovies(moviesStore.searchQuery)
+    } else {
+      await loadPopularMovies()
+    }
   } else {
-    await loadPopularMovies()
+    if (currentAction.value === 'search') {
+      await tvStore.searchTVSeries(tvStore.searchQuery)
+    } else {
+      await loadPopularTVSeries()
+    }
   }
+}
+
+const loadMoreContent = async () => {
+  if (activeCategory.value === 'movies') {
+    await moviesStore.loadMoreMovies()
+  } else {
+    await tvStore.loadMoreTVSeries()
+  }
+}
+
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`
+  }
+  return num.toString()
 }
 
 const getMoviePoster = (posterPath: string | null): string => {
@@ -419,16 +470,22 @@ const showAuthRequired = (redirectPath?: string) => {
 }
 
 // Handle watch movie - Netflix-like experience
-const handleWatchMovie = (movie: Movie) => {
+const handleWatchMovie = async (movie: Movie) => {
+  // Check if auth is still loading
+  if (userStore.authLoading) {
+    console.log('⏳ Auth still loading, please wait...')
+    return
+  }
+  
+  // Double-check auth state to avoid race conditions
   if (!userStore.isAuthenticated) {
-    // Show login modal for unauthenticated users
-    userStore.openAuthModal('login')
     console.log(`🔐 Auth required to watch: ${movie.title}`)
+    userStore.openAuthModal('login')
     return
   }
   
   // User is authenticated, redirect to watch page
-  console.log(`🎬 Redirecting to watch: ${movie.title}`)
+  console.log(`🎬 User authenticated, redirecting to watch: ${movie.title}`)
   router.push(`/watch/movie/${movie.id}`)
 }
 
@@ -535,6 +592,7 @@ const stopHoverPreview = (movie: Movie) => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

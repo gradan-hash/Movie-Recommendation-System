@@ -1,14 +1,8 @@
 <template>
   <div class="movie-grid">
-    <!-- Loading State -->
-    <div v-if="loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      <div 
-        v-for="n in 10" 
-        :key="n" 
-        class="animate-pulse bg-gray-800 rounded-lg aspect-[2/3]"
-      >
-        <div class="bg-gray-700 h-full rounded-lg"></div>
-      </div>
+    <!-- Loading State with Premium Skeleton -->
+    <div v-if="loading">
+      <SkeletonLoader type="movie-grid" :count="18" />
     </div>
 
     <!-- Error State -->
@@ -81,6 +75,7 @@
 
 <script setup lang="ts">
 import MovieCard from './MovieCard.vue'
+import SkeletonLoader from './SkeletonLoader.vue'
 import type { Movie } from '@/types/movie'
 
 // Props

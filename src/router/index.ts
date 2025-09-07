@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { authService } from '@/services/auth'
+import WatchView from '../views/WatchView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,14 +32,14 @@ const router = createRouter({
     {
       path: '/watch/movie/:id',
       name: 'watch-movie',
-      component: () => import('@/views/WatchView.vue'),
+      component: WatchView,
       props: true,
       meta: { requiresAuth: true }
     },
     {
       path: '/watch/series/:id',
       name: 'watch-series',
-      component: () => import('@/views/WatchView.vue'),
+      component: WatchView,
       props: true,
       meta: { requiresAuth: true }
     },
@@ -51,7 +52,7 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('@/views/ProfileView.vue'),
+      component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
     },
     // 404 handling

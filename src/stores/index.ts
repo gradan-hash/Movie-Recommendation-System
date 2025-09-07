@@ -6,3 +6,4 @@ export const pinia = createPinia()
 // Export stores
 export { useMoviesStore } from './movies'
 export { useUserStore } from './user'
+export { useTVStore } from './tv'
