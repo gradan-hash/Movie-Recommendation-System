@@ -22,24 +22,6 @@
               Home
             </router-link>
             <router-link 
-              to="/search" 
-              class="text-red-100 hover:text-white transition-colors"
-              active-class="text-white font-semibold"
-            >
-              Search
-            </router-link>
-            <router-link 
-              v-if="userStore.isAuthenticated"
-              to="/favorites" 
-              class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
-              active-class="text-white font-semibold"
-            >
-              ❤️ Favorites
-              <span v-if="userStore.likedMoviesCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {{ userStore.likedMoviesCount }}
-              </span>
-            </router-link>
-            <router-link 
               v-if="userStore.isAuthenticated && userStore.canGetRecommendations"
               to="/recommendations" 
               class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
@@ -94,6 +76,7 @@
 
           <!-- Mobile Menu Button -->
           <button 
+            ref="mobileMenuButtonRef"
             @click="toggleMobileMenu"
             class="md:hidden text-white p-2"
           >
@@ -104,7 +87,11 @@
         </nav>
 
         <!-- Mobile Menu -->
-        <div v-if="showMobileMenu" class="md:hidden mt-4 pb-4 border-t border-red-500">
+        <div 
+          v-if="showMobileMenu" 
+          ref="mobileMenuRef"
+          class="md:hidden mt-4 pb-4 border-t border-red-500"
+        >
           <div class="flex flex-col gap-3 mt-4">
             <router-link 
               to="/" 
@@ -114,28 +101,9 @@
             >
               🏠 Home
             </router-link>
-            <router-link 
-              to="/search" 
-              @click="closeMobileMenu"
-              class="text-red-100 hover:text-white transition-colors"
-              active-class="text-white font-semibold"
-            >
-              🔍 Search
-            </router-link>
             
             <!-- Authenticated Mobile Menu -->
             <template v-if="userStore.isAuthenticated">
-              <router-link 
-                to="/favorites" 
-                @click="closeMobileMenu"
-                class="text-red-100 hover:text-white transition-colors flex items-center gap-2"
-                active-class="text-white font-semibold"
-              >
-                ❤️ Favorites
-                <span v-if="userStore.likedMoviesCount" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                  {{ userStore.likedMoviesCount }}
-                </span>
-              </router-link>
               <router-link 
                 v-if="userStore.canGetRecommendations"
                 to="/recommendations" 
@@ -223,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, KeepAlive } from 'vue'
+import { ref, onMounted, onUnmounted, KeepAlive } from 'vue'
 import { useUserStore } from '@/stores/user'
 import AuthModal from '@/components/AuthModal.vue'
 import GlobalLoader from '@/components/GlobalLoader.vue'
@@ -241,6 +209,10 @@ const { startMonitoring, preloadResource, applyCriticalOptimizations } = usePerf
 const showMobileMenu = ref(false)
 const loggingOut = ref(false)
 
+// Template refs
+const mobileMenuRef = ref<HTMLElement>()
+const mobileMenuButtonRef = ref<HTMLElement>()
+
 // Methods
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
@@ -248,6 +220,22 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   showMobileMenu.value = false
+}
+
+// Click outside handler for mobile menu
+const handleClickOutside = (event: Event) => {
+  if (!showMobileMenu.value) return
+  
+  const target = event.target as HTMLElement
+  const mobileMenu = mobileMenuRef.value
+  const mobileMenuButton = mobileMenuButtonRef.value
+  
+  // Don't close if clicking on the menu itself or the button
+  if (mobileMenu && mobileMenu.contains(target)) return
+  if (mobileMenuButton && mobileMenuButton.contains(target)) return
+  
+  // Close the menu if clicking outside
+  closeMobileMenu()
 }
 
 const openAuthModal = (mode: 'login' | 'register') => {
@@ -286,6 +274,9 @@ onMounted(async () => {
   preloadResource('/api/movies/popular', 'fetch')
   preloadResource('https://www.youtube.com/iframe_api', 'script')
   
+  // Add click outside listener for mobile menu
+  document.addEventListener('click', handleClickOutside)
+  
   // Optimize images for better loading
   setTimeout(() => {
     const images = document.querySelectorAll('img:not([data-src])')
@@ -295,6 +286,11 @@ onMounted(async () => {
       }
     })
   }, 100)
+})
+
+// Cleanup event listeners
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
