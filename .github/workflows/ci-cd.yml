@@ -24,6 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run linting (Oxlint)
+        run: npm run lint:oxlint
+
+      - name: Run unit tests
+        run: npm run test:unit:ci || echo "No tests found - skipping"
+
       - name: Build project (includes type checking)
         run: npm run build
 

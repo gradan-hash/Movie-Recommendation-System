@@ -1,30 +1,30 @@
 import axios from 'axios'
-import type { 
-  Movie, 
-  MovieDetails, 
-  SearchMoviesResponse, 
-  PopularMoviesResponse, 
+import type {
+  Movie,
+  MovieDetails,
+  SearchMoviesResponse,
+  PopularMoviesResponse,
   CacheItem,
-  TMDBError 
+  TMDBError,
 } from '../types/movie'
 
 export class TMDBService {
   private api: ReturnType<typeof axios.create>
-  private cache = new Map<string, CacheItem<any>>()
+  private cache = new Map<string, CacheItem<unknown>>()
   private readonly CACHE_TTL = 15 * 60 * 1000 // 15 minutes
 
   constructor() {
     this.api = axios.create({
       baseURL: import.meta.env.VITE_TMDB_BASE_URL || 'https://api.themoviedb.org/3',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_API_Read_Access_Token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${import.meta.env.VITE_API_Read_Access_Token}`,
+        'Content-Type': 'application/json',
       },
-      timeout: 10000
+      timeout: 10000,
     })
 
     // Request interceptor for logging in development
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(config => {
       if (import.meta.env.DEV) {
         console.log(`🎬 TMDB API: ${config.method?.toUpperCase()} ${config.url}`)
       }
@@ -33,8 +33,8 @@ export class TMDBService {
 
     // Response interceptor for error handling
     this.api.interceptors.response.use(
-      (response) => response,
-      (error) => {
+      response => response,
+      error => {
         console.error('TMDB API Error:', error.response?.data || error.message)
         throw error
       }
@@ -43,45 +43,47 @@ export class TMDBService {
 
   // Generic method to get data with caching
   private async getCachedData<T>(
-    cacheKey: string, 
-    fetchFunction: () => Promise<any>
+    cacheKey: string,
+    fetchFunction: () => Promise<{ data: T }>
   ): Promise<T> {
     // Check cache first
     const cached = this.cache.get(cacheKey)
     if (cached && Date.now() < cached.expiry) {
       console.log(`📱 Cache hit: ${cacheKey}`)
-      return cached.data
+      return cached.data as T
     }
 
     try {
       // Fetch from API
       const response = await fetchFunction()
-      
+
       // Cache the response
       this.cache.set(cacheKey, {
         data: response.data,
         timestamp: Date.now(),
-        expiry: Date.now() + this.CACHE_TTL
+        expiry: Date.now() + this.CACHE_TTL,
       })
 
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle TMDB API errors
-      if (error.response?.data) {
-        const tmdbError: TMDBError = error.response.data
-        throw new Error(`TMDB Error: ${tmdbError.status_message}`)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as { response?: { data?: TMDBError } }
+        if (apiError.response?.data) {
+          throw new Error(`TMDB Error: ${apiError.response.data.status_message}`)
+        }
       }
-      throw new Error(`Network Error: ${error.message}`)
+      if (error && typeof error === 'object' && 'message' in error) {
+        throw new Error(`Network Error: ${(error as Error).message}`)
+      }
+      throw new Error('Unknown error occurred')
     }
   }
 
   // Get popular movies
   async getPopularMovies(page: number = 1): Promise<PopularMoviesResponse> {
     const cacheKey = `popular-${page}`
-    return this.getCachedData(
-      cacheKey, 
-      () => this.api.get(`/movie/popular?page=${page}`)
-    )
+    return this.getCachedData(cacheKey, () => this.api.get(`/movie/popular?page=${page}`))
   }
 
   // Search movies by query
@@ -91,33 +93,31 @@ export class TMDBService {
     }
 
     const cacheKey = `search-${query.toLowerCase()}-${page}`
-    return this.getCachedData(
-      cacheKey,
-      () => this.api.get<SearchMoviesResponse>(`/search/movie?query=${encodeURIComponent(query)}&page=${page}`)
+    return this.getCachedData(cacheKey, () =>
+      this.api.get<SearchMoviesResponse>(
+        `/search/movie?query=${encodeURIComponent(query)}&page=${page}`
+      )
     )
   }
 
   // Get movie details by ID
   async getMovieDetails(movieId: number): Promise<MovieDetails> {
     const cacheKey = `movie-${movieId}`
-    return this.getCachedData(
-      cacheKey,
-      () => this.api.get<MovieDetails>(`/movie/${movieId}`)
-    )
+    return this.getCachedData(cacheKey, () => this.api.get<MovieDetails>(`/movie/${movieId}`))
   }
 
   // Get movie by exact title (useful for AI recommendations)
   async getMovieByTitle(title: string): Promise<Movie | null> {
     try {
       const response = await this.searchMovies(title, 1)
-      
+
       // Find exact match (case insensitive)
       const exactMatch = response.results.find(
         (movie: Movie) => movie.title.toLowerCase() === title.toLowerCase()
       )
-      
+
       return exactMatch || response.results[0] || null
-    } catch (error) {
+    } catch {
       console.warn(`Could not find movie: ${title}`)
       return null
     }
@@ -154,7 +154,7 @@ export class TMDBService {
   getCacheStats(): { size: number; keys: string[] } {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
     }
   }
 }
