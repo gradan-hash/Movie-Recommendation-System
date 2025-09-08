@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SearchBar from '@/components/SearchBar.vue'
 
@@ -107,7 +107,7 @@ describe('SearchBar', () => {
       const quickButtons = wrapper
         .findAll('button')
         .filter(
-          btn =>
+          (btn: { text: () => string | string[] }) =>
             btn.text().includes('🔥') ||
             btn.text().includes('⭐') ||
             btn.text().includes('🆕') ||
@@ -197,7 +197,9 @@ describe('SearchBar', () => {
       // The component uses max-w-4xl and various responsive utilities
       const hasResponsiveClasses =
         inputWrapper.exists() ||
-        input.classes().some(cls => cls.includes('w-full') || cls.includes('text-lg'))
+        input
+          .classes()
+          .some((cls: string | string[]) => cls.includes('w-full') || cls.includes('text-lg'))
 
       expect(hasResponsiveClasses).toBe(true)
     })
