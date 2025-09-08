@@ -1,13 +1,13 @@
-import { inject, provide, ref, type InjectionKey } from 'vue'
+import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
 
 // Auth modal state interface
 interface AuthModalState {
-  isOpen: boolean
-  mode: 'login' | 'register'
-  message?: string
+  isOpen: Ref<boolean>
+  mode: Ref<'login' | 'register'>
+  message: Ref<string | undefined>
 }
 
-// Auth modal methods interface  
+// Auth modal methods interface
 interface AuthModalMethods {
   openLogin: (message?: string) => void
   openRegister: (message?: string) => void
@@ -44,12 +44,12 @@ export function provideAuthModal() {
   }
 
   const authModal: AuthModal = {
-    isOpen: isOpen.value,
-    mode: mode.value,
-    message: message.value,
+    isOpen,
+    mode,
+    message,
     openLogin,
     openRegister,
-    close
+    close,
   }
 
   provide(AuthModalKey, authModal)
@@ -60,18 +60,18 @@ export function provideAuthModal() {
     message,
     openLogin,
     openRegister,
-    close
+    close,
   }
 }
 
 // Consumer composable (used in other components)
 export function useAuxthModal() {
   const authModal = inject(AuthModalKey)
-  
+
   if (!authModal) {
     throw new Error('useAuthModal must be used within a component that has provideAuthModal')
   }
-  
+
   return authModal
 }
 
@@ -84,11 +84,11 @@ export function useAuthCheck() {
         // The component using this will handle the auth check
         return callback
       },
-      message: `Please sign in to ${action}`
+      message: `Please sign in to ${action}`,
     }
   }
 
   return {
-    requireAuth
+    requireAuth,
   }
 }

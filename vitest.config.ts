@@ -24,7 +24,11 @@ export default mergeConfig(
       include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
       setupFiles: ['./src/test/setup.ts'],
       deps: {
-        inline: ['@vue', 'pinia'],
+        optimizer: {
+          web: {
+            include: ['@vue', 'pinia'],
+          },
+        },
       },
       outputFile: {
         json: 'coverage/test-output.json',
