@@ -330,34 +330,34 @@
         </div>
       </section>
 
-      <!-- Netflix-like Video Selector -->
-      <section v-if="!isFullWatchMode && movieVideos.length > 1" class="bg-gradient-to-b from-gray-800 to-gray-900 py-8">
-        <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+      <!-- Netflix-like Video Selector - Mobile First -->
+      <section v-if="!isFullWatchMode && movieVideos.length > 1" class="bg-gradient-to-b from-gray-800 to-gray-900 py-6 md:py-8">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+          <h2 class="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6 flex items-center justify-center md:justify-start gap-2 md:gap-3">
+            <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center text-sm md:text-base">
               🎥
             </div>
             Trailers & Videos
           </h2>
           
-          <!-- Video List (First 5 + Show More) -->
-          <div class="space-y-4">
+          <!-- Video List (First 5 + Show More) - Mobile Optimized -->
+          <div class="space-y-3 md:space-y-4">
             <div 
               v-for="(video) in displayedVideos" 
               :key="video.key"
-              class="group flex gap-4 p-4 rounded-xl transition-all duration-300 cursor-pointer"
+              class="group flex gap-3 md:gap-4 p-3 md:p-4 rounded-xl transition-all duration-300 cursor-pointer active:scale-[0.98]"
               :class="currentVideo?.key === video.key 
                 ? 'bg-red-600/20 border border-red-500/50' 
-                : 'bg-gray-800/50 hover:bg-gray-800/80'"
+                : 'bg-gray-800/50 hover:bg-gray-800/80 active:bg-gray-800'"
               @click="switchToVideo(video)"
             >
-              <!-- Video Number -->
-              <div class="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:bg-red-600 transition-colors">
+              <!-- Video Number - Mobile Optimized -->
+              <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 bg-gray-700 rounded-lg flex items-center justify-center text-white font-bold text-xs md:text-sm group-hover:bg-red-600 transition-colors">
                 {{ sortedVideos.findIndex(v => v.key === video.key) + 1 }}
               </div>
 
-              <!-- Video Thumbnail -->
-              <div class="flex-shrink-0 w-24 h-16 bg-gray-700 rounded-lg overflow-hidden">
+              <!-- Video Thumbnail - Mobile Smaller -->
+              <div class="flex-shrink-0 w-20 h-12 md:w-24 md:h-16 bg-gray-700 rounded-lg overflow-hidden">
                 <img 
                   :src="getVideoThumbnail(video)"
                   :alt="video.name"
@@ -366,31 +366,31 @@
                 />
               </div>
 
-              <!-- Video Info -->
+              <!-- Video Info - Mobile Optimized -->
               <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start justify-between gap-2 md:gap-4">
                   <div class="flex-1 min-w-0">
-                    <h3 class="text-white font-semibold text-base mb-1 group-hover:text-red-300 transition-colors line-clamp-1">
+                    <h3 class="text-white font-semibold text-sm md:text-base mb-1 group-hover:text-red-300 transition-colors line-clamp-1">
                       {{ video.name }}
                     </h3>
-                    <div class="flex items-center gap-3 text-sm text-gray-400 mb-2">
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-400 mb-2">
                       <span class="px-2 py-1 bg-gray-700 rounded text-xs font-medium">
                         {{ video.type }}
                       </span>
                       <span v-if="video.official" class="px-2 py-1 bg-blue-600 rounded text-xs font-medium text-white">
                         Official
                       </span>
-                      <span class="text-gray-500">{{ getVideoQuality(video) }}</span>
+                      <span class="text-gray-500 hidden md:inline">{{ getVideoQuality(video) }}</span>
                     </div>
-                    <p class="text-gray-300 text-sm leading-relaxed line-clamp-2">
+                    <p class="text-gray-300 text-xs md:text-sm leading-relaxed line-clamp-1 md:line-clamp-2 hidden sm:block">
                       {{ getVideoDescription(video) }}
                     </p>
                   </div>
                   
-                  <!-- Play Button -->
+                  <!-- Play Button - Smaller on Mobile -->
                   <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors">
-                      <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors">
+                      <svg class="w-3 h-3 md:w-4 md:h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
                       </svg>
                     </div>
@@ -400,11 +400,11 @@
             </div>
           </div>
 
-          <!-- Show More/Less Button -->
-          <div v-if="sortedVideos.length > 5" class="text-center mt-6">
+          <!-- Show More/Less Button - Mobile Full Width -->
+          <div v-if="sortedVideos.length > 5" class="text-center mt-4 md:mt-6">
             <button
               @click="showAllVideos = !showAllVideos"
-              class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-300 flex items-center gap-2 mx-auto"
+              class="w-full sm:w-auto px-6 py-3 bg-gray-800 hover:bg-gray-700 active:bg-gray-900 text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 mx-auto text-sm md:text-base active:scale-95"
             >
               <span>{{ showAllVideos ? 'Show Less' : `Show All ${sortedVideos.length} Videos` }}</span>
               <svg 
@@ -421,48 +421,50 @@
         </div>
       </section>
 
-      <!-- Similar Content Recommendations (Completely Separated at Bottom) -->
-      <section v-if="!isFullWatchMode && hasStartedWatching" class="bg-black py-16 mt-12 border-t-2 border-gray-800">
-        <div class="max-w-7xl mx-auto px-6">
+      <!-- Similar Content Recommendations (Completely Separated at Bottom) - Mobile First -->
+      <section v-if="!isFullWatchMode && hasStartedWatching" class="bg-black py-12 md:py-16 mt-8 md:mt-12 border-t-2 border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
           
-          <!-- Section Tabs -->
-          <div class="flex items-center justify-center mb-8">
-            <div class="bg-gray-800/80 backdrop-blur-lg rounded-xl p-1 border border-gray-700/50">
+          <!-- Section Tabs - Mobile Optimized -->
+          <div class="flex items-center justify-center mb-6 md:mb-8">
+            <div class="bg-gray-800/80 backdrop-blur-lg rounded-xl p-1 border border-gray-700/50 w-full max-w-md">
               <div class="flex gap-1">
                 <button
                   @click="setRecommendationType('similar')"
-                  class="relative px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300"
+                  class="relative flex-1 px-3 py-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-300 text-center"
                   :class="recommendationType === 'similar' 
                     ? 'bg-red-600 text-white shadow-lg shadow-red-500/25' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
                 >
-                  Similar {{ contentType === 'movie' ? 'Movies' : 'Series' }}
+                  <span class="hidden sm:inline">Similar {{ contentType === 'movie' ? 'Movies' : 'Series' }}</span>
+                  <span class="sm:hidden">Similar</span>
                 </button>
                 <button
                   @click="setRecommendationType('recommendations')"
-                  class="relative px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300"
+                  class="relative flex-1 px-3 py-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-300 text-center"
                   :class="recommendationType === 'recommendations' 
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'"
                 >
-                  Recommended for You
+                  <span class="hidden sm:inline">Recommended for You</span>
+                  <span class="sm:hidden">For You</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Section Title -->
-          <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-white flex items-center justify-center gap-3">
-              <div class="w-10 h-10 bg-gradient-to-r rounded-xl flex items-center justify-center text-lg"
+          <!-- Section Title - Mobile Centered -->
+          <div class="text-center mb-6 md:mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white flex items-center justify-center gap-2 md:gap-3">
+              <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r rounded-xl flex items-center justify-center text-base md:text-lg"
                    :class="recommendationType === 'similar' 
                      ? 'from-red-500 to-red-600' 
                      : 'from-purple-500 to-purple-600'">
                 {{ recommendationType === 'similar' ? '🎭' : '🎯' }}
               </div>
-              {{ getSectionTitle() }}
+              <span class="text-lg md:text-2xl">{{ getSectionTitle() }}</span>
             </h2>
-            <p class="text-gray-400 mt-2" v-if="!similarLoading && similarContent.length > 0">
+            <p class="text-gray-400 mt-2 text-sm md:text-base" v-if="!similarLoading && similarContent.length > 0">
               {{ similarContent.length }} {{ contentType === 'movie' ? 'movies' : 'series' }} found
             </p>
           </div>
@@ -483,17 +485,17 @@
             </button>
           </div>
 
-          <!-- Similar Content Grid -->
-          <div v-else-if="similarContent.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+          <!-- Similar Content Grid - Mobile First -->
+          <div v-else-if="similarContent.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
             <div
               v-for="(item, index) in similarContent.slice(0, 18)"
               :key="`${item.id}-${recommendationType}`"
-              class="group cursor-pointer transform hover:scale-105 transition-all duration-300"
+              class="group cursor-pointer transform hover:scale-105 active:scale-95 transition-all duration-300"
               :style="{ animationDelay: `${index * 50}ms` }"
               @click="watchSimilarContent(item)"
             >
-              <!-- Content Poster -->
-              <div class="relative aspect-[2/3] overflow-hidden rounded-xl shadow-lg group-hover:shadow-2xl transition-all duration-300">
+              <!-- Content Poster - Mobile Optimized -->
+              <div class="relative aspect-[2/3] overflow-hidden rounded-lg md:rounded-xl shadow-lg group-hover:shadow-2xl transition-all duration-300">
                 <!-- Main Image -->
                 <img
                   :src="getContentPoster(item.poster_path)"
@@ -502,20 +504,20 @@
                   loading="lazy"
                 />
                 
-                <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-3">
-                    <!-- Play Button -->
+                <!-- Hover Overlay - Always visible on mobile -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-2 md:p-3">
+                    <!-- Play Button - Smaller on mobile -->
                     <div class="flex items-center justify-center mb-2">
-                      <div class="w-12 h-12 bg-red-600/90 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors">
-                        <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <div class="w-8 h-8 md:w-12 md:h-12 bg-red-600/90 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors">
+                        <svg class="w-3 h-3 md:w-5 md:h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"/>
                         </svg>
                       </div>
                     </div>
                     
-                    <!-- Content Info -->
-                    <h3 class="text-white font-semibold text-sm mb-1 line-clamp-2">
+                    <!-- Content Info - Mobile Optimized -->
+                    <h3 class="text-white font-semibold text-xs md:text-sm mb-1 line-clamp-2">
                       {{ getContentTitle(item) }}
                     </h3>
                     <div class="flex items-center justify-between text-xs">
@@ -528,8 +530,8 @@
                   </div>
                 </div>
 
-                <!-- Media Type Badge -->
-                <div class="absolute top-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded-md text-xs text-white font-medium">
+                <!-- Media Type Badge - Smaller on mobile -->
+                <div class="absolute top-1 right-1 md:top-2 md:right-2 px-1 py-0.5 md:px-2 md:py-1 bg-black/70 backdrop-blur-sm rounded text-xs text-white font-medium">
                   {{ contentType === 'movie' ? 'Movie' : 'Series' }}
                 </div>
               </div>

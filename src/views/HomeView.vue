@@ -238,14 +238,17 @@
           :loading="currentLoading"
           :loading-more="currentLoadingMore"
           :error="currentError"
-          :show-load-more="currentCanLoadMore"
+          :show-load-more="false"
+          :use-pagination="true"
+          :current-page="currentPage"
+          :total-pages="currentTotalPages"
           :total-results="currentTotalResults"
           :liked-movie-ids="userStore.likedMovieIds"
           @movie-click="viewMovieDetails"
           @view-details="viewMovieDetails"
           @toggle-like="handleMovieLike"
           @watch-movie="handleWatchMovie"
-          @load-more="loadMoreContent"
+          @page-change="handlePageChange"
           @retry="retryCurrentAction"
         />
       </section>
@@ -321,6 +324,14 @@ const currentError = computed(() => {
 
 const currentCanLoadMore = computed(() => {
   return activeCategory.value === 'movie' ? moviesStore.canLoadMore : tvStore.canLoadMore
+})
+
+const currentPage = computed(() => {
+  return activeCategory.value === 'movie' ? moviesStore.currentPage : tvStore.currentPage
+})
+
+const currentTotalPages = computed(() => {
+  return activeCategory.value === 'movie' ? moviesStore.totalPages : tvStore.totalPages
 })
 
 const currentContent = computed(() => {
@@ -426,11 +437,19 @@ const retryCurrentAction = async () => {
   }
 }
 
-const loadMoreContent = async () => {
+const handlePageChange = async (page: number) => {
   if (activeCategory.value === 'movie') {
-    await moviesStore.loadMoreMovies()
+    if (moviesStore.isSearching) {
+      await moviesStore.searchMovies(moviesStore.searchQuery, page)
+    } else {
+      await moviesStore.loadPopularMovies(page)
+    }
   } else {
-    await tvStore.loadMoreTVSeries()
+    if (tvStore.isSearching) {
+      await tvStore.searchTVSeries(tvStore.searchQuery, page)
+    } else {
+      await tvStore.loadPopularTVSeries(page)
+    }
   }
 }
 

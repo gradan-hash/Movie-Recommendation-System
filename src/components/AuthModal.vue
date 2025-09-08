@@ -347,13 +347,25 @@ const handleForgotPassword = async () => {
 
   loading.value = true
   error.value = ''
+  successMessage.value = ''
 
   try {
+    console.log('🔄 Attempting password reset for:', form.value.email)
     await userStore.resetPassword(form.value.email)
-    successMessage.value = 'Password reset email sent! Check your inbox.'
+    
+    successMessage.value = `Password reset email sent to ${form.value.email}! Check your inbox and spam folder.`
+    
+    // Clear form after successful reset
+    setTimeout(() => {
+      form.value.email = ''
+      form.value.password = ''
+      successMessage.value = 'You can close this window and check your email for reset instructions.'
+    }, 3000)
+    
     emit('success', 'reset')
   } catch (err: any) {
-    error.value = err.message || 'Failed to send reset email'
+    console.error('❌ Password reset failed:', err)
+    error.value = err.message || 'Failed to send reset email. Please check your email address and try again.'
   } finally {
     loading.value = false
   }

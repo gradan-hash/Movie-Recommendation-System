@@ -50,8 +50,19 @@
         />
       </div>
 
-      <!-- Load More Button - Mobile Optimized -->
-      <div v-if="showLoadMore" class="text-center mt-6 md:mt-8 px-4">
+      <!-- Pagination Controls -->
+      <div v-if="usePagination && totalPages && totalPages > 1">
+        <Pagination
+          :current-page="currentPage || 1"
+          :total-pages="totalPages"
+          :total-results="totalResults || 0"
+          :items-per-page="20"
+          @page-change="$emit('page-change', $event)"
+        />
+      </div>
+      
+      <!-- Load More Button (fallback for infinite scroll style) -->
+      <div v-else-if="showLoadMore" class="text-center mt-6 md:mt-8 px-4">
         <button
           @click="$emit('load-more')"
           :disabled="loadingMore"
@@ -64,11 +75,11 @@
           <span v-else>Load More Movies</span>
         </button>
       </div>
-    </div>
-
-    <!-- Movies Count -->
-    <div v-if="movies.length" class="mt-6 text-center text-gray-400 text-sm">
-      {{ movies.length }} of {{ totalResults || movies.length }} movies
+      
+      <!-- Movies Count (only for non-paginated) -->
+      <div v-if="!usePagination && movies.length" class="mt-6 text-center text-gray-400 text-sm">
+        {{ movies.length }} of {{ totalResults || movies.length }} movies
+      </div>
     </div>
   </div>
 </template>
@@ -76,6 +87,7 @@
 <script setup lang="ts">
 import MovieCard from './MovieCard.vue'
 import SkeletonLoader from './SkeletonLoader.vue'
+import Pagination from './Pagination.vue'
 import type { Movie } from '@/types/movie'
 
 // Props
@@ -90,6 +102,9 @@ interface Props {
   showLoadMore?: boolean
   totalResults?: number
   likedMovieIds?: number[]
+  usePagination?: boolean
+  currentPage?: number
+  totalPages?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -112,6 +127,7 @@ defineEmits<{
   'watch-movie': [movie: Movie]
   'load-more': []
   'retry': []
+  'page-change': [page: number]
 }>()
 
 // Helper function to check if movie is liked
