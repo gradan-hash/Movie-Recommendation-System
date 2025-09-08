@@ -322,9 +322,6 @@ const currentError = computed(() => {
   return activeCategory.value === 'movie' ? moviesStore.error : tvStore.error
 })
 
-const currentCanLoadMore = computed(() => {
-  return activeCategory.value === 'movie' ? moviesStore.canLoadMore : tvStore.canLoadMore
-})
 
 const currentPage = computed(() => {
   return activeCategory.value === 'movie' ? moviesStore.currentPage : tvStore.currentPage
