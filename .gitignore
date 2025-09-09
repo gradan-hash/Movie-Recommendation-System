@@ -17,6 +17,9 @@ coverage/
 *.lcov
 .nyc_output
 
+# PDF files
+*.pdf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
