@@ -177,10 +177,161 @@
       </PageTransition>
     </main>
 
-    <!-- Footer redo footer show about us contact infor etc and etc  -->
-    <footer class="bg-gray-800 p-6 mt-12 text-center">
-      <div class="text-gray-400 mb-2">Built with Vue 3, TypeScript, Tailwind CSS & TMDB API</div>
-      <div class="text-sm text-gray-500">Professional Vue Router Architecture ✨</div>
+    <!-- Enhanced Professional Footer -->
+    <footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white mt-16">
+      <div class="container mx-auto px-6 py-12">
+        <!-- Main Footer Content -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Brand Section -->
+          <div class="lg:col-span-2">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl">🎬</span>
+              <h3
+                class="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent"
+              >
+                CinemaAI
+              </h3>
+            </div>
+            <p class="text-gray-300 mb-4 leading-relaxed">
+              Your intelligent movie companion powered by AI. Discover, explore, and get
+              personalized recommendations from the world's largest movie database.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="bg-red-600/20 text-red-300 px-3 py-1 rounded-full text-sm">Vue 3</span>
+              <span class="bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full text-sm"
+                >TypeScript</span
+              >
+              <span class="bg-cyan-600/20 text-cyan-300 px-3 py-1 rounded-full text-sm"
+                >Tailwind</span
+              >
+              <span class="bg-yellow-600/20 text-yellow-300 px-3 py-1 rounded-full text-sm"
+                >TMDB API</span
+              >
+              <span class="bg-purple-600/20 text-purple-300 px-3 py-1 rounded-full text-sm"
+                >Firebase</span
+              >
+              <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-sm"
+                >AI Powered</span
+              >
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h4 class="text-lg font-semibold mb-4 text-yellow-300">Quick Links</h4>
+            <ul class="space-y-2">
+              <li>
+                <router-link
+                  to="/"
+                  class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
+                >
+                  🏠 Home
+                </router-link>
+              </li>
+              <li v-if="userStore.isAuthenticated && userStore.canGetRecommendations">
+                <router-link
+                  to="/recommendations"
+                  class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
+                >
+                  🤖 AI Recommendations
+                </router-link>
+              </li>
+              <li v-if="userStore.isAuthenticated">
+                <router-link
+                  to="/profile"
+                  class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
+                >
+                  👤 My Profile
+                </router-link>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
+                >
+                  ℹ️ About Us
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact & Support -->
+          <div>
+            <h4 class="text-lg font-semibold mb-4 text-yellow-300">Connect</h4>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3 text-gray-300">
+                <span class="text-lg">📧</span>
+                <span class="text-sm">info@cinemaai.app</span>
+              </div>
+              <div class="flex items-center gap-3 text-gray-300">
+                <span class="text-lg">🌐</span>
+                <span class="text-sm">www.cinemaai.app</span>
+              </div>
+              <div class="flex items-center gap-3 text-gray-300">
+                <span class="text-lg">📱</span>
+                <span class="text-sm">Mobile App Coming Soon</span>
+              </div>
+
+              <!-- Social Links -->
+              <div class="flex gap-3 mt-4">
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-gray-700 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <span class="text-lg">🐦</span>
+                </a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-gray-700 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <span class="text-lg">📘</span>
+                </a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-gray-700 hover:bg-purple-600 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <span class="text-lg">📷</span>
+                </a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <span class="text-lg">⭐</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-700 mt-8 pt-8">
+          <!-- Bottom Section -->
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+              <p class="text-gray-400 text-sm mb-2">
+                © 2025 CinemaAI. Crafted with ❤️ for movie enthusiasts worldwide.
+              </p>
+              <p class="text-xs text-gray-500">
+                Movie data provided by TMDB. This product uses the TMDB API but is not endorsed or
+                certified by TMDB.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-6 text-sm">
+              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
+                >Privacy Policy</a
+              >
+              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
+                >Terms of Service</a
+              >
+              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
+                >API Documentation</a
+              >
+              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors">Support</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
 
     <!-- Authentication Modal -->
