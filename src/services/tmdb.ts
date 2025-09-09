@@ -34,7 +34,7 @@ export class TMDBService {
     this.api.interceptors.response.use(
       response => response,
       error => {
-        console.error('TMDB API Error:', error.response?.data || error.message)
+        console.warn('TMDB API Error:', error.response?.data || error.message)
         throw error
       }
     )

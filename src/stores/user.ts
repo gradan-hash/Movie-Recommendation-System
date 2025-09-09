@@ -85,11 +85,11 @@ export const useUserStore = defineStore('user', () => {
 
             return user
           } else {
-            console.error('❌ Store: Login API failed:', response.error)
+            console.warn('❌ Store: Login API failed:', response.error)
             throw new Error(response.error || 'Login failed')
           }
         } catch (error: any) {
-          console.error('❌ Store: Login error:', error.message)
+          console.warn('❌ Store: Login error:', error.message)
 
           // Show error toast
           globalToast.authError(error.message || 'Failed to sign in. Please try again.')
@@ -133,11 +133,11 @@ export const useUserStore = defineStore('user', () => {
 
             return user
           } else {
-            console.error('❌ Store: Registration API failed:', response.error)
+            console.warn('❌ Store: Registration API failed:', response.error)
             throw new Error(response.error || 'Registration failed')
           }
         } catch (error: any) {
-          console.error('❌ Store: Registration error:', error.message)
+          console.warn('❌ Store: Registration error:', error.message)
 
           // Show error toast
           globalToast.authError(error.message || 'Failed to create account. Please try again.')
@@ -166,11 +166,11 @@ export const useUserStore = defineStore('user', () => {
             // Show success toast
             globalToast.logoutSuccess()
           } else {
-            console.error('❌ Store: Logout API failed:', response.error)
+            console.warn('❌ Store: Logout API failed:', response.error)
             throw new Error(response.error || 'Logout failed')
           }
         } catch (error: any) {
-          console.error('❌ Store: Logout error:', error.message)
+          console.warn('❌ Store: Logout error:', error.message)
 
           // Show error toast
           globalToast.authError(error.message || 'Failed to sign out. Please try again.')
@@ -197,11 +197,11 @@ export const useUserStore = defineStore('user', () => {
               { icon: '📧', duration: 5000 }
             )
           } else {
-            console.error('❌ Store: Password reset API failed:', response.error)
+            console.warn('❌ Store: Password reset API failed:', response.error)
             throw new Error(response.error || 'Password reset failed')
           }
         } catch (error: any) {
-          console.error('❌ Store: Password reset error:', error.message)
+          console.warn('❌ Store: Password reset error:', error.message)
 
           // Show error toast
           globalToast.authError(error.message || 'Failed to send password reset email.')
@@ -233,11 +233,11 @@ export const useUserStore = defineStore('user', () => {
               duration: 3000,
             })
           } else {
-            console.error('❌ Store: Profile update API failed:', response.error)
+            console.warn('❌ Store: Profile update API failed:', response.error)
             throw new Error(response.error || 'Profile update failed')
           }
         } catch (error: any) {
-          console.error('❌ Store: Profile update error:', error.message)
+          console.warn('❌ Store: Profile update error:', error.message)
 
           // Show error toast
           globalToast.authError(error.message || 'Failed to update profile.')
@@ -267,7 +267,7 @@ export const useUserStore = defineStore('user', () => {
     // Check Firebase configuration first
     const configCheck = AuthAPI.checkConfiguration()
     if (!configCheck.isValid) {
-      console.error('❌ Store: Firebase configuration invalid:', configCheck.errors)
+      console.warn('❌ Store: Firebase configuration invalid:', configCheck.errors)
       authLoading.value = false
       return
     }
@@ -355,7 +355,7 @@ export const useUserStore = defineStore('user', () => {
       }
       localStorage.setItem('cinemaai-user-data', JSON.stringify(userData))
     } catch (error) {
-      console.error('Failed to save to localStorage:', error)
+      console.warn('Failed to save to localStorage:', error)
     }
   }
 
@@ -376,7 +376,7 @@ export const useUserStore = defineStore('user', () => {
         }
       }
     } catch (error) {
-      console.error('Failed to load from localStorage:', error)
+      console.warn('Failed to load from localStorage:', error)
     }
   }
 

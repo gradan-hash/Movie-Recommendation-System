@@ -53,7 +53,7 @@ export const useLoader = () => {
       const result = await apiCall()
       return result
     } catch (error) {
-      console.error(`❌ Loader: Failed "${label}":`, error)
+      console.warn(`❌ Loader: Failed "${label}":`, error)
       throw error
     } finally {
       stopLoading(operationId)

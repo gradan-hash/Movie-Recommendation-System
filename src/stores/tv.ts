@@ -64,7 +64,7 @@ export const useTVStore = defineStore('tv', () => {
         throw new Error(response.error || 'Failed to load popular TV series')
       }
     } catch (err: any) {
-      console.error('❌ TV Store: Popular series load failed:', err.message)
+      console.warn('❌ TV Store: Popular series load failed:', err.message)
       error.value = err.message
 
       // Reset state on error
@@ -116,7 +116,7 @@ export const useTVStore = defineStore('tv', () => {
         throw new Error(response.error || 'Search failed')
       }
     } catch (err: any) {
-      console.error('❌ TV Store: Search failed:', err.message)
+      console.warn('❌ TV Store: Search failed:', err.message)
       error.value = err.message
 
       if (page === 1) {

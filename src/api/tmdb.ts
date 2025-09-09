@@ -53,7 +53,7 @@ tmdbApi.interceptors.response.use(
     return response
   },
   error => {
-    console.error(
+    console.warn(
       `❌ TMDB API: ${error.response?.status || 'Network'} ${error.config?.url}`,
       error.response?.data || error.message
     )
@@ -83,7 +83,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Popular movies failed:', error.response?.data || error.message)
+          console.warn('❌ API: Popular movies failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -127,7 +127,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Search movies failed:', error.response?.data || error.message)
+          console.warn('❌ API: Search movies failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -156,7 +156,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Movie details failed:', error.response?.data || error.message)
+          console.warn('❌ API: Movie details failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -200,7 +200,7 @@ export class TMDBAPI {
         data: result,
       }
     } catch (error: any) {
-      console.error('❌ API: Find movie by title failed:', error.message)
+      console.warn('❌ API: Find movie by title failed:', error.message)
 
       return {
         success: false,
@@ -228,7 +228,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Trending movies failed:', error.response?.data || error.message)
+          console.warn('❌ API: Trending movies failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -259,7 +259,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Movie videos failed:', error.response?.data || error.message)
+          console.warn('❌ API: Movie videos failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -295,7 +295,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Top rated movies failed:', error.response?.data || error.message)
+          console.warn('❌ API: Top rated movies failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -331,7 +331,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Popular TV series failed:', error.response?.data || error.message)
+          console.warn('❌ API: Popular TV series failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -375,7 +375,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Search TV series failed:', error.response?.data || error.message)
+          console.warn('❌ API: Search TV series failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -404,7 +404,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: TV series details failed:', error.response?.data || error.message)
+          console.warn('❌ API: TV series details failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -437,7 +437,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Trending TV series failed:', error.response?.data || error.message)
+          console.warn('❌ API: Trending TV series failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -473,10 +473,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error(
-            '❌ API: Top rated TV series failed:',
-            error.response?.data || error.message
-          )
+          console.warn('❌ API: Top rated TV series failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -553,7 +550,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Similar movies failed:', error.response?.data || error.message)
+          console.warn('❌ API: Similar movies failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -590,7 +587,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error('❌ API: Similar TV series failed:', error.response?.data || error.message)
+          console.warn('❌ API: Similar TV series failed:', error.response?.data || error.message)
 
           return {
             success: false,
@@ -627,7 +624,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error(
+          console.warn(
             '❌ API: Movie recommendations failed:',
             error.response?.data || error.message
           )
@@ -667,7 +664,7 @@ export class TMDBAPI {
             status: response.status,
           }
         } catch (error: any) {
-          console.error(
+          console.warn(
             '❌ API: TV series recommendations failed:',
             error.response?.data || error.message
           )
@@ -703,10 +700,7 @@ export class TMDBAPI {
         status: response.status,
       }
     } catch (error: any) {
-      console.error(
-        '❌ API: TMDB configuration test failed:',
-        error.response?.data || error.message
-      )
+      console.warn('❌ API: TMDB configuration test failed:', error.response?.data || error.message)
 
       return {
         success: false,

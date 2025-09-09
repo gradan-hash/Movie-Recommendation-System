@@ -28,7 +28,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
     - Auth Domain: ${firebaseConfig.authDomain ? '✓' : '❌'}
     - Project ID: ${firebaseConfig.projectId ? '✓' : '❌'}
   `
-  console.error(errorMessage)
+  console.warn(errorMessage)
   throw new Error('Firebase configuration error. Check console for details.')
 }
 
@@ -95,7 +95,7 @@ export class AuthService {
       const user = this.mapFirebaseUser(userCredential.user)
       return user
     } catch (error: any) {
-      console.error('❌ Registration failed:', error.message)
+      console.warn('❌ Registration failed:', error.message)
       throw this.handleAuthError(error)
     }
   }
@@ -107,7 +107,7 @@ export class AuthService {
       const user = this.mapFirebaseUser(userCredential.user)
       return user
     } catch (error: any) {
-      console.error('❌ Login failed:', error.message)
+      console.warn('❌ Login failed:', error.message)
       throw this.handleAuthError(error)
     }
   }
@@ -117,7 +117,7 @@ export class AuthService {
     try {
       await signOut(auth)
     } catch (error: any) {
-      console.error('❌ Logout failed:', error.message)
+      console.warn('❌ Logout failed:', error.message)
       throw this.handleAuthError(error)
     }
   }
@@ -138,7 +138,7 @@ export class AuthService {
     try {
       await sendPasswordResetEmail(auth, email)
     } catch (error: any) {
-      console.error('❌ Password reset failed:', error.message)
+      console.warn('❌ Password reset failed:', error.message)
       throw this.handleAuthError(error)
     }
   }
@@ -151,7 +151,7 @@ export class AuthService {
     try {
       await updateProfile(user, { displayName, photoURL })
     } catch (error: any) {
-      console.error('❌ Profile update failed:', error.message)
+      console.warn('❌ Profile update failed:', error.message)
       throw this.handleAuthError(error)
     }
   }

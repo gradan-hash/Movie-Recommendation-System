@@ -197,7 +197,7 @@ export class AuthAPI {
         },
       }
     } catch (error: any) {
-      console.error('❌ API: Profile update failed:', error.message)
+      console.warn('❌ API: Profile update failed:', error.message)
 
       return {
         success: false,
@@ -263,7 +263,7 @@ export class AuthAPI {
         errors,
       }
     } catch (error) {
-      console.error('❌ API: Configuration check failed:', error)
+      console.warn('❌ API: Configuration check failed:', error)
 
       return {
         isValid: false,

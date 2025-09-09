@@ -375,7 +375,7 @@ const updateProfile = async () => {
     await userStore.updateProfile(profileForm.value.displayName)
     showEditProfile.value = false
   } catch (error) {
-    console.error('Failed to update profile:', error)
+    console.warn('Failed to update profile:', error)
   } finally {
     profileLoading.value = false
   }

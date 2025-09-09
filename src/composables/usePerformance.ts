@@ -24,7 +24,7 @@ export const usePerformance = () => {
     domNodes: 0,
     renderTime: 0,
     apiCallCount: 0,
-    totalLoadTime: 0
+    totalLoadTime: 0,
   })
 
   const isOptimizing = ref(false)
@@ -45,7 +45,8 @@ export const usePerformance = () => {
 
       const elapsed = currentTime - fpsStartTime
 
-      if (elapsed >= 1000) { // Calculate FPS every second
+      if (elapsed >= 1000) {
+        // Calculate FPS every second
         metrics.value.fps = Math.round((fpsFrameCount * 1000) / elapsed)
         fpsStartTime = currentTime
         fpsFrameCount = 0
@@ -83,15 +84,17 @@ export const usePerformance = () => {
   const initPerformanceObserver = () => {
     if (!window.PerformanceObserver) return
 
-    performanceObserver.value = new PerformanceObserver((list) => {
+    performanceObserver.value = new PerformanceObserver(list => {
       const entries = list.getEntries()
-      
-      entries.forEach((entry) => {
+
+      entries.forEach(entry => {
         if (entry.entryType === 'measure') {
           metrics.value.renderTime = Math.round(entry.duration)
         } else if (entry.entryType === 'navigation') {
           const navigationEntry = entry as PerformanceNavigationTiming
-          metrics.value.totalLoadTime = Math.round(navigationEntry.loadEventEnd - navigationEntry.startTime)
+          metrics.value.totalLoadTime = Math.round(
+            navigationEntry.loadEventEnd - navigationEntry.startTime
+          )
         }
       })
     })
@@ -113,22 +116,22 @@ export const usePerformance = () => {
       loadingClass: 'lazy-loading',
       loadedClass: 'lazy-loaded',
       errorClass: 'lazy-error',
-      ...options
+      ...options,
     }
 
     const images = document.querySelectorAll(selector)
-    
+
     if (!images.length) return
 
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const imageObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
         if (entry.isIntersecting) {
           const img = entry.target as HTMLImageElement
           const src = img.dataset.src
 
           if (src) {
             img.classList.add(defaultOptions.loadingClass!)
-            
+
             const imageLoader = new Image()
             imageLoader.onload = () => {
               img.src = src
@@ -136,12 +139,12 @@ export const usePerformance = () => {
               img.classList.add(defaultOptions.loadedClass!)
               img.removeAttribute('data-src')
             }
-            
+
             imageLoader.onerror = () => {
               img.classList.remove(defaultOptions.loadingClass!)
               img.classList.add(defaultOptions.errorClass!)
             }
-            
+
             imageLoader.src = src
           }
 
@@ -150,7 +153,7 @@ export const usePerformance = () => {
       })
     }, defaultOptions)
 
-    images.forEach((img) => imageObserver.observe(img))
+    images.forEach(img => imageObserver.observe(img))
 
     return imageObserver
   }
@@ -173,7 +176,7 @@ export const usePerformance = () => {
       return {
         visibleItems: items.slice(startIndex, endIndex),
         offsetY: startIndex * itemHeight,
-        totalHeight: items.length * itemHeight
+        totalHeight: items.length * itemHeight,
       }
     }
 
@@ -189,7 +192,7 @@ export const usePerformance = () => {
   // Debounce function for performance
   const debounce = <T extends (...args: any[]) => any>(func: T, delay: number): T => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null
-    
+
     return ((...args: any[]) => {
       if (timeoutId) clearTimeout(timeoutId)
       timeoutId = setTimeout(() => func.apply(null, args), delay)
@@ -199,7 +202,7 @@ export const usePerformance = () => {
   // Throttle function for performance
   const throttle = <T extends (...args: any[]) => any>(func: T, delay: number): T => {
     let lastCall = 0
-    
+
     return ((...args: any[]) => {
       const now = Date.now()
       if (now - lastCall >= delay) {
@@ -216,9 +219,9 @@ export const usePerformance = () => {
     link.href = href
     link.as = as
     if (crossorigin) link.crossOrigin = crossorigin
-    
+
     document.head.appendChild(link)
-    
+
     return link
   }
 
@@ -231,7 +234,7 @@ export const usePerformance = () => {
       return canvas.toDataURL('image/webp').indexOf('image/webp') === 5
     }
 
-    if (supportsWebP() && src.includes('.jpg') || src.includes('.png')) {
+    if ((supportsWebP() && src.includes('.jpg')) || src.includes('.png')) {
       return src.replace(/\.(jpg|png)$/i, '.webp')
     }
 
@@ -244,13 +247,18 @@ export const usePerformance = () => {
       const module = await importFn()
       return module.default || module
     } catch (error) {
-      console.error('Failed to load component:', error)
+      console.warn('Failed to load component:', error)
       throw error
     }
   }
 
   // Performance budget monitoring
-  const checkPerformanceBudget = (budgets: { fps: number; memory?: number; domNodes: number; renderTime: number }) => {
+  const checkPerformanceBudget = (budgets: {
+    fps: number
+    memory?: number
+    domNodes: number
+    renderTime: number
+  }) => {
     const warnings: string[] = []
 
     if (metrics.value.fps < budgets.fps) {
@@ -258,7 +266,9 @@ export const usePerformance = () => {
     }
 
     if (budgets.memory && metrics.value.memoryUsage && metrics.value.memoryUsage > budgets.memory) {
-      warnings.push(`High memory usage: ${metrics.value.memoryUsage}MB (budget: ${budgets.memory}MB)`)
+      warnings.push(
+        `High memory usage: ${metrics.value.memoryUsage}MB (budget: ${budgets.memory}MB)`
+      )
     }
 
     if (metrics.value.domNodes > budgets.domNodes) {
@@ -266,7 +276,9 @@ export const usePerformance = () => {
     }
 
     if (metrics.value.renderTime > budgets.renderTime) {
-      warnings.push(`Slow render time: ${metrics.value.renderTime}ms (budget: ${budgets.renderTime}ms)`)
+      warnings.push(
+        `Slow render time: ${metrics.value.renderTime}ms (budget: ${budgets.renderTime}ms)`
+      )
     }
 
     return warnings
@@ -276,10 +288,10 @@ export const usePerformance = () => {
   const startMonitoring = () => {
     startFPSMonitoring()
     initPerformanceObserver()
-    
+
     // Update metrics every 5 seconds
     const metricsInterval = setInterval(updateMetrics, 5000)
-    
+
     onUnmounted(() => {
       clearInterval(metricsInterval)
       stopFPSMonitoring()
@@ -362,6 +374,6 @@ export const usePerformance = () => {
 
     // Performance helpers
     startMonitoring,
-    applyCriticalOptimizations
+    applyCriticalOptimizations,
   }
 }

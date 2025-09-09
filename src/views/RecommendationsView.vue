@@ -274,7 +274,7 @@ const loadRecommendations = async () => {
       }
     }
   } catch (err: any) {
-    console.error('❌ Failed to load recommendations:', err)
+    console.warn('❌ Failed to load recommendations:', err)
     error.value = err.message || 'Failed to load recommendations'
   } finally {
     loading.value = false

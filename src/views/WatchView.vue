@@ -832,7 +832,7 @@ const loadContent = async () => {
       throw new Error(response.error || `Failed to load ${contentType.value}`)
     }
   } catch (err: any) {
-    console.error(`❌ Error loading ${contentType.value}:`, err.message)
+    console.warn(`❌ Error loading ${contentType.value}:`, err.message)
     error.value = err.message || `Failed to load ${contentType.value}`
   } finally {
     loading.value = false
@@ -854,7 +854,7 @@ const loadMovieVideos = async (movieId: number) => {
       console.warn('⚠️ No videos found for this movie')
     }
   } catch (err: any) {
-    console.error(`❌ Error loading videos:`, err.message)
+    console.warn(`❌ Error loading videos:`, err.message)
     videoError.value = err.message || 'Failed to load videos'
   } finally {
     loadingVideos.value = false
@@ -884,7 +884,7 @@ const startWatching = async () => {
       // Initialize YouTube Player with best video
       await initializeYouTubePlayer()
     } else {
-      console.error('❌ No suitable video found')
+      console.warn('❌ No suitable video found')
     }
   } else {
     console.warn('⚠️ No videos loaded yet')
@@ -999,7 +999,7 @@ const initializeYouTubePlayer = async () => {
     playerLoading.value = true
 
     if (!currentVideo.value || currentVideo.value.site !== 'YouTube') {
-      console.error('❌ No current video or not YouTube:', currentVideo.value)
+      console.warn('❌ No current video or not YouTube:', currentVideo.value)
       throw new Error(`No video available`)
     }
 
@@ -1042,7 +1042,7 @@ const initializeYouTubePlayer = async () => {
       },
     })
   } catch (error) {
-    console.error('❌ Failed to initialize YouTube player:', error)
+    console.warn('❌ Failed to initialize YouTube player:', error)
     videoError.value = `Failed to load video: ${error}`
   } finally {
     playerLoading.value = false
@@ -1090,7 +1090,7 @@ const onPlayerError = (event: any) => {
 
   const errorMessage =
     errorCodes[event.data as keyof typeof errorCodes] || `Unknown error (${event.data})`
-  console.error('❌ YouTube player error:', {
+  console.warn('❌ YouTube player error:', {
     code: event.data,
     message: errorMessage,
     videoKey: currentVideo.value?.key,
@@ -1222,7 +1222,7 @@ const loadSimilarContent = async () => {
       throw new Error(response.error || `Failed to load ${recommendationType.value} content`)
     }
   } catch (error: any) {
-    console.error(`❌ Failed to load ${recommendationType.value} content:`, error.message)
+    console.warn(`❌ Failed to load ${recommendationType.value} content:`, error.message)
     similarError.value = error.message
   } finally {
     similarLoading.value = false

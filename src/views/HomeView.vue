@@ -661,7 +661,7 @@ const loadAIRecommendations = async () => {
     } else {
     }
   } catch (err: any) {
-    console.error('❌ HomeView: Failed to load AI recommendations:', err)
+    console.warn('❌ HomeView: Failed to load AI recommendations:', err)
   } finally {
     aiLoading.value = false
   }

@@ -385,7 +385,7 @@ const handleForgotPassword = async () => {
 
     emit('success', 'reset')
   } catch (err: any) {
-    console.error('❌ Password reset failed:', err)
+    console.warn('❌ Password reset failed:', err)
     error.value =
       err.message || 'Failed to send reset email. Please check your email address and try again.'
   } finally {

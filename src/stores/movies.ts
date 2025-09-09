@@ -58,11 +58,11 @@ export const useMoviesStore = defineStore('movies', () => {
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
       } else {
-        console.error('❌ Store: Popular movies API failed:', response.error)
+        console.warn('❌ Store: Popular movies API failed:', response.error)
         error.value = response.error || 'Failed to load popular movies'
       }
     } catch (err: any) {
-      console.error('❌ Store: Popular movies error:', err.message)
+      console.warn('❌ Store: Popular movies error:', err.message)
       error.value = err.message || 'Failed to load popular movies'
     } finally {
       loading.value = false
@@ -103,11 +103,11 @@ export const useMoviesStore = defineStore('movies', () => {
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
       } else {
-        console.error('❌ Store: Search movies API failed:', response.error)
+        console.warn('❌ Store: Search movies API failed:', response.error)
         error.value = response.error || 'Failed to search movies'
       }
     } catch (err: any) {
-      console.error('❌ Store: Search movies error:', err.message)
+      console.warn('❌ Store: Search movies error:', err.message)
       error.value = err.message || 'Failed to search movies'
     } finally {
       loading.value = false
@@ -136,12 +136,12 @@ export const useMoviesStore = defineStore('movies', () => {
 
         return response.data
       } else {
-        console.error('❌ Store: Movie details API failed:', response.error)
+        console.warn('❌ Store: Movie details API failed:', response.error)
         error.value = response.error || 'Failed to load movie details'
         return null
       }
     } catch (err: any) {
-      console.error('❌ Store: Movie details error:', err.message)
+      console.warn('❌ Store: Movie details error:', err.message)
       error.value = err.message || 'Failed to load movie details'
       return null
     } finally {

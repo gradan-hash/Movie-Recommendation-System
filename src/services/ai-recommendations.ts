@@ -68,7 +68,7 @@ export class AIRecommendationService {
 
           return result
         } catch (error: any) {
-          console.error('❌ AI: Recommendation generation failed:', error)
+          console.warn('❌ AI: Recommendation generation failed:', error)
 
           // Fallback to similar movies if AI fails
           const fallbackRecommendations = await this.getFallbackRecommendations(likedMovies)
@@ -231,7 +231,7 @@ Focus on:
 
       return recommendations
     } catch (error) {
-      console.error('Failed to parse AI response:', error)
+      console.warn('Failed to parse AI response:', error)
       throw new Error('Failed to parse AI recommendations')
     }
   }
@@ -265,7 +265,7 @@ Focus on:
         }
       }
     } catch (error) {
-      console.error('Fallback recommendations failed:', error)
+      console.warn('Fallback recommendations failed:', error)
     }
 
     return recommendations
