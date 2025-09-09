@@ -34,11 +34,30 @@ jobs:
         run: |
           # Extract services coverage from HTML report
           if [ -f coverage/lcov-report/index.html ]; then
-            SERVICES_COVERAGE=$(grep -A 5 'movie-recommendation/src/services' coverage/lcov-report/index.html | grep -o '[0-9]*\.[0-9]*%' | head -1 | sed 's/%//')
+            # More robust extraction using the services row data-value attribute
+            SERVICES_COVERAGE=$(grep -A 1 'movie-recommendation/src/services' coverage/lcov-report/index.html | grep 'data-value=' | grep -o 'data-value="[0-9]*\.[0-9]*"' | head -1 | sed 's/data-value="//; s/"//')
+            
+            # Fallback: try different extraction method if first fails
+            if [ -z "$SERVICES_COVERAGE" ]; then
+              SERVICES_COVERAGE=$(grep 'movie-recommendation/src/services' coverage/lcov-report/index.html | grep -o '[0-9]*\.[0-9]*%' | head -1 | sed 's/%//')
+            fi
+            
+            # Final fallback: use overall function coverage if services not found
+            if [ -z "$SERVICES_COVERAGE" ]; then
+              echo "⚠️ Services-specific coverage not found, using overall function coverage"
+              SERVICES_COVERAGE=$(grep -o '[0-9]*\.[0-9]*%.*Functions' coverage/lcov-report/index.html | head -1 | grep -o '[0-9]*\.[0-9]*' | head -1)
+            fi
+            
             echo "Services coverage: ${SERVICES_COVERAGE}%"
             
-            # Check if services coverage meets 50% threshold
-            if awk "BEGIN {exit !($SERVICES_COVERAGE >= 50)}"; then
+            # Check if we have a valid coverage value
+            if [ -z "$SERVICES_COVERAGE" ] || [ "$SERVICES_COVERAGE" = "" ]; then
+              echo "❌ Could not extract coverage value"
+              exit 1
+            fi
+            
+            # Check if services coverage meets 50% threshold using bc for decimal comparison
+            if (( $(echo "$SERVICES_COVERAGE >= 50" | bc -l) )); then
               echo "✅ Services coverage ${SERVICES_COVERAGE}% meets the 50% threshold"
             else
               echo "❌ Services coverage ${SERVICES_COVERAGE}% is below the 50% threshold"
