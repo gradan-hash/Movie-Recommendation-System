@@ -163,6 +163,7 @@ export class AuthAPI {
         }
       }
     } catch (error: any) {
+      console.warn(error)
       return {
         success: false,
         error: 'Failed to get current user',
