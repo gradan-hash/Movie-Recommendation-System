@@ -34,7 +34,6 @@ export class TMDBService {
     this.api.interceptors.response.use(
       response => response,
       error => {
-        console.warn('TMDB API Error:', error.response?.data || error.message)
         throw error
       }
     )
@@ -116,7 +115,6 @@ export class TMDBService {
 
       return exactMatch || response.results[0] || null
     } catch {
-      console.warn(`Could not find movie: ${title}`)
       return null
     }
   }

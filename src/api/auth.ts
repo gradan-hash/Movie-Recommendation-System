@@ -196,9 +196,7 @@ export class AuthAPI {
           emailVerified: user.emailVerified,
         },
       }
-    } catch (error: any) {
-      console.warn('❌ API: Profile update failed:', error.message)
-
+    } catch {
       return {
         success: false,
         error: 'Failed to update profile',
@@ -262,9 +260,7 @@ export class AuthAPI {
         isValid: errors.length === 0,
         errors,
       }
-    } catch (error) {
-      console.warn('❌ API: Configuration check failed:', error)
-
+    } catch {
       return {
         isValid: false,
         errors: ['Failed to check Firebase configuration'],

@@ -68,8 +68,6 @@ export class AIRecommendationService {
 
           return result
         } catch (error: any) {
-          console.warn('❌ AI: Recommendation generation failed:', error)
-
           // Fallback to similar movies if AI fails
           const fallbackRecommendations = await this.getFallbackRecommendations(likedMovies)
 

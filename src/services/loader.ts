@@ -48,13 +48,10 @@ export const useLoader = () => {
   ): Promise<T> => {
     const operationId = id || `api_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
+    startLoading(operationId, label)
     try {
-      startLoading(operationId, label)
       const result = await apiCall()
       return result
-    } catch (error) {
-      console.warn(`❌ Loader: Failed "${label}":`, error)
-      throw error
     } finally {
       stopLoading(operationId)
     }
