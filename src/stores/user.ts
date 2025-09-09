@@ -22,13 +22,11 @@ export const useUserStore = defineStore('user', () => {
     darkMode: true,
     autoPlay: false,
     showAdultContent: false,
-    preferredLanguage: 'en'
+    preferredLanguage: 'en',
   })
 
   // Computed
-  const likedMovieIds = computed(() => 
-    likedMovies.value.map(movie => movie.id)
-  )
+  const likedMovieIds = computed(() => likedMovies.value.map(movie => movie.id))
 
   const likedMoviesCount = computed(() => likedMovies.value.length)
 
@@ -37,22 +35,27 @@ export const useUserStore = defineStore('user', () => {
   const canGetRecommendations = computed(() => likedMovies.value.length >= 3)
 
   // Authentication Computed
-  const userDisplayName = computed(() => currentUser.value?.displayName || currentUser.value?.email || 'User')
+  const userDisplayName = computed(
+    () => currentUser.value?.displayName || currentUser.value?.email || 'User'
+  )
   const userInitials = computed(() => {
     const name = userDisplayName.value
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
   })
 
   // Auth Modal Actions
   const openAuthModal = (mode: 'login' | 'register' = 'login') => {
     authModalMode.value = mode
     showAuthModal.value = true
-    console.log(`🔐 Store: Auth modal opened in ${mode} mode`)
   }
 
   const closeAuthModal = () => {
     showAuthModal.value = false
-    console.log('🔐 Store: Auth modal closed')
   }
 
   // Authentication Actions using API endpoints
@@ -61,29 +64,25 @@ export const useUserStore = defineStore('user', () => {
       async () => {
         authLoading.value = true
         try {
-          console.log('🔐 Store: Attempting login via API endpoint')
-          
           const response: AuthResponse = await AuthAPI.login({ email, password })
-          
+
           if (response.success && response.data) {
-            console.log('✅ Store: Login API response successful')
-            
             // Map API response to User type
             const user: User = {
               uid: response.data.uid,
               email: response.data.email,
               displayName: response.data.displayName,
               photoURL: null,
-              emailVerified: response.data.emailVerified
+              emailVerified: response.data.emailVerified,
             }
-            
+
             currentUser.value = user
             isAuthenticated.value = true
             await loadFromLocalStorage()
-            
+
             // Show success toast
             globalToast.loginSuccess(user.displayName || user.email || undefined)
-            
+
             return user
           } else {
             console.error('❌ Store: Login API failed:', response.error)
@@ -91,10 +90,10 @@ export const useUserStore = defineStore('user', () => {
           }
         } catch (error: any) {
           console.error('❌ Store: Login error:', error.message)
-          
+
           // Show error toast
           globalToast.authError(error.message || 'Failed to sign in. Please try again.')
-          
+
           throw error
         } finally {
           authLoading.value = false
@@ -110,32 +109,28 @@ export const useUserStore = defineStore('user', () => {
       async () => {
         authLoading.value = true
         try {
-          console.log('📝 Store: Attempting registration via API endpoint')
-          
-          const response: AuthResponse = await AuthAPI.register({ 
-            email, 
-            password, 
-            displayName 
+          const response: AuthResponse = await AuthAPI.register({
+            email,
+            password,
+            displayName,
           })
-          
+
           if (response.success && response.data) {
-            console.log('✅ Store: Registration API response successful')
-            
             // Map API response to User type
             const user: User = {
               uid: response.data.uid,
               email: response.data.email,
               displayName: response.data.displayName,
               photoURL: null,
-              emailVerified: response.data.emailVerified
+              emailVerified: response.data.emailVerified,
             }
-            
+
             currentUser.value = user
             isAuthenticated.value = true
-            
+
             // Show success toast
             globalToast.registerSuccess(user.displayName || user.email || 'User')
-            
+
             return user
           } else {
             console.error('❌ Store: Registration API failed:', response.error)
@@ -143,10 +138,10 @@ export const useUserStore = defineStore('user', () => {
           }
         } catch (error: any) {
           console.error('❌ Store: Registration error:', error.message)
-          
+
           // Show error toast
           globalToast.authError(error.message || 'Failed to create account. Please try again.')
-          
+
           throw error
         } finally {
           authLoading.value = false
@@ -161,17 +156,13 @@ export const useUserStore = defineStore('user', () => {
     return globalLoader.wrapAPICall(
       async () => {
         try {
-          console.log('🚪 Store: Attempting logout via API endpoint')
-          
           const response: AuthResponse = await AuthAPI.logout()
-          
+
           if (response.success) {
-            console.log('✅ Store: Logout API response successful')
-            
             currentUser.value = null
             isAuthenticated.value = false
             clearUserData()
-            
+
             // Show success toast
             globalToast.logoutSuccess()
           } else {
@@ -180,10 +171,10 @@ export const useUserStore = defineStore('user', () => {
           }
         } catch (error: any) {
           console.error('❌ Store: Logout error:', error.message)
-          
+
           // Show error toast
           globalToast.authError(error.message || 'Failed to sign out. Please try again.')
-          
+
           throw error
         }
       },
@@ -196,13 +187,9 @@ export const useUserStore = defineStore('user', () => {
     return globalLoader.wrapAPICall(
       async () => {
         try {
-          console.log('🔄 Store: Attempting password reset via API endpoint')
-          
           const response: AuthResponse = await AuthAPI.resetPassword({ email })
-          
+
           if (response.success) {
-            console.log('✅ Store: Password reset API response successful')
-            
             // Show success toast
             globalToast.success(
               'Password Reset Sent',
@@ -215,10 +202,10 @@ export const useUserStore = defineStore('user', () => {
           }
         } catch (error: any) {
           console.error('❌ Store: Password reset error:', error.message)
-          
+
           // Show error toast
           globalToast.authError(error.message || 'Failed to send password reset email.')
-          
+
           throw error
         }
       },
@@ -231,35 +218,30 @@ export const useUserStore = defineStore('user', () => {
     return globalLoader.wrapAPICall(
       async () => {
         try {
-          console.log('👤 Store: Attempting profile update via API endpoint')
-          
           const response: AuthResponse = await AuthAPI.updateProfile(displayName, photoURL)
-          
+
           if (response.success && response.data) {
-            console.log('✅ Store: Profile update API response successful')
-            
             // Update local user state
             if (currentUser.value) {
               currentUser.value.displayName = response.data.displayName
               currentUser.value.photoURL = photoURL || currentUser.value.photoURL
             }
-            
+
             // Show success toast
-            globalToast.success(
-              'Profile Updated',
-              'Your profile has been updated successfully',
-              { icon: '👤', duration: 3000 }
-            )
+            globalToast.success('Profile Updated', 'Your profile has been updated successfully', {
+              icon: '👤',
+              duration: 3000,
+            })
           } else {
             console.error('❌ Store: Profile update API failed:', response.error)
             throw new Error(response.error || 'Profile update failed')
           }
         } catch (error: any) {
           console.error('❌ Store: Profile update error:', error.message)
-          
-          // Show error toast  
+
+          // Show error toast
           globalToast.authError(error.message || 'Failed to update profile.')
-          
+
           throw error
         }
       },
@@ -274,7 +256,7 @@ export const useUserStore = defineStore('user', () => {
       darkMode: true,
       autoPlay: false,
       showAdultContent: false,
-      preferredLanguage: 'en'
+      preferredLanguage: 'en',
     }
     // Clear localStorage
     localStorage.removeItem('cinemaai-user-data')
@@ -282,8 +264,6 @@ export const useUserStore = defineStore('user', () => {
 
   // Initialize authentication state
   const initializeAuth = () => {
-    console.log('🔧 Store: Initializing auth state')
-    
     // Check Firebase configuration first
     const configCheck = AuthAPI.checkConfiguration()
     if (!configCheck.isValid) {
@@ -291,40 +271,26 @@ export const useUserStore = defineStore('user', () => {
       authLoading.value = false
       return
     }
-    
-    console.log('✅ Store: Firebase configuration valid')
-    
+
     // Set up auth state listener - this handles persistence automatically
-    authService.onAuthStateChange((user) => {
-      const wasLoading = authLoading.value
-      const wasAuthenticated = isAuthenticated.value
-      
-      console.log('🔄 Store: Auth state changed:', user ? `User: ${user.uid}` : 'No user')
-      console.log('📊 Store: Previous state - Loading:', wasLoading, 'Authenticated:', wasAuthenticated)
-      
+    authService.onAuthStateChange(user => {
       currentUser.value = user
       isAuthenticated.value = !!user
       authLoading.value = false
-      
+
       if (user) {
-        console.log('✅ Store: User authenticated, loading data')
         loadFromLocalStorage()
-        
+
         // Close auth modal if it was open
         if (showAuthModal.value) {
-          console.log('🔐 Store: Closing auth modal - user is now authenticated')
           closeAuthModal()
         }
       } else {
-        console.log('ℹ️ Store: No user, clearing data')
         clearUserData()
       }
-      
-      console.log('📊 Store: New state - Loading:', authLoading.value, 'Authenticated:', isAuthenticated.value)
     })
 
     // Let Firebase handle the persistence - don't check immediately
-    console.log('⏳ Store: Waiting for Firebase auth state...')
   }
 
   // Movie Actions
@@ -333,8 +299,7 @@ export const useUserStore = defineStore('user', () => {
     if (!exists) {
       likedMovies.value.push(movie)
       saveToLocalStorage()
-      console.log(`❤️ Liked: ${movie.title}`)
-      
+
       // Show success toast
       globalToast.movieLiked(movie.title)
     }
@@ -345,8 +310,7 @@ export const useUserStore = defineStore('user', () => {
     if (index > -1) {
       const removedMovie = likedMovies.value.splice(index, 1)[0]
       saveToLocalStorage()
-      console.log(`💔 Unliked: ${removedMovie.title}`)
-      
+
       // Show info toast
       globalToast.movieUnliked(removedMovie.title)
     }
@@ -368,7 +332,6 @@ export const useUserStore = defineStore('user', () => {
   const clearLikedMovies = () => {
     likedMovies.value = []
     saveToLocalStorage()
-    console.log('🧹 Cleared all liked movies')
   }
 
   // Preferences actions
@@ -388,7 +351,7 @@ export const useUserStore = defineStore('user', () => {
       const userData = {
         likedMovies: likedMovies.value,
         preferences: preferences.value,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
       localStorage.setItem('cinemaai-user-data', JSON.stringify(userData))
     } catch (error) {
@@ -401,18 +364,16 @@ export const useUserStore = defineStore('user', () => {
       const saved = localStorage.getItem('cinemaai-user-data')
       if (saved) {
         const userData = JSON.parse(saved)
-        
+
         // Restore liked movies
         if (userData.likedMovies && Array.isArray(userData.likedMovies)) {
           likedMovies.value = userData.likedMovies
         }
-        
+
         // Restore preferences
         if (userData.preferences) {
           preferences.value = { ...preferences.value, ...userData.preferences }
         }
-        
-        console.log(`📱 Restored ${likedMovies.value.length} liked movies from storage`)
       }
     } catch (error) {
       console.error('Failed to load from localStorage:', error)
@@ -424,20 +385,19 @@ export const useUserStore = defineStore('user', () => {
       likedMovies: likedMovies.value,
       preferences: preferences.value,
       exportDate: new Date().toISOString(),
-      totalLikedMovies: likedMoviesCount.value
+      totalLikedMovies: likedMoviesCount.value,
     }
-    
+
     const dataStr = JSON.stringify(userData, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)
-    
+
     const link = document.createElement('a')
     link.href = url
     link.download = 'cinemaai-my-movies.json'
     link.click()
-    
+
     URL.revokeObjectURL(url)
-    console.log('📥 User data exported')
   }
 
   // Statistics
@@ -470,7 +430,7 @@ export const useUserStore = defineStore('user', () => {
         .slice(0, 3),
       favoriteYears: Array.from(years.entries())
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
+        .slice(0, 3),
     }
   })
 
@@ -479,30 +439,30 @@ export const useUserStore = defineStore('user', () => {
     currentUser,
     isAuthenticated,
     authLoading,
-    
+
     // Auth Modal State
     showAuthModal,
     authModalMode,
-    
+
     // Movie State
     likedMovies,
     preferences,
-    
+
     // Authentication Computed
     userDisplayName,
     userInitials,
-    
+
     // Movie Computed
     likedMovieIds,
     likedMoviesCount,
     hasLikedMovies,
     canGetRecommendations,
     getMovieStats,
-    
+
     // Auth Modal Actions
     openAuthModal,
     closeAuthModal,
-    
+
     // Authentication Actions
     login,
     register,
@@ -510,7 +470,7 @@ export const useUserStore = defineStore('user', () => {
     resetPassword,
     updateProfile,
     initializeAuth,
-    
+
     // Movie Actions
     likeMovie,
     unlikeMovie,
@@ -521,6 +481,6 @@ export const useUserStore = defineStore('user', () => {
     toggleDarkMode,
     saveToLocalStorage,
     loadFromLocalStorage,
-    exportUserData
+    exportUserData,
   }
 })

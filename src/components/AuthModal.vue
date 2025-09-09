@@ -1,24 +1,16 @@
 <template>
-  <div 
+  <div
     v-if="isOpen"
     class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
     @click="closeModal"
   >
-    <div 
-      class="bg-gray-800 rounded-lg max-w-md w-full p-6"
-      @click.stop
-    >
+    <div class="bg-gray-800 rounded-lg max-w-md w-full p-6" @click.stop>
       <!-- Modal Header -->
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-white">
           {{ isLoginMode ? 'Welcome Back' : 'Join CinemaAI' }}
         </h2>
-        <button
-          @click="closeModal"
-          class="text-gray-400 hover:text-white text-2xl"
-        >
-          ×
-        </button>
+        <button @click="closeModal" class="text-gray-400 hover:text-white text-2xl">×</button>
       </div>
 
       <!-- Error Display -->
@@ -27,7 +19,10 @@
       </div>
 
       <!-- Success Display -->
-      <div v-if="successMessage" class="mb-4 p-3 bg-green-900/50 border border-green-500 rounded-lg">
+      <div
+        v-if="successMessage"
+        class="mb-4 p-3 bg-green-900/50 border border-green-500 rounded-lg"
+      >
         <p class="text-green-200 text-sm">{{ successMessage }}</p>
       </div>
 
@@ -35,9 +30,7 @@
       <form @submit.prevent="handleSubmit">
         <!-- Display Name (Register only) -->
         <div v-if="!isLoginMode" class="mb-4">
-          <label class="block text-white text-sm font-medium mb-2">
-            Full Name
-          </label>
+          <label class="block text-white text-sm font-medium mb-2"> Full Name </label>
           <input
             v-model="form.displayName"
             type="text"
@@ -46,14 +39,14 @@
             placeholder="Enter your full name"
             :class="{ 'border-red-500': errors.displayName }"
           />
-          <p v-if="errors.displayName" class="text-red-400 text-xs mt-1">{{ errors.displayName }}</p>
+          <p v-if="errors.displayName" class="text-red-400 text-xs mt-1">
+            {{ errors.displayName }}
+          </p>
         </div>
 
         <!-- Email -->
         <div class="mb-4">
-          <label class="block text-white text-sm font-medium mb-2">
-            Email Address
-          </label>
+          <label class="block text-white text-sm font-medium mb-2"> Email Address </label>
           <input
             v-model="form.email"
             type="email"
@@ -67,9 +60,7 @@
 
         <!-- Password -->
         <div class="mb-4">
-          <label class="block text-white text-sm font-medium mb-2">
-            Password
-          </label>
+          <label class="block text-white text-sm font-medium mb-2"> Password </label>
           <div class="relative">
             <input
               v-model="form.password"
@@ -84,12 +75,33 @@
               @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
             >
-              <svg v-if="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L12 12m-2.122-2.122L7.757 7.757M12 12l2.122-2.122m0 0L16.243 7.757"/>
+              <svg
+                v-if="showPassword"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L12 12m-2.122-2.122L7.757 7.757M12 12l2.122-2.122m0 0L16.243 7.757"
+                />
               </svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
               </svg>
             </button>
           </div>
@@ -97,7 +109,7 @@
           <div v-if="!isLoginMode && form.password" class="mt-1">
             <div class="text-xs text-gray-400 mb-1">Password strength:</div>
             <div class="w-full bg-gray-600 rounded-full h-1">
-              <div 
+              <div
                 class="h-1 rounded-full transition-all duration-300"
                 :class="passwordStrengthColor"
                 :style="{ width: passwordStrengthPercent + '%' }"
@@ -108,9 +120,7 @@
 
         <!-- Confirm Password (Register only) -->
         <div v-if="!isLoginMode" class="mb-6">
-          <label class="block text-white text-sm font-medium mb-2">
-            Confirm Password
-          </label>
+          <label class="block text-white text-sm font-medium mb-2"> Confirm Password </label>
           <input
             v-model="form.confirmPassword"
             type="password"
@@ -119,7 +129,9 @@
             placeholder="Confirm your password"
             :class="{ 'border-red-500': errors.confirmPassword }"
           />
-          <p v-if="errors.confirmPassword" class="text-red-400 text-xs mt-1">{{ errors.confirmPassword }}</p>
+          <p v-if="errors.confirmPassword" class="text-red-400 text-xs mt-1">
+            {{ errors.confirmPassword }}
+          </p>
         </div>
 
         <!-- Submit Button -->
@@ -128,17 +140,17 @@
           :disabled="loading || !isFormValid"
           class="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <div v-if="loading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          {{ loading ? 'Please wait...' : (isLoginMode ? 'Sign In' : 'Create Account') }}
+          <div
+            v-if="loading"
+            class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
+          ></div>
+          {{ loading ? 'Please wait...' : isLoginMode ? 'Sign In' : 'Create Account' }}
         </button>
       </form>
 
       <!-- Forgot Password (Login only) -->
       <div v-if="isLoginMode" class="mt-4 text-center">
-        <button
-          @click="handleForgotPassword"
-          class="text-red-400 hover:text-red-300 text-sm"
-        >
+        <button @click="handleForgotPassword" class="text-red-400 hover:text-red-300 text-sm">
           Forgot your password?
         </button>
       </div>
@@ -147,10 +159,7 @@
       <div class="mt-6 text-center">
         <p class="text-gray-400 text-sm">
           {{ isLoginMode ? "Don't have an account?" : 'Already have an account?' }}
-          <button
-            @click="toggleMode"
-            class="text-red-400 hover:text-red-300 font-semibold ml-1"
-          >
+          <button @click="toggleMode" class="text-red-400 hover:text-red-300 font-semibold ml-1">
             {{ isLoginMode ? 'Sign up' : 'Sign in' }}
           </button>
         </p>
@@ -170,7 +179,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  initialMode: 'login'
+  initialMode: 'login',
 })
 
 const emit = defineEmits<{
@@ -193,7 +202,7 @@ const form = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  displayName: ''
+  displayName: '',
 })
 
 // Form errors
@@ -201,7 +210,7 @@ const errors = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  displayName: ''
+  displayName: '',
 })
 
 // Computed
@@ -222,13 +231,13 @@ const isFormValid = computed(() => {
 const passwordStrength = computed(() => {
   const password = form.value.password
   let score = 0
-  
+
   if (password.length >= 8) score += 1
   if (/(?=.*[a-z])/.test(password)) score += 1
   if (/(?=.*[A-Z])/.test(password)) score += 1
   if (/(?=.*\d)/.test(password)) score += 1
   if (/(?=.*[!@#$%^&*])/.test(password)) score += 1
-  
+
   return score
 })
 
@@ -243,38 +252,50 @@ const passwordStrengthColor = computed(() => {
 })
 
 // Watchers for validation
-watch(() => form.value.email, (email) => {
-  if (email && !AuthService.isValidEmail(email)) {
-    errors.value.email = 'Please enter a valid email address'
-  } else {
-    errors.value.email = ''
+watch(
+  () => form.value.email,
+  email => {
+    if (email && !AuthService.isValidEmail(email)) {
+      errors.value.email = 'Please enter a valid email address'
+    } else {
+      errors.value.email = ''
+    }
   }
-})
+)
 
-watch(() => form.value.password, (password) => {
-  if (password && !isLoginMode.value) {
-    const validation = AuthService.isValidPassword(password)
-    errors.value.password = validation.valid ? '' : validation.message || ''
-  } else {
-    errors.value.password = ''
+watch(
+  () => form.value.password,
+  password => {
+    if (password && !isLoginMode.value) {
+      const validation = AuthService.isValidPassword(password)
+      errors.value.password = validation.valid ? '' : validation.message || ''
+    } else {
+      errors.value.password = ''
+    }
   }
-})
+)
 
-watch(() => form.value.confirmPassword, (confirmPassword) => {
-  if (confirmPassword && confirmPassword !== form.value.password) {
-    errors.value.confirmPassword = 'Passwords do not match'
-  } else {
-    errors.value.confirmPassword = ''
+watch(
+  () => form.value.confirmPassword,
+  confirmPassword => {
+    if (confirmPassword && confirmPassword !== form.value.password) {
+      errors.value.confirmPassword = 'Passwords do not match'
+    } else {
+      errors.value.confirmPassword = ''
+    }
   }
-})
+)
 
-watch(() => form.value.displayName, (displayName) => {
-  if (displayName && displayName.trim().length < 2) {
-    errors.value.displayName = 'Name must be at least 2 characters'
-  } else {
-    errors.value.displayName = ''
+watch(
+  () => form.value.displayName,
+  displayName => {
+    if (displayName && displayName.trim().length < 2) {
+      errors.value.displayName = 'Name must be at least 2 characters'
+    } else {
+      errors.value.displayName = ''
+    }
   }
-})
+)
 
 // Methods
 const resetForm = () => {
@@ -282,13 +303,13 @@ const resetForm = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    displayName: ''
+    displayName: '',
   }
   errors.value = {
     email: '',
     password: '',
     confirmPassword: '',
-    displayName: ''
+    displayName: '',
   }
   error.value = ''
   successMessage.value = ''
@@ -350,34 +371,38 @@ const handleForgotPassword = async () => {
   successMessage.value = ''
 
   try {
-    console.log('🔄 Attempting password reset for:', form.value.email)
     await userStore.resetPassword(form.value.email)
-    
+
     successMessage.value = `Password reset email sent to ${form.value.email}! Check your inbox and spam folder.`
-    
+
     // Clear form after successful reset
     setTimeout(() => {
       form.value.email = ''
       form.value.password = ''
-      successMessage.value = 'You can close this window and check your email for reset instructions.'
+      successMessage.value =
+        'You can close this window and check your email for reset instructions.'
     }, 3000)
-    
+
     emit('success', 'reset')
   } catch (err: any) {
     console.error('❌ Password reset failed:', err)
-    error.value = err.message || 'Failed to send reset email. Please check your email address and try again.'
+    error.value =
+      err.message || 'Failed to send reset email. Please check your email address and try again.'
   } finally {
     loading.value = false
   }
 }
 
 // Reset form when modal opens
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    resetForm()
-    isLoginMode.value = props.initialMode === 'login'
+watch(
+  () => props.isOpen,
+  isOpen => {
+    if (isOpen) {
+      resetForm()
+      isLoginMode.value = props.initialMode === 'login'
+    }
   }
-})
+)
 </script>
 
 <style scoped>

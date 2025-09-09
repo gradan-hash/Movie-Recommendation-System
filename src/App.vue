@@ -5,25 +5,29 @@
       <div class="container mx-auto">
         <nav class="flex items-center justify-between">
           <!-- Logo -->
-          <router-link 
-            to="/" 
+          <router-link
+            to="/"
             class="text-2xl font-bold flex items-center gap-2 hover:text-yellow-300 transition-colors"
           >
-            🎬 <span class="bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">CinemaAI</span>
+            🎬
+            <span
+              class="bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent"
+              >CinemaAI</span
+            >
           </router-link>
-          
+
           <!-- Navigation Links -->
           <div class="hidden md:flex items-center gap-6">
-            <router-link 
-              to="/" 
+            <router-link
+              to="/"
               class="text-red-100 hover:text-white transition-colors"
               active-class="text-white font-semibold"
             >
               Home
             </router-link>
-            <router-link 
+            <router-link
               v-if="userStore.isAuthenticated && userStore.canGetRecommendations"
-              to="/recommendations" 
+              to="/recommendations"
               class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
               active-class="text-white font-semibold"
             >
@@ -36,12 +40,14 @@
             <!-- Authentication UI -->
             <div v-if="userStore.isAuthenticated" class="flex items-center gap-3">
               <!-- User Profile Button -->
-              <router-link 
+              <router-link
                 to="/profile"
                 class="flex items-center gap-2 text-red-100 hover:text-white transition-colors"
                 active-class="text-white font-semibold"
               >
-                <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm font-semibold">
+                <div
+                  class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm font-semibold"
+                >
                   {{ userStore.userInitials }}
                 </div>
                 <span class="hidden lg:inline">{{ userStore.userDisplayName }}</span>
@@ -75,51 +81,58 @@
           </div>
 
           <!-- Mobile Menu Button -->
-          <button 
+          <button
             ref="mobileMenuButtonRef"
             @click="toggleMobileMenu"
             class="md:hidden text-white p-2"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
             </svg>
           </button>
         </nav>
 
         <!-- Mobile Menu -->
-        <div 
-          v-if="showMobileMenu" 
+        <div
+          v-if="showMobileMenu"
           ref="mobileMenuRef"
           class="md:hidden mt-4 pb-4 border-t border-red-500"
         >
           <div class="flex flex-col gap-3 mt-4">
-            <router-link 
-              to="/" 
+            <router-link
+              to="/"
               @click="closeMobileMenu"
               class="text-red-100 hover:text-white transition-colors"
               active-class="text-white font-semibold"
             >
               🏠 Home
             </router-link>
-            
+
             <!-- Authenticated Mobile Menu -->
             <template v-if="userStore.isAuthenticated">
-              <router-link 
+              <router-link
                 v-if="userStore.canGetRecommendations"
-                to="/recommendations" 
+                to="/recommendations"
                 @click="closeMobileMenu"
                 class="text-red-100 hover:text-white transition-colors"
                 active-class="text-white font-semibold"
               >
                 🤖 AI Recommendations
               </router-link>
-              <router-link 
-                to="/profile" 
+              <router-link
+                to="/profile"
                 @click="closeMobileMenu"
                 class="text-red-100 hover:text-white transition-colors flex items-center gap-2"
                 active-class="text-white font-semibold"
               >
-                <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-semibold">
+                <div
+                  class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-semibold"
+                >
                   {{ userStore.userInitials }}
                 </div>
                 👤 {{ userStore.userDisplayName }}
@@ -166,16 +179,12 @@
 
     <!-- Footer redo footer show about us contact infor etc and etc  -->
     <footer class="bg-gray-800 p-6 mt-12 text-center">
-      <div class="text-gray-400 mb-2">
-        Built with Vue 3, TypeScript, Tailwind CSS & TMDB API
-      </div>
-      <div class="text-sm text-gray-500">
-        Professional Vue Router Architecture ✨
-      </div>
+      <div class="text-gray-400 mb-2">Built with Vue 3, TypeScript, Tailwind CSS & TMDB API</div>
+      <div class="text-sm text-gray-500">Professional Vue Router Architecture ✨</div>
     </footer>
 
     <!-- Authentication Modal -->
-    <AuthModal 
+    <AuthModal
       :is-open="userStore.showAuthModal"
       :initial-mode="userStore.authModalMode"
       @close="userStore.closeAuthModal"
@@ -225,15 +234,15 @@ const closeMobileMenu = () => {
 // Click outside handler for mobile menu
 const handleClickOutside = (event: Event) => {
   if (!showMobileMenu.value) return
-  
+
   const target = event.target as HTMLElement
   const mobileMenu = mobileMenuRef.value
   const mobileMenuButton = mobileMenuButtonRef.value
-  
+
   // Don't close if clicking on the menu itself or the button
   if (mobileMenu && mobileMenu.contains(target)) return
   if (mobileMenuButton && mobileMenuButton.contains(target)) return
-  
+
   // Close the menu if clicking outside
   closeMobileMenu()
 }
@@ -246,41 +255,38 @@ const openAuthModal = (mode: 'login' | 'register') => {
 const handleLogout = async () => {
   loggingOut.value = true
   closeMobileMenu()
-  
+
   try {
     await userStore.logout()
   } catch (error) {
-    console.error('Logout failed:', error)
   } finally {
     loggingOut.value = false
   }
 }
 
-const onAuthSuccess = (type: 'login' | 'register' | 'reset') => {
-  console.log(`Authentication success: ${type}`)
-}
+const onAuthSuccess = (_type: 'login' | 'register' | 'reset') => {}
 
 // Initialize user store and performance optimizations
 onMounted(async () => {
   // Initialize authentication
   userStore.initializeAuth()
   userStore.loadFromLocalStorage()
-  
+
   // Apply performance optimizations
   applyCriticalOptimizations()
   startMonitoring()
-  
+
   // Preload critical resources
   preloadResource('/api/movies/popular', 'fetch')
   preloadResource('https://www.youtube.com/iframe_api', 'script')
-  
+
   // Add click outside listener for mobile menu
   document.addEventListener('click', handleClickOutside)
-  
+
   // Optimize images for better loading
   setTimeout(() => {
     const images = document.querySelectorAll('img:not([data-src])')
-    images.forEach((img) => {
+    images.forEach(img => {
       if (!img.hasAttribute('loading')) {
         img.setAttribute('loading', 'lazy')
       }
@@ -323,7 +329,8 @@ onUnmounted(() => {
 }
 
 @keyframes gradient-x {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -331,4 +338,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

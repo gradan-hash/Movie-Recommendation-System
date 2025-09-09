@@ -26,7 +26,6 @@ export class TMDBService {
     // Request interceptor for logging in development
     this.api.interceptors.request.use(config => {
       if (import.meta.env.DEV) {
-        console.log(`🎬 TMDB API: ${config.method?.toUpperCase()} ${config.url}`)
       }
       return config
     })
@@ -49,7 +48,6 @@ export class TMDBService {
     // Check cache first
     const cached = this.cache.get(cacheKey)
     if (cached && Date.now() < cached.expiry) {
-      console.log(`📱 Cache hit: ${cacheKey}`)
       return cached.data as T
     }
 
@@ -147,7 +145,6 @@ export class TMDBService {
   // Utility: Clear cache (useful for development)
   clearCache(): void {
     this.cache.clear()
-    console.log('🧹 TMDB cache cleared')
   }
 
   // Utility: Get cache stats

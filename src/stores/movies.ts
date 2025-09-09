@@ -1,7 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { TMDBAPI, type TMDBApiResponse } from '@/api/tmdb'
-import type { Movie, MovieDetails, PopularMoviesResponse, SearchMoviesResponse } from '@/types/movie'
+import type {
+  Movie,
+  MovieDetails,
+  PopularMoviesResponse,
+  SearchMoviesResponse,
+} from '@/types/movie'
 
 export const useMoviesStore = defineStore('movies', () => {
   // State
@@ -12,7 +17,7 @@ export const useMoviesStore = defineStore('movies', () => {
   const totalPages = ref(1)
   const totalResults = ref(0)
   const searchQuery = ref('')
-  
+
   // Loading states
   const loading = ref(false)
   const loadingMore = ref(false)
@@ -37,21 +42,18 @@ export const useMoviesStore = defineStore('movies', () => {
       } else {
         loadingMore.value = true
       }
-      
+
       error.value = null
-      console.log(`🔥 Store: Loading popular movies - page ${page}, append: ${append}`)
-      
+
       const response: TMDBApiResponse<PopularMoviesResponse> = await TMDBAPI.getPopularMovies(page)
-      
+
       if (response.success && response.data) {
-        console.log(`✅ Store: Popular movies API success - ${response.data.results.length} movies`)
-        
         if (append) {
           popularMovies.value.push(...response.data.results)
         } else {
           popularMovies.value = response.data.results
         }
-        
+
         currentPage.value = response.data.page
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
@@ -59,7 +61,6 @@ export const useMoviesStore = defineStore('movies', () => {
         console.error('❌ Store: Popular movies API failed:', response.error)
         error.value = response.error || 'Failed to load popular movies'
       }
-      
     } catch (err: any) {
       console.error('❌ Store: Popular movies error:', err.message)
       error.value = err.message || 'Failed to load popular movies'
@@ -82,22 +83,22 @@ export const useMoviesStore = defineStore('movies', () => {
       } else {
         loadingMore.value = true
       }
-      
+
       error.value = null
       searchQuery.value = query
-      console.log(`🔍 Store: Searching movies - query: "${query}", page: ${page}, append: ${append}`)
-      
-      const response: TMDBApiResponse<SearchMoviesResponse> = await TMDBAPI.searchMovies(query, page)
-      
+
+      const response: TMDBApiResponse<SearchMoviesResponse> = await TMDBAPI.searchMovies(
+        query,
+        page
+      )
+
       if (response.success && response.data) {
-        console.log(`✅ Store: Search movies API success - ${response.data.results.length} results`)
-        
         if (append) {
           searchResults.value.push(...response.data.results)
         } else {
           searchResults.value = response.data.results
         }
-        
+
         currentPage.value = response.data.page
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
@@ -105,7 +106,6 @@ export const useMoviesStore = defineStore('movies', () => {
         console.error('❌ Store: Search movies API failed:', response.error)
         error.value = response.error || 'Failed to search movies'
       }
-      
     } catch (err: any) {
       console.error('❌ Store: Search movies error:', err.message)
       error.value = err.message || 'Failed to search movies'
@@ -120,31 +120,26 @@ export const useMoviesStore = defineStore('movies', () => {
     if (detailsCache.value.has(movieId)) {
       const cached = detailsCache.value.get(movieId)!
       movieDetails.value = cached
-      console.log(`📱 Store: Movie details from cache - ID: ${movieId}`)
       return cached
     }
 
     try {
       loadingDetails.value = true
       error.value = null
-      console.log(`🎬 Store: Loading movie details - ID: ${movieId}`)
-      
+
       const response = await TMDBAPI.getMovieDetails(movieId)
-      
+
       if (response.success && response.data) {
-        console.log(`✅ Store: Movie details API success - "${response.data.title}"`)
-        
         // Cache the details
         detailsCache.value.set(movieId, response.data)
         movieDetails.value = response.data
-        
+
         return response.data
       } else {
         console.error('❌ Store: Movie details API failed:', response.error)
         error.value = response.error || 'Failed to load movie details'
         return null
       }
-      
     } catch (err: any) {
       console.error('❌ Store: Movie details error:', err.message)
       error.value = err.message || 'Failed to load movie details'
@@ -158,7 +153,7 @@ export const useMoviesStore = defineStore('movies', () => {
     if (!canLoadMore.value || loadingMore.value) return
 
     const nextPage = currentPage.value + 1
-    
+
     if (isSearching.value) {
       await searchMovies(searchQuery.value, nextPage, true)
     } else {
@@ -209,14 +204,14 @@ export const useMoviesStore = defineStore('movies', () => {
     loadingMore,
     loadingDetails,
     error,
-    
+
     // Computed
     hasPopularMovies,
     hasSearchResults,
     canLoadMore,
     isSearching,
     getCurrentMovies,
-    
+
     // Actions
     loadPopularMovies,
     searchMovies,
@@ -225,6 +220,6 @@ export const useMoviesStore = defineStore('movies', () => {
     clearSearchResults,
     clearError,
     findMovieById,
-    refreshData
+    refreshData,
   }
 })

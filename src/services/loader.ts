@@ -23,35 +23,31 @@ export const useLoader = () => {
     const operation: LoadingOperation = {
       id,
       label,
-      startTime: Date.now()
+      startTime: Date.now(),
     }
-    
+
     activeOperations.value.set(id, operation)
-    console.log(`🔄 Loader: Started "${label}" (${id})`)
   }
 
   const stopLoading = (id: string) => {
     const operation = activeOperations.value.get(id)
     if (operation) {
-      const duration = Date.now() - operation.startTime
-      console.log(`✅ Loader: Completed "${operation.label}" (${id}) in ${duration}ms`)
       activeOperations.value.delete(id)
     }
   }
 
   const stopAllLoading = () => {
-    console.log('🛑 Loader: Stopping all operations')
     activeOperations.value.clear()
   }
 
   // Auto-wrapper for API calls
   const wrapAPICall = async <T>(
-    apiCall: () => Promise<T>, 
+    apiCall: () => Promise<T>,
     label: string,
     id?: string
   ): Promise<T> => {
     const operationId = id || `api_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
+
     try {
       startLoading(operationId, label)
       const result = await apiCall()
@@ -70,12 +66,12 @@ export const useLoader = () => {
     currentOperation,
     operationCount,
     activeOperations: computed(() => Array.from(activeOperations.value.values())),
-    
+
     // Methods
     startLoading,
     stopLoading,
     stopAllLoading,
-    wrapAPICall
+    wrapAPICall,
   }
 }
 

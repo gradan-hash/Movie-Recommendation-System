@@ -20,28 +20,24 @@ const maxNotifications = 5
 
 export const useToast = () => {
   // Computed
-  const visibleNotifications = computed(() => 
-    notifications.value.slice(0, maxNotifications)
-  )
+  const visibleNotifications = computed(() => notifications.value.slice(0, maxNotifications))
 
-  const hasNotifications = computed(() => 
-    notifications.value.length > 0
-  )
+  const hasNotifications = computed(() => notifications.value.length > 0)
 
   // Methods
   const addNotification = (notification: Omit<ToastNotification, 'id' | 'createdAt'>): string => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
+
     const newNotification: ToastNotification = {
       ...notification,
       id,
       duration: notification.duration ?? 4000,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     }
 
     // Add to beginning of array (newest first)
     notifications.value.unshift(newNotification)
-    
+
     // Remove oldest notifications if we exceed max
     if (notifications.value.length > maxNotifications) {
       notifications.value = notifications.value.slice(0, maxNotifications)
@@ -54,23 +50,18 @@ export const useToast = () => {
       }, newNotification.duration!)
     }
 
-    console.log(`🍞 Toast: Added ${notification.type} notification "${notification.title}"`)
     return id
   }
 
   const removeNotification = (id: string) => {
     const index = notifications.value.findIndex(n => n.id === id)
     if (index > -1) {
-      const notification = notifications.value[index]
       notifications.value.splice(index, 1)
-      console.log(`🍞 Toast: Removed notification "${notification.title}"`)
     }
   }
 
   const clearAllNotifications = () => {
-    const count = notifications.value.length
     notifications.value = []
-    console.log(`🍞 Toast: Cleared ${count} notifications`)
   }
 
   // Convenience methods for different types
@@ -80,7 +71,7 @@ export const useToast = () => {
       message: message || '',
       type: 'success',
       icon: '🎉',
-      ...options
+      ...options,
     })
   }
 
@@ -91,7 +82,7 @@ export const useToast = () => {
       type: 'error',
       icon: '❌',
       duration: 6000, // Longer duration for errors
-      ...options
+      ...options,
     })
   }
 
@@ -101,7 +92,7 @@ export const useToast = () => {
       message: message || '',
       type: 'warning',
       icon: '⚠️',
-      ...options
+      ...options,
     })
   }
 
@@ -111,7 +102,7 @@ export const useToast = () => {
       message: message || '',
       type: 'info',
       icon: '💡',
-      ...options
+      ...options,
     })
   }
 
@@ -119,10 +110,10 @@ export const useToast = () => {
   const loginSuccess = (userName?: string) => {
     return success(
       'Welcome back!',
-      userName ? `Good to see you again, ${userName}` : 'You\'re successfully logged in',
+      userName ? `Good to see you again, ${userName}` : "You're successfully logged in",
       {
         icon: '🎬',
-        duration: 3000
+        duration: 3000,
       }
     )
   }
@@ -133,93 +124,73 @@ export const useToast = () => {
       userName ? `Welcome to CinemaAI, ${userName}!` : 'Your account has been created successfully',
       {
         icon: '🍿',
-        duration: 4000
+        duration: 4000,
       }
     )
   }
 
   const logoutSuccess = () => {
-    return info(
-      'Goodbye!',
-      'You\'ve been signed out successfully',
-      {
-        icon: '👋',
-        duration: 2500
-      }
-    )
+    return info('Goodbye!', "You've been signed out successfully", {
+      icon: '👋',
+      duration: 2500,
+    })
   }
 
   const authError = (message: string) => {
-    return error(
-      'Authentication Failed',
-      message,
-      {
-        icon: '🔐',
-        duration: 5000
-      }
-    )
+    return error('Authentication Failed', message, {
+      icon: '🔐',
+      duration: 5000,
+    })
   }
 
   // API-specific notifications
   const apiError = (operation: string, message?: string) => {
-    return error(
-      `${operation} Failed`,
-      message || 'Something went wrong. Please try again.',
-      {
-        icon: '🌐',
-        duration: 5000
-      }
-    )
+    return error(`${operation} Failed`, message || 'Something went wrong. Please try again.', {
+      icon: '🌐',
+      duration: 5000,
+    })
   }
 
   const movieLiked = (movieTitle: string) => {
-    return success(
-      'Movie Liked!',
-      `Added "${movieTitle}" to your favorites`,
-      {
-        icon: '❤️',
-        duration: 2500
-      }
-    )
+    return success('Movie Liked!', `Added "${movieTitle}" to your favorites`, {
+      icon: '❤️',
+      duration: 2500,
+    })
   }
 
   const movieUnliked = (movieTitle: string) => {
-    return info(
-      'Movie Removed',
-      `Removed "${movieTitle}" from favorites`,
-      {
-        icon: '💔',
-        duration: 2500
-      }
-    )
+    return info('Movie Removed', `Removed "${movieTitle}" from favorites`, {
+      icon: '💔',
+      duration: 2500,
+    })
   }
 
   return {
     // State
     notifications: visibleNotifications,
     hasNotifications,
-    
+
     // Methods
     addNotification,
     removeNotification,
     clearAllNotifications,
-    
+
     // Type convenience methods
     success,
     error,
     warning,
     info,
-    
+
     // Auth convenience methods
     loginSuccess,
     registerSuccess,
     logoutSuccess,
     authError,
-    
+
     // API convenience methods
     apiError,
     movieLiked,
-    movieUnliked
+    movieUnliked,
   }
 }
 

@@ -2,12 +2,7 @@
   <!-- Toast Container -->
   <teleport to="body">
     <div class="fixed top-4 right-4 z-[10000] space-y-2">
-      <transition-group 
-        name="toast" 
-        tag="div" 
-        class="space-y-2"
-        appear
-      >
+      <transition-group name="toast" tag="div" class="space-y-2" appear>
         <div
           v-for="notification in toast.notifications.value"
           :key="notification.id"
@@ -17,10 +12,9 @@
         >
           <!-- Toast Content -->
           <div class="flex items-start gap-3">
-            
             <!-- Toast Icon -->
             <div class="flex-shrink-0 mt-0.5">
-              <div 
+              <div
                 class="w-8 h-8 rounded-full flex items-center justify-center text-sm animate-bounce-gentle"
                 :class="getIconClasses(notification.type)"
               >
@@ -33,8 +27,8 @@
               <h4 class="font-semibold text-sm" :class="getTitleClasses(notification.type)">
                 {{ notification.title }}
               </h4>
-              <p 
-                v-if="notification.message" 
+              <p
+                v-if="notification.message"
                 class="text-xs mt-1 opacity-90"
                 :class="getMessageClasses(notification.type)"
               >
@@ -59,20 +53,28 @@
               class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors group"
               :class="getCloseClasses(notification.type)"
             >
-              <svg class="w-3 h-3 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+              <svg
+                class="w-3 h-3 group-hover:scale-110 transition-transform"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
               </svg>
             </button>
           </div>
 
           <!-- Progress Bar -->
-          <div 
+          <div
             v-if="(notification.duration ?? 0) > 0"
             class="absolute bottom-0 left-0 h-1 bg-white/20 rounded-full transition-all duration-300 ease-linear"
             :class="getProgressClasses(notification.type)"
-            :style="{ 
+            :style="{
               width: `${getProgressWidth(notification)}%`,
-              animationDuration: `${notification.duration}ms`
+              animationDuration: `${notification.duration}ms`,
             }"
           ></div>
         </div>
@@ -93,23 +95,39 @@ let progressInterval: number | null = null
 const getProgressWidth = (notification: ToastNotification): number => {
   const duration = notification.duration ?? 0
   if (duration <= 0) return 100
-  
+
   const elapsed = Date.now() - notification.createdAt
   const remaining = Math.max(0, duration - elapsed)
   return (remaining / duration) * 100
 }
 
 // Methods
+const handleToastClick = (_notification: {
+  id: string
+  title: string
+  message: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  duration?: number | undefined
+  icon?: string | undefined
+  action?: { label: string; onClick: () => void } | undefined
+  createdAt: number
+}) => {
+  // Optionally, you can implement custom behavior here, such as dismissing the toast on click.
+  // For now, do nothing or remove the toast if desired:
+  // toast.removeNotification(notification.id)
+}
+
 const getToastClasses = (type: ToastNotification['type']): string => {
-  const baseClasses = 'relative overflow-hidden min-w-80 max-w-96 p-4 rounded-xl shadow-lg backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl'
-  
+  const baseClasses =
+    'relative overflow-hidden min-w-80 max-w-96 p-4 rounded-xl shadow-lg backdrop-blur-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl'
+
   const typeClasses = {
     success: 'bg-green-500/90 border border-green-400/50',
     error: 'bg-red-500/90 border border-red-400/50',
     warning: 'bg-yellow-500/90 border border-yellow-400/50',
-    info: 'bg-blue-500/90 border border-blue-400/50'
+    info: 'bg-blue-500/90 border border-blue-400/50',
   }
-  
+
   return `${baseClasses} ${typeClasses[type]}`
 }
 
@@ -118,9 +136,9 @@ const getIconClasses = (type: ToastNotification['type']): string => {
     success: 'bg-green-600/80 text-white',
     error: 'bg-red-600/80 text-white',
     warning: 'bg-yellow-600/80 text-white',
-    info: 'bg-blue-600/80 text-white'
+    info: 'bg-blue-600/80 text-white',
   }
-  
+
   return typeClasses[type]
 }
 
@@ -143,17 +161,12 @@ const getCloseClasses = (_type: ToastNotification['type']): string => {
 const getProgressClasses = (type: ToastNotification['type']): string => {
   const typeClasses = {
     success: 'bg-green-300/80',
-    error: 'bg-red-300/80', 
+    error: 'bg-red-300/80',
     warning: 'bg-yellow-300/80',
-    info: 'bg-blue-300/80'
+    info: 'bg-blue-300/80',
   }
-  
-  return `toast-progress ${typeClasses[type]}`
-}
 
-const handleToastClick = (notification: ToastNotification) => {
-  // Optional: Add click handling for toasts
-  console.log('🍞 Toast clicked:', notification.title)
+  return `toast-progress ${typeClasses[type]}`
 }
 
 // Update progress bars
@@ -201,7 +214,8 @@ onUnmounted(() => {
 
 /* Custom animations */
 @keyframes bounce-gentle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {

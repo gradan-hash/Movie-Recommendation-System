@@ -20,7 +20,8 @@ export interface AIRecommendationResponse {
 
 export class AIRecommendationService {
   private static readonly GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-  private static readonly GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+  private static readonly GEMINI_API_URL =
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
   private static cache = new Map<string, { data: AIRecommendationResponse; timestamp: number }>()
   private static readonly CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
@@ -33,7 +34,7 @@ export class AIRecommendationService {
         success: false,
         recommendations: [],
         aiExplanation: 'Please like at least 3 movies to get AI recommendations.',
-        error: 'Insufficient data for AI recommendations'
+        error: 'Insufficient data for AI recommendations',
       }
     }
 
@@ -41,47 +42,43 @@ export class AIRecommendationService {
     const cacheKey = this.generateCacheKey(likedMovies)
     const cached = this.getFromCache(cacheKey)
     if (cached) {
-      console.log('🤖 AI: Using cached recommendations')
       return cached
     }
 
     return globalLoader.wrapAPICall(
       async () => {
         try {
-          console.log(`🤖 AI: Generating recommendations for ${likedMovies.length} liked movies`)
-          
           // Generate AI prompt
           const prompt = this.createRecommendationPrompt(likedMovies)
-          
+
           // Call Gemini API
           const aiResponse = await this.callGeminiAPI(prompt)
-          
+
           // Parse AI response and fetch movie details
           const recommendations = await this.parseAndFetchMovies(aiResponse, likedMovies)
-          
+
           const result: AIRecommendationResponse = {
             success: true,
             recommendations,
-            aiExplanation: this.extractAIExplanation(aiResponse)
+            aiExplanation: this.extractAIExplanation(aiResponse),
           }
 
           // Cache the result
           this.setCache(cacheKey, result)
-          
-          console.log(`✅ AI: Generated ${recommendations.length} recommendations`)
-          return result
 
+          return result
         } catch (error: any) {
           console.error('❌ AI: Recommendation generation failed:', error)
-          
+
           // Fallback to similar movies if AI fails
           const fallbackRecommendations = await this.getFallbackRecommendations(likedMovies)
-          
+
           return {
             success: false,
             recommendations: fallbackRecommendations,
-            aiExplanation: 'AI service temporarily unavailable. Showing similar movies based on your preferences.',
-            error: error.message || 'AI recommendation service failed'
+            aiExplanation:
+              'AI service temporarily unavailable. Showing similar movies based on your preferences.',
+            error: error.message || 'AI recommendation service failed',
           }
         }
       },
@@ -94,10 +91,12 @@ export class AIRecommendationService {
    * Create sophisticated prompt for Gemini AI
    */
   private static createRecommendationPrompt(likedMovies: Movie[]): string {
-    const movieSummaries = likedMovies.map(movie => {
-      const year = movie.release_date.split('-')[0]
-      return `- "${movie.title}" (${year}) - ${movie.overview.substring(0, 100)}... (Rating: ${movie.vote_average}/10)`
-    }).join('\n')
+    const movieSummaries = likedMovies
+      .map(movie => {
+        const year = movie.release_date.split('-')[0]
+        return `- "${movie.title}" (${year}) - ${movie.overview.substring(0, 100)}... (Rating: ${movie.vote_average}/10)`
+      })
+      .join('\n')
 
     return `As a movie recommendation AI expert, analyze these movies the user loved:
 
@@ -134,36 +133,44 @@ Focus on:
    */
   private static async callGeminiAPI(prompt: string): Promise<any> {
     if (!this.GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment.')
+      throw new Error(
+        'Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment.'
+      )
     }
 
     const response = await fetch(`${this.GEMINI_API_URL}?key=${this.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
         generationConfig: {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 2048
-        }
-      })
+          maxOutputTokens: 2048,
+        },
+      }),
     })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`)
+      throw new Error(
+        `Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`
+      )
     }
 
     const data = await response.json()
-    
+
     if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
       throw new Error('Invalid Gemini API response format')
     }
@@ -174,7 +181,10 @@ Focus on:
   /**
    * Parse AI response and fetch actual movie data from TMDB
    */
-  private static async parseAndFetchMovies(aiResponse: string, likedMovies: Movie[]): Promise<AIRecommendation[]> {
+  private static async parseAndFetchMovies(
+    aiResponse: string,
+    likedMovies: Movie[]
+  ): Promise<AIRecommendation[]> {
     try {
       // Clean the response (remove markdown formatting if present)
       const cleanResponse = aiResponse.replace(/```json\n|\n```|```/g, '').trim()
@@ -192,12 +202,12 @@ Focus on:
           // Search for the movie on TMDB
           const searchQuery = `${aiRec.title || ''} ${aiRec.year || ''}`.trim()
           if (!searchQuery) continue
-          
+
           const tmdbResponse = await TMDBAPI.getMovieByTitle(searchQuery)
-          
+
           if (tmdbResponse.success && tmdbResponse.data) {
             const movie = tmdbResponse.data
-            
+
             // Skip if user already liked this movie
             if (likedTitles.includes(movie.title.toLowerCase())) {
               continue
@@ -207,7 +217,7 @@ Focus on:
               movie,
               reason: aiRec.reason || 'Recommended based on your preferences',
               confidence: Math.min(Math.max(aiRec.confidence || 7, 1), 10),
-              aiGenerated: true
+              aiGenerated: true,
             })
 
             // Limit to 6 recommendations
@@ -229,7 +239,9 @@ Focus on:
   /**
    * Get fallback recommendations using TMDB similar movies
    */
-  private static async getFallbackRecommendations(likedMovies: Movie[]): Promise<AIRecommendation[]> {
+  private static async getFallbackRecommendations(
+    likedMovies: Movie[]
+  ): Promise<AIRecommendation[]> {
     const recommendations: AIRecommendation[] = []
     const seenMovies = new Set(likedMovies.map(m => m.id))
 
@@ -237,7 +249,7 @@ Focus on:
       // Get similar movies for the most recent liked movies
       for (const movie of likedMovies.slice(-3)) {
         const similarResponse = await TMDBAPI.getSimilarMovies(movie.id, 1)
-        
+
         if (similarResponse.success && similarResponse.data) {
           for (const similar of similarResponse.data.results) {
             if (!seenMovies.has(similar.id) && recommendations.length < 6) {
@@ -245,7 +257,7 @@ Focus on:
                 movie: similar,
                 reason: `Similar to "${movie.title}" which you loved`,
                 confidence: 7,
-                aiGenerated: false
+                aiGenerated: false,
               })
               seenMovies.add(similar.id)
             }
@@ -295,7 +307,7 @@ Focus on:
       this.cache.delete(key)
       return null
     }
-2
+    2
     return cached.data
   }
 
@@ -305,7 +317,7 @@ Focus on:
   private static setCache(key: string, data: AIRecommendationResponse): void {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     // Clean old cache entries (keep only last 50)
@@ -322,7 +334,6 @@ Focus on:
    */
   static clearCache(): void {
     this.cache.clear()
-    console.log('🤖 AI: Recommendation cache cleared')
   }
 
   /**
@@ -331,11 +342,12 @@ Focus on:
   static getCacheStatus(): { size: number; keys: string[] } {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
     }
   }
 }
 
 // Export convenience function
-export const generateAIRecommendations = AIRecommendationService.generateRecommendations.bind(AIRecommendationService)
+export const generateAIRecommendations =
+  AIRecommendationService.generateRecommendations.bind(AIRecommendationService)
 export const clearAICache = AIRecommendationService.clearCache.bind(AIRecommendationService)

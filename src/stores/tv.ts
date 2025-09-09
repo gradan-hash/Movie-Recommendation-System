@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { 
-  getPopularTVSeries,
-  searchTVSeries as searchTVSeriesApi} from '@/api/tmdb'
+import { getPopularTVSeries, searchTVSeries as searchTVSeriesApi } from '@/api/tmdb'
 import type { TVSeries } from '@/types/movie'
 
 export const useTVStore = defineStore('tv', () => {
@@ -10,12 +8,12 @@ export const useTVStore = defineStore('tv', () => {
   const currentSeries = ref<TVSeries[]>([])
   const popularSeries = ref<TVSeries[]>([])
   const searchResults = ref<TVSeries[]>([])
-  
+
   // Loading states
   const loading = ref(false)
   const loadingMore = ref(false)
   const error = ref<string | null>(null)
-  
+
   // Search and pagination state
   const searchQuery = ref('')
   const currentPage = ref(1)
@@ -25,13 +23,13 @@ export const useTVStore = defineStore('tv', () => {
 
   // Computed
   const getCurrentSeries = computed(() => currentSeries.value)
-  
+
   const isSearching = computed(() => !!searchQuery.value)
-  
+
   const hasPopularSeries = computed(() => popularSeries.value.length > 0)
-  
-  const canLoadMore = computed(() => 
-    !loading.value && !loadingMore.value && currentPage.value < totalPages.value
+
+  const canLoadMore = computed(
+    () => !loading.value && !loadingMore.value && currentPage.value < totalPages.value
   )
 
   // Actions
@@ -45,13 +43,11 @@ export const useTVStore = defineStore('tv', () => {
         loadingMore.value = true
       }
 
-      console.log(`🏪 TV Store: Loading popular TV series - page ${page}`)
-      
       const response = await getPopularTVSeries(page)
-      
+
       if (response.success && response.data) {
         const newSeries = response.data.results
-        
+
         if (page === 1) {
           popularSeries.value = newSeries
           currentSeries.value = newSeries
@@ -59,20 +55,18 @@ export const useTVStore = defineStore('tv', () => {
           popularSeries.value = [...popularSeries.value, ...newSeries]
           currentSeries.value = [...currentSeries.value, ...newSeries]
         }
-        
+
         currentPage.value = response.data.page
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
         lastAction.value = 'popular'
-        
-        console.log(`✅ TV Store: Loaded ${newSeries.length} series, total: ${currentSeries.value.length}`)
       } else {
         throw new Error(response.error || 'Failed to load popular TV series')
       }
     } catch (err: any) {
       console.error('❌ TV Store: Popular series load failed:', err.message)
       error.value = err.message
-      
+
       // Reset state on error
       if (page === 1) {
         currentSeries.value = []
@@ -101,13 +95,11 @@ export const useTVStore = defineStore('tv', () => {
         loadingMore.value = true
       }
 
-      console.log(`🔍 TV Store: Searching TV series - "${query}" page ${page}`)
-      
       const response = await searchTVSeriesApi(query, page)
-      
+
       if (response.success && response.data) {
         const newSeries = response.data.results
-        
+
         if (page === 1) {
           searchResults.value = newSeries
           currentSeries.value = newSeries
@@ -115,20 +107,18 @@ export const useTVStore = defineStore('tv', () => {
           searchResults.value = [...searchResults.value, ...newSeries]
           currentSeries.value = [...currentSeries.value, ...newSeries]
         }
-        
+
         currentPage.value = response.data.page
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
         lastAction.value = 'search'
-        
-        console.log(`✅ TV Store: Found ${newSeries.length} series, total: ${currentSeries.value.length}`)
       } else {
         throw new Error(response.error || 'Search failed')
       }
     } catch (err: any) {
       console.error('❌ TV Store: Search failed:', err.message)
       error.value = err.message
-      
+
       if (page === 1) {
         currentSeries.value = []
         searchResults.value = []
@@ -142,12 +132,10 @@ export const useTVStore = defineStore('tv', () => {
 
   const loadMoreTVSeries = async () => {
     if (!canLoadMore.value) {
-      console.log('ℹ️ TV Store: Cannot load more series')
       return
     }
 
     const nextPage = currentPage.value + 1
-    console.log(`📄 TV Store: Loading more series - page ${nextPage}`)
 
     if (lastAction.value === 'search' && searchQuery.value) {
       await searchTVSeries(searchQuery.value, nextPage)
@@ -157,8 +145,6 @@ export const useTVStore = defineStore('tv', () => {
   }
 
   const clearSearchResults = () => {
-    console.log('🧹 TV Store: Clearing search results')
-    
     searchQuery.value = ''
     searchResults.value = []
     currentSeries.value = popularSeries.value
@@ -170,8 +156,6 @@ export const useTVStore = defineStore('tv', () => {
   }
 
   const retryLastAction = async () => {
-    console.log(`🔄 TV Store: Retrying last action: ${lastAction.value}`)
-    
     if (lastAction.value === 'search' && searchQuery.value) {
       await searchTVSeries(searchQuery.value)
     } else {
@@ -180,8 +164,6 @@ export const useTVStore = defineStore('tv', () => {
   }
 
   const clearAllData = () => {
-    console.log('🧹 TV Store: Clearing all data')
-    
     currentSeries.value = []
     popularSeries.value = []
     searchResults.value = []
@@ -221,6 +203,6 @@ export const useTVStore = defineStore('tv', () => {
     loadMoreTVSeries,
     clearSearchResults,
     retryLastAction,
-    clearAllData
+    clearAllData,
   }
 })

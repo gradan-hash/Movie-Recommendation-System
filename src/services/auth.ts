@@ -8,7 +8,7 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged,
   type User as FirebaseUser,
-  type UserCredential
+  type UserCredential,
 } from 'firebase/auth'
 
 // Firebase configuration
@@ -18,27 +18,7 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
-}
-
-// Debug Firebase configuration in development
-if (import.meta.env.DEV) {
-  console.log('🔥 Firebase Config Check:', {
-    apiKey: firebaseConfig.apiKey ? `✓ ${firebaseConfig.apiKey.substring(0, 10)}...` : '❌ Missing',
-    authDomain: firebaseConfig.authDomain || '❌ Missing',
-    projectId: firebaseConfig.projectId || '❌ Missing',
-    storageBucket: firebaseConfig.storageBucket || '❌ Missing',
-    messagingSenderId: firebaseConfig.messagingSenderId || '❌ Missing',
-    appId: firebaseConfig.appId ? `✓ ${firebaseConfig.appId.substring(0, 20)}...` : '❌ Missing'
-  })
-  
-  console.log('🔧 Environment Variables:', {
-    VITE_FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY ? '✓ Found' : '❌ Not Found',
-    VITE_FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ? '✓ Found' : '❌ Not Found',
-    VITE_FIREBASE_PROJECT_ID: import.meta.env.VITE_FIREBASE_PROJECT_ID ? '✓ Found' : '❌ Not Found',
-    NODE_ENV: import.meta.env.MODE,
-    DEV: import.meta.env.DEV
-  })
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 // Validate Firebase configuration
@@ -51,8 +31,6 @@ if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.proj
   console.error(errorMessage)
   throw new Error('Firebase configuration error. Check console for details.')
 }
-
-console.log('✅ Firebase configuration validated successfully')
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
@@ -75,7 +53,7 @@ export class AuthService {
 
   private constructor() {
     // Set up auth state listener
-    onAuthStateChanged(auth, (firebaseUser) => {
+    onAuthStateChanged(auth, firebaseUser => {
       const user = firebaseUser ? this.mapFirebaseUser(firebaseUser) : null
       this.authStateListeners.forEach(listener => listener(user))
     })
@@ -96,22 +74,25 @@ export class AuthService {
       displayName: firebaseUser.displayName,
       photoURL: firebaseUser.photoURL,
       emailVerified: firebaseUser.emailVerified,
-      createdAt: firebaseUser.metadata.creationTime
+      createdAt: firebaseUser.metadata.creationTime,
     }
   }
 
   // Register new user
   async register(email: string, password: string, displayName?: string): Promise<User> {
     try {
-      const userCredential: UserCredential = await createUserWithEmailAndPassword(auth, email, password)
-      
+      const userCredential: UserCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
       // Update profile with display name if provided
       if (displayName && userCredential.user) {
         await updateProfile(userCredential.user, { displayName })
       }
 
       const user = this.mapFirebaseUser(userCredential.user)
-      console.log('✅ User registered successfully:', user.email)
       return user
     } catch (error: any) {
       console.error('❌ Registration failed:', error.message)
@@ -124,7 +105,6 @@ export class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const user = this.mapFirebaseUser(userCredential.user)
-      console.log('✅ User logged in successfully:', user.email)
       return user
     } catch (error: any) {
       console.error('❌ Login failed:', error.message)
@@ -136,7 +116,6 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth)
-      console.log('✅ User logged out successfully')
     } catch (error: any) {
       console.error('❌ Logout failed:', error.message)
       throw this.handleAuthError(error)
@@ -158,7 +137,6 @@ export class AuthService {
   async resetPassword(email: string): Promise<void> {
     try {
       await sendPasswordResetEmail(auth, email)
-      console.log('✅ Password reset email sent')
     } catch (error: any) {
       console.error('❌ Password reset failed:', error.message)
       throw this.handleAuthError(error)
@@ -172,7 +150,6 @@ export class AuthService {
 
     try {
       await updateProfile(user, { displayName, photoURL })
-      console.log('✅ Profile updated successfully')
     } catch (error: any) {
       console.error('❌ Profile update failed:', error.message)
       throw this.handleAuthError(error)
@@ -182,7 +159,7 @@ export class AuthService {
   // Listen to auth state changes
   onAuthStateChange(callback: (user: User | null) => void): () => void {
     this.authStateListeners.push(callback)
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.authStateListeners.indexOf(callback)
@@ -195,17 +172,19 @@ export class AuthService {
   // Handle Firebase auth errors
   private handleAuthError(error: any): Error {
     const errorMessages: { [key: string]: string } = {
-      'auth/email-already-in-use': 'This email is already registered. Please use a different email or try logging in.',
+      'auth/email-already-in-use':
+        'This email is already registered. Please use a different email or try logging in.',
       'auth/weak-password': 'Password is too weak. Please use at least 6 characters.',
       'auth/invalid-email': 'Please enter a valid email address.',
-      'auth/user-not-found': 'No account found with this email. Please check your email or create a new account.',
+      'auth/user-not-found':
+        'No account found with this email. Please check your email or create a new account.',
       'auth/wrong-password': 'Incorrect password. Please try again or reset your password.',
       'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
       'auth/network-request-failed': 'Network error. Please check your connection and try again.',
       'auth/user-disabled': 'This account has been disabled. Please contact support.',
       'auth/invalid-credential': 'Invalid credentials. Please check your email and password.',
       'auth/operation-not-allowed': 'This operation is not allowed. Please contact support.',
-      'auth/requires-recent-login': 'Please log in again to perform this action.'
+      'auth/requires-recent-login': 'Please log in again to perform this action.',
     }
 
     const message = errorMessages[error.code] || error.message || 'An unexpected error occurred'

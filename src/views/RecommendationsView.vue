@@ -1,58 +1,69 @@
 <template>
   <div class="recommendations-view min-h-screen bg-gray-900">
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-purple-900/30 via-gray-900 to-blue-900/30 py-12 sm:py-16">
+    <section
+      class="relative bg-gradient-to-br from-purple-900/30 via-gray-900 to-blue-900/30 py-12 sm:py-16"
+    >
       <!-- Background Animation -->
       <div class="absolute inset-0 overflow-hidden opacity-20">
-        <div class="absolute top-10 left-10 w-32 h-32 sm:w-72 sm:h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-10 right-10 w-48 h-48 sm:w-96 sm:h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+        <div
+          class="absolute top-10 left-10 w-32 h-32 sm:w-72 sm:h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
+        ></div>
+        <div
+          class="absolute bottom-10 right-10 w-48 h-48 sm:w-96 sm:h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"
+          style="animation-delay: 1s"
+        ></div>
       </div>
-      
+
       <div class="relative container mx-auto px-4 text-center">
-        <div class="inline-flex items-center gap-3 bg-purple-600/20 backdrop-blur-sm px-4 py-2 rounded-full text-purple-300 text-sm font-medium mb-6">
+        <div
+          class="inline-flex items-center gap-3 bg-purple-600/20 backdrop-blur-sm px-4 py-2 rounded-full text-purple-300 text-sm font-medium mb-6"
+        >
           <span class="text-xl">🤖</span>
           <span>AI-Powered Recommendations</span>
         </div>
-        
-        <h1 class="text-3xl sm:text-4xl lg:text-6xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-4">
+
+        <h1
+          class="text-3xl sm:text-4xl lg:text-6xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-4"
+        >
           Movies Picked Just for You
         </h1>
-        
+
         <p class="text-gray-300 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed mb-8">
-          Our AI analyzed your movie preferences and discovered these hidden gems you'll absolutely love
+          Our AI analyzed your movie preferences and discovered these hidden gems you'll absolutely
+          love
         </p>
       </div>
     </section>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8 sm:py-12">
-      
       <!-- Insufficient Movies Warning -->
       <div v-if="!userStore.canGetRecommendations" class="text-center py-16">
         <div class="max-w-md mx-auto">
           <!-- Robot Icon -->
-          <div class="w-24 h-24 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div
+            class="w-24 h-24 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
             <span class="text-4xl">🤖</span>
           </div>
-          
+
           <h3 class="text-2xl font-bold text-white mb-4">Need More Data!</h3>
           <p class="text-gray-400 mb-6 leading-relaxed">
-            Like at least <strong class="text-purple-400">3 movies</strong> to unlock AI-powered recommendations. 
-            The more you like, the better our suggestions become!
+            Like at least <strong class="text-purple-400">3 movies</strong> to unlock AI-powered
+            recommendations. The more you like, the better our suggestions become!
           </p>
-          
+
           <!-- Progress Bar -->
           <div class="bg-gray-800 rounded-full h-3 mb-4 overflow-hidden">
-            <div 
+            <div
               class="bg-gradient-to-r from-purple-600 to-purple-500 h-full rounded-full transition-all duration-300"
               :style="{ width: `${Math.min((userStore.likedMoviesCount / 3) * 100, 100)}%` }"
             ></div>
           </div>
-          <p class="text-sm text-gray-500 mb-8">
-            {{ userStore.likedMoviesCount }}/3 movies liked
-          </p>
-          
-          <router-link 
+          <p class="text-sm text-gray-500 mb-8">{{ userStore.likedMoviesCount }}/3 movies liked</p>
+
+          <router-link
             to="/"
             class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 py-3 rounded-xl hover:from-purple-500 hover:to-purple-400 transition-all duration-200 font-semibold shadow-lg shadow-purple-500/25"
           >
@@ -68,20 +79,26 @@
           <div class="max-w-md mx-auto">
             <!-- AI Brain Animation -->
             <div class="relative w-24 h-24 mx-auto mb-8">
-              <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full animate-spin opacity-20"></div>
-              <div class="absolute inset-2 bg-gray-900 rounded-full flex items-center justify-center">
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full animate-spin opacity-20"
+              ></div>
+              <div
+                class="absolute inset-2 bg-gray-900 rounded-full flex items-center justify-center"
+              >
                 <span class="text-3xl animate-pulse">🤖</span>
               </div>
             </div>
-            
+
             <h3 class="text-xl font-bold text-white mb-4">AI is analyzing your taste...</h3>
             <p class="text-gray-400 mb-6">
               {{ loadingMessages[currentLoadingMessage] }}
             </p>
-            
+
             <!-- Progress Animation -->
             <div class="bg-gray-800 rounded-full h-2 overflow-hidden">
-              <div class="bg-gradient-to-r from-purple-600 to-blue-500 h-full rounded-full animate-pulse"></div>
+              <div
+                class="bg-gradient-to-r from-purple-600 to-blue-500 h-full rounded-full animate-pulse"
+              ></div>
             </div>
           </div>
         </div>
@@ -89,9 +106,13 @@
         <!-- Recommendations Content -->
         <div v-else-if="recommendations.length > 0">
           <!-- AI Explanation -->
-          <div class="bg-gradient-to-r from-purple-900/30 to-blue-900/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-8 border border-purple-500/20">
+          <div
+            class="bg-gradient-to-r from-purple-900/30 to-blue-900/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-8 border border-purple-500/20"
+          >
             <div class="flex items-start gap-4">
-              <div class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div
+                class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
                 <span class="text-xl">🤖</span>
               </div>
               <div>
@@ -109,21 +130,26 @@
               </h2>
               <p class="text-gray-400">{{ recommendations.length }} movies curated by AI</p>
             </div>
-            
+
             <!-- Refresh Button -->
             <button
               @click="refreshRecommendations"
               :disabled="loading"
               class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
             >
-              <svg 
+              <svg
                 class="w-4 h-4 transition-transform"
                 :class="{ 'animate-spin': loading }"
-                fill="none" 
-                stroke="currentColor" 
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                ></path>
               </svg>
               New Recommendations
             </button>
@@ -147,14 +173,16 @@
         <!-- Error State -->
         <div v-else-if="error" class="text-center py-16">
           <div class="max-w-md mx-auto">
-            <div class="w-24 h-24 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div
+              class="w-24 h-24 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <span class="text-4xl">⚠️</span>
             </div>
-            
+
             <h3 class="text-2xl font-bold text-white mb-4">AI Temporarily Unavailable</h3>
             <p class="text-gray-400 mb-6 leading-relaxed">{{ error }}</p>
-            
-            <button 
+
+            <button
               @click="loadRecommendations"
               class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
             >
@@ -166,16 +194,18 @@
         <!-- Empty State -->
         <div v-else class="text-center py-16">
           <div class="max-w-md mx-auto">
-            <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div
+              class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <span class="text-4xl">🎬</span>
             </div>
-            
+
             <h3 class="text-2xl font-bold text-white mb-4">No Recommendations Yet</h3>
             <p class="text-gray-400 mb-6">
               Unable to generate recommendations at this time. Try refreshing or check back later.
             </p>
-            
-            <button 
+
+            <button
               @click="loadRecommendations"
               class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold"
             >
@@ -213,7 +243,7 @@ const loadingMessages = [
   'Discovering hidden gems...',
   'Consulting AI movie experts...',
   'Finding perfect matches...',
-  'Almost ready with your picks!'
+  'Almost ready with your picks!',
 ]
 
 // Methods
@@ -222,21 +252,18 @@ const loadRecommendations = async () => {
 
   loading.value = true
   error.value = null
-  
+
   // Animate loading messages
   const messageInterval = setInterval(() => {
     currentLoadingMessage.value = (currentLoadingMessage.value + 1) % loadingMessages.length
   }, 2000)
 
   try {
-    console.log('🤖 Loading AI recommendations...')
-    
     const response = await AIRecommendationService.generateRecommendations(userStore.likedMovies)
-    
+
     if (response.success) {
       recommendations.value = response.recommendations
       aiExplanation.value = response.aiExplanation
-      console.log(`✅ Loaded ${response.recommendations.length} AI recommendations`)
     } else {
       // Show fallback recommendations if available
       if (response.recommendations.length > 0) {
@@ -275,19 +302,16 @@ const watchMovie = (movie: Movie) => {
 const handleWatchMovie = async (movie: Movie) => {
   // Check if auth is still loading
   if (userStore.authLoading) {
-    console.log('⏳ Auth still loading, please wait...')
     return
   }
-  
+
   // Double-check auth state to avoid race conditions
   if (!userStore.isAuthenticated) {
-    console.log(`🔐 Auth required to watch: ${movie.title}`)
     userStore.openAuthModal('login')
     return
   }
-  
+
   // User is authenticated, redirect to watch page
-  console.log(`🎬 User authenticated, redirecting to watch: ${movie.title}`)
   router.push(`/watch/movie/${movie.id}`)
 }
 
@@ -296,7 +320,7 @@ const toggleLike = (movie: Movie) => {
     userStore.openAuthModal('login')
     return
   }
-  
+
   userStore.toggleLike(movie)
 }
 
