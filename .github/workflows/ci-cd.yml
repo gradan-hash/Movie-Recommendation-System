@@ -27,8 +27,34 @@ jobs:
       - name: Run linting (Oxlint)
         run: npm run lint:oxlint
 
-      - name: Run unit tests
-        run: npm run test:unit:ci || echo "No tests found - skipping"
+      - name: Run unit tests with coverage
+        run: npm run test:unit:coverage
+
+      - name: Check coverage threshold
+        run: |
+          # Extract services coverage from HTML report
+          if [ -f coverage/lcov-report/index.html ]; then
+            SERVICES_COVERAGE=$(grep -A 5 'movie-recommendation/src/services' coverage/lcov-report/index.html | grep -o '[0-9]*\.[0-9]*%' | head -1 | sed 's/%//')
+            echo "Services coverage: ${SERVICES_COVERAGE}%"
+            
+            # Check if services coverage meets 50% threshold
+            if awk "BEGIN {exit !($SERVICES_COVERAGE >= 50)}"; then
+              echo "✅ Services coverage ${SERVICES_COVERAGE}% meets the 50% threshold"
+            else
+              echo "❌ Services coverage ${SERVICES_COVERAGE}% is below the 50% threshold"
+              exit 1
+            fi
+          else
+            echo "❌ Coverage report not found"
+            exit 1
+          fi
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-reports
+          path: coverage/
 
       - name: Build project (includes type checking)
         run: npm run build
