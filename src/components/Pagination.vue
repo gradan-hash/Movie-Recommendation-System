@@ -10,15 +10,18 @@
           :class="currentPage === 1 ? 'text-gray-500' : 'text-white hover:bg-gray-700'"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            ></path>
           </svg>
           Previous
         </button>
-        
-        <div class="text-sm text-gray-300">
-          Page {{ currentPage }} of {{ totalPages }}
-        </div>
-        
+
+        <div class="text-sm text-gray-300">Page {{ currentPage }} of {{ totalPages }}</div>
+
         <button
           @click="nextPage"
           :disabled="currentPage === totalPages"
@@ -27,7 +30,12 @@
         >
           Next
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            ></path>
           </svg>
         </button>
       </div>
@@ -43,7 +51,12 @@
         :class="currentPage === 1 ? 'text-gray-500' : 'text-white hover:bg-gray-700'"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          ></path>
         </svg>
         Previous
       </button>
@@ -55,9 +68,11 @@
             v-if="page !== '...'"
             @click="goToPage(page as number)"
             class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-lg transition-colors"
-            :class="page === currentPage 
-              ? 'bg-red-600 text-white' 
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+            :class="
+              page === currentPage
+                ? 'bg-red-600 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            "
           >
             {{ page }}
           </button>
@@ -74,14 +89,21 @@
       >
         Next
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
         </svg>
       </button>
     </div>
 
     <!-- Results Info -->
     <div class="text-center text-sm text-gray-400 mt-4">
-      Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, totalResults) }} of {{ totalResults.toLocaleString() }} results
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+      {{ Math.min(currentPage * itemsPerPage, totalResults) }} of
+      {{ totalResults.toLocaleString() }} results
     </div>
   </div>
 </template>
@@ -97,7 +119,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  itemsPerPage: 20
+  itemsPerPage: 24,
 })
 
 const emit = defineEmits<{

@@ -280,9 +280,9 @@
       >
         <div class="max-w-7xl mx-auto px-6 py-8">
           <!-- Movie Info Header -->
-          <div class="flex items-start justify-between mb-6">
+          <div class="flex items-start justify-between mb-6 font-thin">
             <div class="flex-1">
-              <h1 class="text-4xl font-bold text-white mb-2">
+              <h1 class="text-2xl text-white mb-2">
                 {{ content?.title || content?.name }}
               </h1>
               <div class="flex items-center gap-4 text-gray-300">
@@ -320,7 +320,7 @@
             :class="showMovieInfo ? 'max-h-96 opacity-100' : 'max-h-20 opacity-70'"
           >
             <!-- Overview -->
-            <div class="mb-6">
+            <div class="mb-6 font-thin">
               <p class="text-gray-300 text-lg leading-relaxed">
                 {{ content?.overview || 'No description available.' }}
               </p>

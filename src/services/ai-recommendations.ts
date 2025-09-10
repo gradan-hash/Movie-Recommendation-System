@@ -25,6 +25,24 @@ export class AIRecommendationService {
   private static cache = new Map<string, { data: AIRecommendationResponse; timestamp: number }>()
   private static readonly CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
+  // Rate limiting
+  private static lastRequestTime = 0
+  private static readonly MIN_REQUEST_INTERVAL = 10000 // 10 seconds between requests
+  private static pendingRequests = new Map<string, Promise<AIRecommendationResponse>>()
+  private static requestCount = 0
+  private static readonly MAX_REQUESTS_PER_MINUTE = 3
+  private static rateLimitResetTimer: NodeJS.Timeout | null = null
+
+  // Initialize rate limit reset timer
+  static {
+    // Reset request count every minute
+    if (typeof window !== 'undefined') {
+      this.rateLimitResetTimer = setInterval(() => {
+        this.resetRateLimit()
+      }, 60000) // 1 minute
+    }
+  }
+
   /**
    * Generate AI-powered movie recommendations based on user's liked movies
    */
@@ -45,9 +63,46 @@ export class AIRecommendationService {
       return cached
     }
 
-    return globalLoader.wrapAPICall(
+    // Check if there's already a pending request for the same cache key
+    if (this.pendingRequests.has(cacheKey)) {
+      console.log('Deduplicating AI request for cache key:', cacheKey)
+      return this.pendingRequests.get(cacheKey)!
+    }
+
+    // Rate limiting check
+    const now = Date.now()
+    const timeSinceLastRequest = now - this.lastRequestTime
+
+    if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
+      console.log('Rate limited: Too many AI requests. Please wait.')
+      return {
+        success: false,
+        recommendations: await this.getFallbackRecommendations(likedMovies),
+        aiExplanation:
+          'Rate limited - showing similar movies instead. Please wait before requesting AI recommendations.',
+        error: 'Rate limit: Please wait 10 seconds between AI requests',
+      }
+    }
+
+    // Check request count per minute
+    this.requestCount++
+    if (this.requestCount > this.MAX_REQUESTS_PER_MINUTE) {
+      console.log('Rate limited: Too many requests per minute')
+      return {
+        success: false,
+        recommendations: await this.getFallbackRecommendations(likedMovies),
+        aiExplanation: 'Too many AI requests - showing similar movies instead.',
+        error: `Rate limit: Maximum ${this.MAX_REQUESTS_PER_MINUTE} AI requests per minute`,
+      }
+    }
+
+    // Create and store the promise to avoid duplicate requests
+    const requestPromise = globalLoader.wrapAPICall(
       async () => {
         try {
+          // Update request time
+          this.lastRequestTime = Date.now()
+
           // Generate AI prompt
           const prompt = this.createRecommendationPrompt(likedMovies)
 
@@ -68,6 +123,19 @@ export class AIRecommendationService {
 
           return result
         } catch (error: any) {
+          console.warn('AI recommendation error:', error.message)
+
+          // Handle rate limit errors specifically
+          if (error.message.includes('429') || error.message.includes('rate limit')) {
+            return {
+              success: false,
+              recommendations: await this.getFallbackRecommendations(likedMovies),
+              aiExplanation:
+                'AI service rate limited. Showing similar movies based on your preferences.',
+              error: 'Rate limit exceeded - please try again later',
+            }
+          }
+
           // Fallback to similar movies if AI fails
           const fallbackRecommendations = await this.getFallbackRecommendations(likedMovies)
 
@@ -78,11 +146,19 @@ export class AIRecommendationService {
               'AI service temporarily unavailable. Showing similar movies based on your preferences.',
             error: error.message || 'AI recommendation service failed',
           }
+        } finally {
+          // Clean up the pending request
+          this.pendingRequests.delete(cacheKey)
         }
       },
       'Generating AI recommendations...',
       `ai-recommendations-${likedMovies.length}`
     )
+
+    // Store the pending request
+    this.pendingRequests.set(cacheKey, requestPromise)
+
+    return requestPromise
   }
 
   /**
@@ -328,10 +404,20 @@ Focus on:
   }
 
   /**
-   * Clear all cached recommendations
+   * Clear all cached recommendations and reset rate limiting
    */
   static clearCache(): void {
     this.cache.clear()
+    this.pendingRequests.clear()
+    this.requestCount = 0
+    this.lastRequestTime = 0
+  }
+
+  /**
+   * Reset rate limiting counters (call this every minute)
+   */
+  static resetRateLimit(): void {
+    this.requestCount = 0
   }
 
   /**

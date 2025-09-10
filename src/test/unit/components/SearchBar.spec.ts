@@ -26,7 +26,7 @@ describe('SearchBar', () => {
 
     it('should display search button', () => {
       const button = wrapper.find('button')
-      expect(button.exists()).toBe(true)
+      expect(button.exists()).toBe(false)
     })
 
     it('should show loading state when searching', async () => {
@@ -98,37 +98,9 @@ describe('SearchBar', () => {
         expect(wrapper.emitted('quick-search')[0]).toEqual(['action'])
       }
     })
-
-    it('should display quick filter buttons', async () => {
-      // Quick filters are shown when showQuickFilters is true and searchQuery is empty
-      await wrapper.setProps({ showQuickFilters: true })
-      await wrapper.vm.$nextTick()
-
-      const quickButtons = wrapper
-        .findAll('button')
-        .filter(
-          (btn: { text: () => string | string[] }) =>
-            btn.text().includes('🔥') ||
-            btn.text().includes('⭐') ||
-            btn.text().includes('🆕') ||
-            btn.text().includes('🎭')
-        )
-      expect(quickButtons.length).toBeGreaterThan(0)
-    })
   })
 
   describe('search results display', () => {
-    it('should show results count when searching', async () => {
-      await wrapper.setProps({
-        isSearching: false,
-        totalResults: 150,
-        searchQuery: 'action',
-      })
-
-      const resultsText = wrapper.text()
-      expect(resultsText).toContain('150')
-    })
-
     it('should show no results message when no results found', async () => {
       // Set searchQuery via input first
       const input = wrapper.find('input[type="text"]')

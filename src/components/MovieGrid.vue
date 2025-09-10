@@ -2,15 +2,17 @@
   <div class="movie-grid">
     <!-- Loading State with Premium Skeleton -->
     <div v-if="loading">
-      <SkeletonLoader type="movie-grid" :count="18" />
+      <SkeletonLoader type="movie-grid" :count="24" />
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="text-center py-12">
-      <div class="text-red-400 text-6xl mb-4">⚠️</div>
+      <div class="text-red-400 text-6xl mb-4">
+        <font-awesome-icon icon="exclamation-triangle" />
+      </div>
       <h3 class="text-xl font-bold text-white mb-2">Oops! Something went wrong</h3>
       <p class="text-gray-400 mb-4">{{ error }}</p>
-      <button 
+      <button
         @click="$emit('retry')"
         class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
       >
@@ -20,7 +22,9 @@
 
     <!-- Empty State -->
     <div v-else-if="!movies.length" class="text-center py-12">
-      <div class="text-gray-400 text-6xl mb-4">🎬</div>
+      <div class="text-gray-400 text-6xl mb-4">
+        <font-awesome-icon icon="film" />
+      </div>
       <h3 class="text-xl font-bold text-white mb-2">No movies found</h3>
       <p class="text-gray-400">{{ emptyMessage }}</p>
     </div>
@@ -36,8 +40,10 @@
         </span>
       </h2>
 
-      <!-- Grid - Mobile First: 2 cols, SM: 3, MD: 4, LG: 5, XL: 6 -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-6">
+      <!-- Grid - Mobile First: 2 cols, SM: 3, MD: 4, LG: 6, XL: 6 (optimized for 24 items) -->
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-3 md:gap-4 lg:gap-6"
+      >
         <MovieCard
           v-for="movie in movies"
           :key="movie.id"
@@ -56,11 +62,11 @@
           :current-page="currentPage || 1"
           :total-pages="totalPages"
           :total-results="totalResults || 0"
-          :items-per-page="20"
+          :items-per-page="24"
           @page-change="$emit('page-change', $event)"
         />
       </div>
-      
+
       <!-- Load More Button (fallback for infinite scroll style) -->
       <div v-else-if="showLoadMore" class="text-center mt-6 md:mt-8 px-4">
         <button
@@ -69,13 +75,15 @@
           class="w-full sm:w-auto bg-gray-800 text-white px-6 md:px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm md:text-base"
         >
           <span v-if="loadingMore" class="flex items-center justify-center gap-2">
-            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div
+              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+            ></div>
             <span>Loading...</span>
           </span>
           <span v-else>Load More Movies</span>
         </button>
       </div>
-      
+
       <!-- Movies Count (only for non-paginated) -->
       <div v-if="!usePagination && movies.length" class="mt-6 text-center text-gray-400 text-sm">
         {{ movies.length }} of {{ totalResults || movies.length }} movies
@@ -116,7 +124,7 @@ const props = withDefaults(defineProps<Props>(), {
   emptyMessage: 'Try adjusting your search criteria.',
   showLoadMore: false,
   totalResults: 0,
-  likedMovieIds: () => []
+  likedMovieIds: () => [],
 })
 
 // Emits
@@ -126,7 +134,7 @@ defineEmits<{
   'toggle-like': [movie: Movie]
   'watch-movie': [movie: Movie]
   'load-more': []
-  'retry': []
+  retry: []
   'page-change': [page: number]
 }>()
 

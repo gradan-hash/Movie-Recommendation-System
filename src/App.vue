@@ -31,7 +31,7 @@
               class="text-red-100 hover:text-white transition-colors flex items-center gap-1"
               active-class="text-white font-semibold"
             >
-              🤖 AI Recommendations
+              AI Recommendations
               <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
                 New
               </span>
@@ -110,7 +110,7 @@
               class="text-red-100 hover:text-white transition-colors"
               active-class="text-white font-semibold"
             >
-              🏠 Home
+              Home
             </router-link>
 
             <!-- Authenticated Mobile Menu -->
@@ -122,7 +122,7 @@
                 class="text-red-100 hover:text-white transition-colors"
                 active-class="text-white font-semibold"
               >
-                🤖 AI Recommendations
+                AI Recommendations
               </router-link>
               <router-link
                 to="/profile"
@@ -135,14 +135,14 @@
                 >
                   {{ userStore.userInitials }}
                 </div>
-                👤 {{ userStore.userDisplayName }}
+                {{ userStore.userDisplayName }}
               </router-link>
               <button
                 @click="handleLogout"
                 class="text-left text-red-100 hover:text-white transition-colors"
                 :disabled="loggingOut"
               >
-                🚪 {{ loggingOut ? 'Signing out...' : 'Sign Out' }}
+                {{ loggingOut ? 'Signing out...' : 'Sign Out' }}
               </button>
             </template>
 
@@ -152,13 +152,13 @@
                 @click="openAuthModal('login')"
                 class="text-left text-red-100 hover:text-white transition-colors"
               >
-                🔐 Sign In
+                Sign In
               </button>
               <button
                 @click="openAuthModal('register')"
                 class="text-left bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors"
               >
-                📝 Sign Up
+                Sign Up
               </button>
             </template>
           </div>
@@ -178,7 +178,7 @@
     </main>
 
     <!-- Enhanced Professional Footer -->
-    <footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white mt-16">
+    <footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white mt-16 font-base">
       <div class="container mx-auto px-6 py-12">
         <!-- Main Footer Content -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -217,7 +217,7 @@
           </div>
 
           <!-- Quick Links -->
-          <div>
+          <div class="hidden md:block">
             <h4 class="text-lg font-semibold mb-4 text-yellow-300">Quick Links</h4>
             <ul class="space-y-2">
               <li>
@@ -225,7 +225,7 @@
                   to="/"
                   class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
                 >
-                  🏠 Home
+                  Home
                 </router-link>
               </li>
               <li v-if="userStore.isAuthenticated && userStore.canGetRecommendations">
@@ -233,101 +233,37 @@
                   to="/recommendations"
                   class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
                 >
-                  🤖 AI Recommendations
+                  AI Recommendations
                 </router-link>
               </li>
-              <li v-if="userStore.isAuthenticated">
-                <router-link
-                  to="/profile"
-                  class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
-                >
-                  👤 My Profile
-                </router-link>
-              </li>
+
               <li>
                 <a
                   href="#"
                   class="text-gray-300 hover:text-yellow-300 transition-colors flex items-center gap-2"
                 >
-                  ℹ️ About Us
+                  About Us
                 </a>
               </li>
             </ul>
           </div>
 
           <!-- Contact & Support -->
-          <div>
+          <div class="hidden md:block">
             <h4 class="text-lg font-semibold mb-4 text-yellow-300">Connect</h4>
             <div class="space-y-3">
               <div class="flex items-center gap-3 text-gray-300">
-                <span class="text-lg">📧</span>
+                <span class="text-lg"></span>
                 <span class="text-sm">info@cinemaai.app</span>
               </div>
               <div class="flex items-center gap-3 text-gray-300">
-                <span class="text-lg">🌐</span>
+                <span class="text-lg"></span>
                 <span class="text-sm">www.cinemaai.app</span>
               </div>
               <div class="flex items-center gap-3 text-gray-300">
-                <span class="text-lg">📱</span>
+                <span class="text-lg"></span>
                 <span class="text-sm">Mobile App Coming Soon</span>
               </div>
-
-              <!-- Social Links -->
-              <div class="flex gap-3 mt-4">
-                <a
-                  href="#"
-                  class="w-10 h-10 bg-gray-700 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <span class="text-lg">🐦</span>
-                </a>
-                <a
-                  href="#"
-                  class="w-10 h-10 bg-gray-700 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <span class="text-lg">📘</span>
-                </a>
-                <a
-                  href="#"
-                  class="w-10 h-10 bg-gray-700 hover:bg-purple-600 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <span class="text-lg">📷</span>
-                </a>
-                <a
-                  href="#"
-                  class="w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <span class="text-lg">⭐</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="border-t border-gray-700 mt-8 pt-8">
-          <!-- Bottom Section -->
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-left">
-              <p class="text-gray-400 text-sm mb-2">
-                © 2025 CinemaAI. Crafted with ❤️ for movie enthusiasts worldwide.
-              </p>
-              <p class="text-xs text-gray-500">
-                Movie data provided by TMDB. This product uses the TMDB API but is not endorsed or
-                certified by TMDB.
-              </p>
-            </div>
-
-            <div class="flex flex-wrap gap-6 text-sm">
-              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
-                >Privacy Policy</a
-              >
-              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
-                >Terms of Service</a
-              >
-              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors"
-                >API Documentation</a
-              >
-              <a href="#" class="text-gray-400 hover:text-yellow-300 transition-colors">Support</a>
             </div>
           </div>
         </div>
@@ -453,20 +389,6 @@ onUnmounted(() => {
 
 <style scoped>
 /* Router link transitions */
-.router-link-active {
-  position: relative;
-}
-
-.router-link-active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #fbbf24, #f59e0b);
-  border-radius: 1px;
-}
 
 /* Smooth animations */
 .transition-colors {

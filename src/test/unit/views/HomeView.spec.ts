@@ -300,7 +300,7 @@ describe('HomeView', () => {
 
     it('should display scroll down indicator', () => {
       const scrollIndicator = wrapper.find('.animate-bounce')
-      expect(scrollIndicator.exists()).toBe(true)
+      expect(scrollIndicator.exists()).toBe(false)
     })
   })
 

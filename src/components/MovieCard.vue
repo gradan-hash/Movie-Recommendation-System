@@ -1,10 +1,10 @@
 <template>
   <div
-    class="group relative bg-gray-800 rounded-lg md:rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+    class="group relative bg-gray-800 rounded-lg md:rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer flex flex-col h-[340px] md:h-[400px]"
     @click="emit('click', movie)"
   >
-    <!-- Movie Poster -->
-    <div class="relative aspect-[2/3] overflow-hidden">
+    <!-- Movie Poster - Fixed height -->
+    <div class="relative h-[240px] md:h-[280px] overflow-hidden flex-shrink-0">
       <img
         :src="posterUrl"
         :alt="movie.title"
@@ -17,14 +17,6 @@
       <div
         class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
       ></div>
-
-      <!-- Rating badge - Larger on mobile -->
-      <div
-        class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1 md:px-3 md:py-1.5 flex items-center gap-1"
-      >
-        <span class="text-yellow-400 text-xs md:text-sm">⭐</span>
-        <span class="text-white text-xs md:text-sm font-semibold">{{ formattedRating }}</span>
-      </div>
 
       <!-- Like button - Larger and more touch-friendly on mobile -->
       <button
@@ -81,23 +73,23 @@
       </div>
     </div>
 
-    <!-- Movie Info - Reduced padding on mobile -->
-    <div class="p-3 md:p-4">
-      <h3 class="text-white font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2 leading-tight">
+    <!-- Movie Info - Natural height with flexbox -->
+    <div class="p-3 md:p-4 flex flex-col min-h-[76px] md:min-h-[88px]">
+      <h3 class="text-white font-bold text-sm md:text-base mb-1 md:mb-2 line-clamp-2 leading-tight">
         {{ movie.title }}
       </h3>
 
-      <!-- Hide overview on mobile to save space, show on hover/larger screens -->
       <p
-        class="text-gray-300 text-xs md:text-sm mb-2 md:mb-3 line-clamp-2 md:line-clamp-3 leading-relaxed hidden sm:block"
+        class="text-gray-300 text-xs md:text-sm leading-relaxed line-clamp-2 hidden sm:block flex-grow mb-2"
       >
         {{ movie.overview || 'No description available.' }}
       </p>
 
-      <div class="flex items-center justify-between text-xs md:text-sm">
+      <!-- Year and Rating - Pushed to bottom with mt-auto -->
+      <div class="flex items-center justify-between text-xs md:text-sm mt-auto">
         <span class="text-gray-400 font-medium">{{ releaseYear }}</span>
         <div class="flex items-center gap-1 text-yellow-400">
-          <span>⭐</span>
+          <font-awesome-icon icon="star" class="text-xs" />
           <span class="text-white font-semibold">{{ formattedRating }}</span>
         </div>
       </div>

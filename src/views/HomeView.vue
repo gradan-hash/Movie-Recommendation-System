@@ -1,14 +1,9 @@
 <template>
-  <div class="home-view">
+  <div class="home-view font-base">
     <!-- Hero Section - Mobile First -->
     <section
-      class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden"
+      class="relative min-h-[40vh] md:min-h-[40vh] flex items-center justify-center overflow-hidden"
     >
-      <!-- Background with Gradient -->
-      <div
-        class="absolute inset-0 bg-gradient-to-br from-gray-900 via-red-900/20 to-purple-900/20"
-      ></div>
-
       <!-- Animated Background Elements - Smaller on mobile -->
       <div class="absolute inset-0 opacity-20 md:opacity-30">
         <div
@@ -53,18 +48,6 @@
           />
         </div>
       </div>
-
-      <!-- Scroll Down Indicator -->
-      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          ></path>
-        </svg>
-      </div>
     </section>
 
     <!-- Main Content -->
@@ -72,311 +55,8 @@
       <!-- Background Pattern -->
       <div class="absolute inset-0 bg-gray-900/50"></div>
 
-      <div class="relative container mx-auto px-4 py-16">
+      <div class="relative container mx-auto px-4">
         <!-- Liked Movies Section - Mobile First -->
-        <section v-if="userStore.hasLikedMovies && !moviesStore.isSearching" class="mb-12 md:mb-16">
-          <div class="flex flex-col gap-4 mb-6 md:mb-8">
-            <div class="text-center md:text-left">
-              <h2
-                class="text-2xl md:text-3xl font-bold text-white flex items-center justify-center md:justify-start gap-3 mb-2"
-              >
-                <div
-                  class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl"
-                >
-                  ❤️
-                </div>
-                Your Favorites
-              </h2>
-              <p class="text-gray-400 text-base md:text-lg">
-                {{ userStore.likedMoviesCount }} movies in your collection
-              </p>
-            </div>
-
-            <!-- Action Buttons - Mobile Stack -->
-            <div class="flex flex-col sm:flex-row gap-2 md:gap-3">
-              <router-link
-                to="/favorites"
-                class="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-4 py-3 md:px-6 rounded-lg md:rounded-xl hover:from-gray-600 hover:to-gray-500 transition-all duration-200 font-medium text-center text-sm md:text-base"
-              >
-                View All →
-              </router-link>
-              <button
-                v-if="userStore.canGetRecommendations"
-                @click="goToRecommendations"
-                class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-3 md:px-6 rounded-lg md:rounded-xl hover:from-purple-500 hover:to-purple-400 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-lg shadow-purple-500/25 text-sm md:text-base"
-              >
-                🤖 Get AI Recommendations
-              </button>
-            </div>
-          </div>
-
-          <div class="relative">
-            <!-- Mobile: 2 cols, SM: 3 cols, MD: 4 cols, LG: 6 cols, XL: 8 cols -->
-            <div
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-6"
-            >
-              <div
-                v-for="(movie, index) in userStore.likedMovies.slice(0, 8)"
-                :key="movie.id"
-                class="relative group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                :style="{ animationDelay: `${index * 100}ms` }"
-                @click="viewMovieDetails(movie)"
-                @mouseenter="startHoverPreview(movie)"
-                @mouseleave="stopHoverPreview(movie)"
-              >
-                <!-- Movie Poster -->
-                <div
-                  class="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-xl group-hover:shadow-2xl transition-all duration-300"
-                >
-                  <!-- Main Image -->
-                  <img
-                    :src="getMoviePoster(movie.poster_path)"
-                    :alt="movie.title"
-                    class="w-full h-full object-cover transition-opacity duration-300"
-                    :class="hoveringMovie?.id === movie.id ? 'opacity-30' : 'opacity-100'"
-                  />
-
-                  <!-- Hover Preview Overlay -->
-                  <div
-                    v-if="hoveringMovie?.id === movie.id"
-                    class="absolute inset-0 bg-black/50 flex items-center justify-center"
-                  >
-                    <div class="text-center">
-                      <!-- Preview Play Icon -->
-                      <div
-                        class="w-16 h-16 bg-red-600/80 rounded-full flex items-center justify-center mb-2 mx-auto animate-pulse"
-                      >
-                        <svg
-                          class="w-8 h-8 text-white ml-1"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"
-                          />
-                        </svg>
-                      </div>
-                      <p class="text-white text-xs font-semibold">Preview Playing...</p>
-                      <p class="text-gray-300 text-xs">Hover to preview favorites</p>
-                    </div>
-                  </div>
-
-                  <!-- Gradient Overlay -->
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  ></div>
-
-                  <!-- Movie Info Overlay -->
-                  <div
-                    class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"
-                  >
-                    <h3 class="text-white font-bold text-sm mb-1 line-clamp-2">
-                      {{ movie.title }}
-                    </h3>
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2 text-yellow-400 text-xs">
-                        <span>⭐</span>
-                        <span>{{ movie.vote_average.toFixed(1) }}</span>
-                      </div>
-                      <!-- Watch Button for Favorites -->
-                      <button
-                        @click.stop="handleWatchMovie(movie)"
-                        class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white text-xs font-semibold flex items-center gap-1 transition-colors"
-                      >
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z"
-                          />
-                        </svg>
-                        Watch
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Love Icon -->
-                  <div
-                    class="absolute top-3 right-3 w-8 h-8 bg-red-500/90 backdrop-blur-sm rounded-full flex items-center justify-center"
-                  >
-                    <span class="text-white text-sm">❤️</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Show More Card -->
-              <div
-                v-if="userStore.likedMoviesCount > 8"
-                class="relative group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                @click="$router.push('/favorites')"
-              >
-                <div
-                  class="aspect-[2/3] bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl shadow-xl group-hover:shadow-2xl transition-all duration-300 flex items-center justify-center border-2 border-dashed border-gray-600 group-hover:border-red-500"
-                >
-                  <div class="text-center">
-                    <div class="text-3xl font-bold text-red-400 mb-2">
-                      +{{ userStore.likedMoviesCount - 8 }}
-                    </div>
-                    <div class="text-sm text-gray-300 font-medium">More Movies</div>
-                    <div class="text-xs text-gray-500 mt-1">View All →</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- AI Recommendations Section - Mobile First -->
-        <section
-          v-if="userStore.canGetRecommendations && !moviesStore.isSearching"
-          class="mb-12 md:mb-16"
-        >
-          <div class="flex flex-col gap-4 mb-6 md:mb-8">
-            <div class="text-center md:text-left">
-              <h2
-                class="text-2xl md:text-3xl font-bold text-white flex items-center justify-center md:justify-start gap-3 mb-2"
-              >
-                <div
-                  class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl"
-                >
-                  🤖
-                </div>
-                AI Recommendations
-              </h2>
-              <p class="text-gray-400 text-base md:text-lg">Personalized picks just for you</p>
-            </div>
-
-            <!-- Action Buttons - Mobile Stack -->
-            <div class="flex flex-col sm:flex-row gap-2 md:gap-3">
-              <router-link
-                to="/recommendations"
-                class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-3 md:px-6 rounded-lg md:rounded-xl hover:from-purple-500 hover:to-purple-400 transition-all duration-200 font-medium text-center text-sm md:text-base shadow-lg shadow-purple-500/25"
-              >
-                🤖 View All AI Picks →
-              </router-link>
-            </div>
-          </div>
-
-          <!-- AI Recommendations Preview -->
-          <div class="relative">
-            <!-- Loading State -->
-            <div
-              v-if="aiLoading"
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-6"
-            >
-              <div v-for="n in 6" :key="n" class="animate-pulse">
-                <div class="aspect-[2/3] bg-gray-800 rounded-2xl"></div>
-              </div>
-            </div>
-
-            <!-- AI Recommendations Grid -->
-            <div
-              v-else-if="aiRecommendations.length > 0"
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-6"
-            >
-              <div
-                v-for="(recommendation, index) in aiRecommendations.slice(0, 6)"
-                :key="recommendation.movie.id"
-                class="relative group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                :style="{ animationDelay: `${index * 100}ms` }"
-                @click="handleWatchMovie(recommendation.movie)"
-              >
-                <!-- AI Badge -->
-                <div class="absolute top-2 left-2 z-10">
-                  <div
-                    class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg"
-                  >
-                    <span>{{ recommendation.aiGenerated ? '🤖' : '🔗' }}</span>
-                    <span class="hidden sm:inline">{{
-                      recommendation.aiGenerated ? 'AI' : 'Similar'
-                    }}</span>
-                  </div>
-                </div>
-
-                <!-- Movie Poster -->
-                <div
-                  class="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-xl group-hover:shadow-2xl transition-all duration-300"
-                >
-                  <img
-                    :src="getMoviePoster(recommendation.movie.poster_path)"
-                    :alt="recommendation.movie.title"
-                    class="w-full h-full object-cover transition-opacity duration-300"
-                  />
-
-                  <!-- Gradient Overlay -->
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  ></div>
-
-                  <!-- AI Reason Overlay -->
-                  <div
-                    class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"
-                  >
-                    <h3 class="text-white font-bold text-sm mb-1 line-clamp-2">
-                      {{ recommendation.movie.title }}
-                    </h3>
-                    <p class="text-gray-300 text-xs mb-2 line-clamp-2">
-                      {{ recommendation.reason }}
-                    </p>
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2 text-yellow-400 text-xs">
-                        <span>⭐</span>
-                        <span>{{ recommendation.movie.vote_average.toFixed(1) }}</span>
-                      </div>
-                      <div class="text-purple-300 text-xs font-semibold">
-                        {{ recommendation.confidence }}/10
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- AI Glow Effect -->
-                  <div
-                    class="absolute inset-0 ring-2 ring-purple-500/0 group-hover:ring-purple-500/50 rounded-2xl transition-all duration-300"
-                  ></div>
-                </div>
-              </div>
-
-              <!-- View More Card -->
-              <div
-                v-if="aiRecommendations.length > 6"
-                class="relative group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                @click="$router.push('/recommendations')"
-              >
-                <div
-                  class="aspect-[2/3] bg-gradient-to-br from-purple-800 to-blue-800 rounded-2xl shadow-xl group-hover:shadow-2xl transition-all duration-300 flex items-center justify-center border-2 border-dashed border-purple-500 group-hover:border-purple-400"
-                >
-                  <div class="text-center">
-                    <div class="text-3xl font-bold text-purple-300 mb-2">
-                      +{{ aiRecommendations.length - 6 }}
-                    </div>
-                    <div class="text-sm text-purple-200 font-medium">More AI Picks</div>
-                    <div class="text-xs text-purple-400 mt-1">View All →</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- No AI Recommendations Yet -->
-            <div
-              v-else
-              class="text-center py-12 bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-2xl border border-purple-500/20"
-            >
-              <div
-                class="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-4"
-              >
-                <span class="text-2xl">🤖</span>
-              </div>
-              <h3 class="text-lg font-bold text-white mb-2">AI Recommendations Loading...</h3>
-              <p class="text-gray-400 text-sm mb-4">
-                Our AI is analyzing your taste to find perfect matches
-              </p>
-              <button
-                @click="loadAIRecommendations"
-                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
-              >
-                Generate Now
-              </button>
-            </div>
-          </div>
-        </section>
 
         <!-- Content Categories Section - Mobile First -->
         <section class="relative">
@@ -644,10 +324,6 @@ const viewMovieDetails = (movie: Movie) => {
   router.push(`/watch/movie/${movie.id}`)
 }
 
-const goToRecommendations = () => {
-  router.push('/recommendations')
-}
-
 const loadAIRecommendations = async () => {
   if (!userStore.canGetRecommendations || aiLoading.value) return
 
@@ -708,10 +384,6 @@ const formatNumber = (num: number): string => {
   return num.toString()
 }
 
-const getMoviePoster = (posterPath: string | null): string => {
-  return tmdbService.getImageUrl(posterPath, 'w300')
-}
-
 // Netflix-like interaction: prompt for auth when liking movies
 const handleMovieLike = (movie: Movie) => {
   if (!userStore.isAuthenticated) {
@@ -728,9 +400,14 @@ const handleMovieLike = (movie: Movie) => {
 onMounted(async () => {
   await loadPopularMovies()
 
-  // Load AI recommendations if user qualifies
-  if (userStore.canGetRecommendations) {
-    loadAIRecommendations()
+  // Load AI recommendations if user qualifies - but only if not already loading
+  if (userStore.canGetRecommendations && !aiLoading.value && aiRecommendations.value.length === 0) {
+    // Delay AI recommendations to avoid overwhelming the API on page load
+    setTimeout(() => {
+      if (userStore.canGetRecommendations && !aiLoading.value) {
+        loadAIRecommendations()
+      }
+    }, 2000) // Wait 2 seconds after page load
   }
 
   // Check if user was redirected here because auth was required
@@ -767,17 +444,6 @@ const handleWatchMovie = async (movie: Movie) => {
 }
 
 // Hover preview functionality for favorites
-const startHoverPreview = (movie: Movie) => {
-  // Clear any existing timer
-  if (hoverTimer.value) {
-    clearTimeout(hoverTimer.value)
-  }
-
-  // Start preview after short delay to avoid accidental triggers
-  hoverTimer.value = window.setTimeout(() => {
-    hoveringMovie.value = movie
-  }, 500)
-}
 
 const stopHoverPreview = (movie: Movie) => {
   // Clear timer if user stops hovering before preview starts

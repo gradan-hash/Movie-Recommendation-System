@@ -1,103 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
   <file path="src/test/unit/components/SearchBar.spec.ts">
-    <testCase name="SearchBar - component rendering - should mount successfully" duration="79" />
-    <testCase name="SearchBar - component rendering - should display search input" duration="35" />
-    <testCase name="SearchBar - component rendering - should display search button" duration="16" />
-    <testCase name="SearchBar - component rendering - should show loading state when searching" duration="26" />
-    <testCase name="SearchBar - user interactions - should emit search event when input changes" duration="636" />
-    <testCase name="SearchBar - user interactions - should emit search event on Enter key press" duration="20" />
-    <testCase name="SearchBar - user interactions - should emit clear event when clear button clicked" duration="22" />
-    <testCase name="SearchBar - user interactions - should not search on empty input" duration="12" />
-    <testCase name="SearchBar - user interactions - should trim whitespace from search query" duration="13" />
-    <testCase name="SearchBar - quick search functionality - should emit quick-search event when quick search button clicked" duration="10" />
-    <testCase name="SearchBar - quick search functionality - should display quick filter buttons" duration="11" />
-    <testCase name="SearchBar - search results display - should show results count when searching" duration="51" />
-    <testCase name="SearchBar - search results display - should show no results message when no results found" duration="13" />
-    <testCase name="SearchBar - keyboard interactions - should search on Enter key press" duration="13" />
-    <testCase name="SearchBar - keyboard interactions - should clear on Escape key press" duration="11" />
-    <testCase name="SearchBar - accessibility - should have proper ARIA labels" duration="8" />
-    <testCase name="SearchBar - accessibility - should be focusable" duration="8" />
-    <testCase name="SearchBar - responsive behavior - should have mobile-friendly classes" duration="15" />
+    <testCase name="SearchBar - component rendering - should mount successfully" duration="30" />
+    <testCase name="SearchBar - component rendering - should display search input" duration="14" />
+    <testCase name="SearchBar - component rendering - should display search button" duration="5" />
+    <testCase name="SearchBar - component rendering - should show loading state when searching" duration="9" />
+    <testCase name="SearchBar - user interactions - should emit search event when input changes" duration="611" />
+    <testCase name="SearchBar - user interactions - should emit search event on Enter key press" duration="7" />
+    <testCase name="SearchBar - user interactions - should emit clear event when clear button clicked" duration="8" />
+    <testCase name="SearchBar - user interactions - should not search on empty input" duration="3" />
+    <testCase name="SearchBar - user interactions - should trim whitespace from search query" duration="5" />
+    <testCase name="SearchBar - quick search functionality - should emit quick-search event when quick search button clicked" duration="3" />
+    <testCase name="SearchBar - search results display - should show no results message when no results found" duration="6" />
+    <testCase name="SearchBar - keyboard interactions - should search on Enter key press" duration="4" />
+    <testCase name="SearchBar - keyboard interactions - should clear on Escape key press" duration="4" />
+    <testCase name="SearchBar - accessibility - should have proper ARIA labels" duration="2" />
+    <testCase name="SearchBar - accessibility - should be focusable" duration="3" />
+    <testCase name="SearchBar - responsive behavior - should have mobile-friendly classes" duration="3" />
   </file>
   <file path="src/test/unit/composables/useAuth.spec.ts">
-    <testCase name="Auth Modal Composables - provideAuthModal - should initialize with default state" duration="37" />
-    <testCase name="Auth Modal Composables - provideAuthModal - should open login modal" duration="4" />
-    <testCase name="Auth Modal Composables - provideAuthModal - should open register modal" duration="2" />
+    <testCase name="Auth Modal Composables - provideAuthModal - should initialize with default state" duration="16" />
+    <testCase name="Auth Modal Composables - provideAuthModal - should open login modal" duration="2" />
+    <testCase name="Auth Modal Composables - provideAuthModal - should open register modal" duration="1" />
     <testCase name="Auth Modal Composables - provideAuthModal - should close modal" duration="1" />
     <testCase name="Auth Modal Composables - provideAuthModal - should handle open without message" duration="1" />
-    <testCase name="Auth Modal Composables - useAuxthModal - should throw error when not provided" duration="8" />
+    <testCase name="Auth Modal Composables - useAuxthModal - should throw error when not provided" duration="6" />
     <testCase name="Auth Modal Composables - useAuxthModal - should return provided auth modal within component tree" duration="2" />
-    <testCase name="Auth Modal Composables - modal state management - should switch between login and register modes" duration="2" />
+    <testCase name="Auth Modal Composables - modal state management - should switch between login and register modes" duration="1" />
     <testCase name="Auth Modal Composables - modal state management - should preserve open state when switching modes" duration="1" />
     <testCase name="Auth Modal Composables - modal state management - should clear message on close" duration="1" />
   </file>
   <file path="src/test/unit/services/loader.spec.ts">
-    <testCase name="LoaderService - basic loading state - should start with no loading state" duration="10" />
-    <testCase name="LoaderService - basic loading state - should show loading when started" duration="3" />
+    <testCase name="LoaderService - basic loading state - should start with no loading state" duration="3" />
+    <testCase name="LoaderService - basic loading state - should show loading when started" duration="1" />
     <testCase name="LoaderService - basic loading state - should hide loading when stopped" duration="1" />
-    <testCase name="LoaderService - basic loading state - should use default message" duration="2" />
-    <testCase name="LoaderService - nested loading operations - should handle multiple loading operations" duration="2" />
-    <testCase name="LoaderService - nested loading operations - should handle stopping all operations" duration="1" />
-    <testCase name="LoaderService - operation management - should track active operations" duration="18" />
-    <testCase name="LoaderService - operation management - should remove specific operation when stopped" duration="1" />
-    <testCase name="LoaderService - wrapAPICall - should wrap successful API call" duration="6" />
-    <testCase name="LoaderService - wrapAPICall - should wrap failed API call" duration="8" />
+    <testCase name="LoaderService - basic loading state - should use default message" duration="0" />
+    <testCase name="LoaderService - nested loading operations - should handle multiple loading operations" duration="1" />
+    <testCase name="LoaderService - nested loading operations - should handle stopping all operations" duration="0" />
+    <testCase name="LoaderService - operation management - should track active operations" duration="1" />
+    <testCase name="LoaderService - operation management - should remove specific operation when stopped" duration="0" />
+    <testCase name="LoaderService - wrapAPICall - should wrap successful API call" duration="1" />
+    <testCase name="LoaderService - wrapAPICall - should wrap failed API call" duration="2" />
     <testCase name="LoaderService - wrapAPICall - should show loading during API call" duration="1" />
-    <testCase name="LoaderService - wrapAPICall - should use custom operation ID when provided" duration="1" />
-    <testCase name="LoaderService - concurrent operations - should handle concurrent API calls" duration="22" />
+    <testCase name="LoaderService - wrapAPICall - should use custom operation ID when provided" duration="0" />
+    <testCase name="LoaderService - concurrent operations - should handle concurrent API calls" duration="21" />
     <testCase name="LoaderService - operation timing - should track operation start time" duration="1" />
-    <testCase name="globalLoader - should be a loader instance" duration="1" />
-    <testCase name="globalLoader - should provide global loading functionality" duration="1" />
-    <testCase name="globalLoader - should maintain state across multiple calls" duration="1" />
+    <testCase name="globalLoader - should be a loader instance" duration="0" />
+    <testCase name="globalLoader - should provide global loading functionality" duration="0" />
+    <testCase name="globalLoader - should maintain state across multiple calls" duration="0" />
   </file>
   <file path="src/test/unit/services/tmdb.spec.ts">
-    <testCase name="TMDBService - constructor - should create axios instance with correct config" duration="13" />
-    <testCase name="TMDBService - constructor - should setup interceptors" duration="1" />
+    <testCase name="TMDBService - constructor - should create axios instance with correct config" duration="21" />
+    <testCase name="TMDBService - constructor - should setup interceptors" duration="2" />
     <testCase name="TMDBService - getPopularMovies - should fetch popular movies successfully" duration="2" />
     <testCase name="TMDBService - getPopularMovies - should use default page 1" duration="1" />
     <testCase name="TMDBService - getPopularMovies - should cache results" duration="1" />
-    <testCase name="TMDBService - getPopularMovies - should handle API errors" duration="5" />
+    <testCase name="TMDBService - getPopularMovies - should handle API errors" duration="3" />
     <testCase name="TMDBService - searchMovies - should search movies successfully" duration="1" />
     <testCase name="TMDBService - searchMovies - should return empty results for empty query" duration="1" />
     <testCase name="TMDBService - searchMovies - should encode special characters" duration="1" />
-    <testCase name="TMDBService - getMovieDetails - should fetch movie details successfully" duration="1" />
-    <testCase name="TMDBService - getMovieDetails - should cache movie details" duration="1" />
-    <testCase name="TMDBService - getMovieByTitle - should return exact title match" duration="2" />
+    <testCase name="TMDBService - getMovieDetails - should fetch movie details successfully" duration="2" />
+    <testCase name="TMDBService - getMovieDetails - should cache movie details" duration="3" />
+    <testCase name="TMDBService - getMovieByTitle - should return exact title match" duration="1" />
     <testCase name="TMDBService - getMovieByTitle - should return first result if no exact match" duration="1" />
     <testCase name="TMDBService - getMovieByTitle - should return null if no results" duration="1" />
     <testCase name="TMDBService - getMovieByTitle - should handle errors gracefully" duration="1" />
     <testCase name="TMDBService - getImageUrl - should return full image URL with default size" duration="1" />
     <testCase name="TMDBService - getImageUrl - should return full image URL with custom size" duration="1" />
-    <testCase name="TMDBService - getImageUrl - should return placeholder for null path" duration="1" />
+    <testCase name="TMDBService - getImageUrl - should return placeholder for null path" duration="0" />
     <testCase name="TMDBService - cache management - should clear cache successfully" duration="1" />
-    <testCase name="TMDBService - cache management - should return cache stats" duration="2" />
+    <testCase name="TMDBService - cache management - should return cache stats" duration="1" />
   </file>
   <file path="src/test/unit/views/HomeView.spec.ts">
-    <testCase name="HomeView - component mounting - should mount successfully" duration="150" />
-    <testCase name="HomeView - component mounting - should initialize popular movies on mount" duration="13" />
-    <testCase name="HomeView - component mounting - should display hero section" duration="48" />
-    <testCase name="HomeView - component mounting - should display main heading" duration="12" />
-    <testCase name="HomeView - search functionality - should display search bar" duration="14" />
-    <testCase name="HomeView - search functionality - should handle search event" duration="15" />
-    <testCase name="HomeView - search functionality - should handle clear search event" duration="10" />
-    <testCase name="HomeView - search functionality - should handle quick search event" duration="10" />
-    <testCase name="HomeView - movie display - should display movie grid" duration="12" />
-    <testCase name="HomeView - movie display - should pass correct props to movie grid" duration="26" />
-    <testCase name="HomeView - movie display - should handle page change event for popular movies" duration="10" />
-    <testCase name="HomeView - liked movies section - should display liked movies section when user has liked movies and not searching" duration="15" />
-    <testCase name="HomeView - liked movies section - should display liked movies count" duration="9" />
-    <testCase name="HomeView - liked movies section - should show AI recommendations button when user can get recommendations" duration="10" />
-    <testCase name="HomeView - liked movies section - should navigate to recommendations when AI button clicked" duration="9" />
-    <testCase name="HomeView - authentication integration - should handle toggle like for authenticated user" duration="8" />
-    <testCase name="HomeView - authentication integration - should open auth modal for unauthenticated user like action" duration="8" />
-    <testCase name="HomeView - authentication integration - should handle loading state during auth" duration="8" />
-    <testCase name="HomeView - responsive behavior - should have mobile-first responsive classes" duration="12" />
-    <testCase name="HomeView - responsive behavior - should display scroll down indicator" duration="13" />
-    <testCase name="HomeView - performance considerations - should not render liked movies section when searching" duration="10" />
-    <testCase name="HomeView - performance considerations - should handle empty states gracefully" duration="17" />
-    <testCase name="HomeView - watch movie functionality - should handle watch movie for authenticated user" duration="8" />
-    <testCase name="HomeView - watch movie functionality - should open auth modal for unauthenticated user" duration="9" />
-    <testCase name="HomeView - watch movie functionality - should not act when auth is loading" duration="8" />
+    <testCase name="HomeView - component mounting - should mount successfully" duration="50" />
+    <testCase name="HomeView - component mounting - should initialize popular movies on mount" duration="7" />
+    <testCase name="HomeView - component mounting - should display hero section" duration="20" />
+    <testCase name="HomeView - component mounting - should display main heading" duration="7" />
+    <testCase name="HomeView - search functionality - should display search bar" duration="9" />
+    <testCase name="HomeView - search functionality - should handle search event" duration="8" />
+    <testCase name="HomeView - search functionality - should handle clear search event" duration="5" />
+    <testCase name="HomeView - search functionality - should handle quick search event" duration="5" />
+    <testCase name="HomeView - movie display - should display movie grid" duration="5" />
+    <testCase name="HomeView - movie display - should pass correct props to movie grid" duration="12" />
+    <testCase name="HomeView - movie display - should handle page change event for popular movies" duration="4" />
+    <testCase name="HomeView - liked movies section - should display liked movies section when user has liked movies and not searching" duration="4" />
+    <testCase name="HomeView - liked movies section - should display liked movies count" duration="7" />
+    <testCase name="HomeView - liked movies section - should show AI recommendations button when user can get recommendations" duration="4" />
+    <testCase name="HomeView - liked movies section - should navigate to recommendations when AI button clicked" duration="4" />
+    <testCase name="HomeView - authentication integration - should handle toggle like for authenticated user" duration="5" />
+    <testCase name="HomeView - authentication integration - should open auth modal for unauthenticated user like action" duration="4" />
+    <testCase name="HomeView - authentication integration - should handle loading state during auth" duration="4" />
+    <testCase name="HomeView - responsive behavior - should have mobile-first responsive classes" duration="5" />
+    <testCase name="HomeView - responsive behavior - should display scroll down indicator" duration="6" />
+    <testCase name="HomeView - performance considerations - should not render liked movies section when searching" duration="6" />
+    <testCase name="HomeView - performance considerations - should handle empty states gracefully" duration="4" />
+    <testCase name="HomeView - watch movie functionality - should handle watch movie for authenticated user" duration="4" />
+    <testCase name="HomeView - watch movie functionality - should open auth modal for unauthenticated user" duration="10" />
+    <testCase name="HomeView - watch movie functionality - should not act when auth is loading" duration="5" />
   </file>
 </testExecutions>

@@ -19,7 +19,6 @@
         <div
           class="inline-flex items-center gap-3 bg-purple-600/20 backdrop-blur-sm px-4 py-2 rounded-full text-purple-300 text-sm font-medium mb-6"
         >
-          <span class="text-xl">🤖</span>
           <span>AI-Powered Recommendations</span>
         </div>
 
@@ -84,9 +83,7 @@
               ></div>
               <div
                 class="absolute inset-2 bg-gray-900 rounded-full flex items-center justify-center"
-              >
-                <span class="text-3xl animate-pulse">🤖</span>
-              </div>
+              ></div>
             </div>
 
             <h3 class="text-xl font-bold text-white mb-4">AI is analyzing your taste...</h3>
@@ -112,9 +109,7 @@
             <div class="flex items-start gap-4">
               <div
                 class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
-                <span class="text-xl">🤖</span>
-              </div>
+              ></div>
               <div>
                 <h3 class="text-lg font-bold text-white mb-2">AI Analysis</h3>
                 <p class="text-gray-300 leading-relaxed">{{ aiExplanation }}</p>
