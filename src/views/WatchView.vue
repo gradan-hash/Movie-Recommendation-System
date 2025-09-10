@@ -1018,6 +1018,8 @@ const initializeYouTubePlayer = async () => {
     // Wait a bit for cleanup
     await new Promise(resolve => setTimeout(resolve, 100))
 
+    // Note: Console error suppression is handled globally in onMounted()
+
     // Create YouTube Player
     youtubePlayer.value = new window.YT.Player('youtube-player', {
       videoId: currentVideo.value.key,
@@ -1034,6 +1036,9 @@ const initializeYouTubePlayer = async () => {
         cc_load_policy: 0,
         disablekb: 1,
         origin: window.location.origin,
+        enablejsapi: 1,
+        widget_referrer: window.location.origin,
+        host: window.location.protocol + '//' + window.location.hostname,
       },
       events: {
         onReady: onPlayerReady,
@@ -1313,8 +1318,42 @@ watch(
   }
 )
 
+// Store original console methods
+const originalConsoleError = ref<typeof console.error | null>(null)
+const originalConsoleWarn = ref<typeof console.warn | null>(null)
+
 // Lifecycle
 onMounted(() => {
+  // Suppress common YouTube API tracking errors (these don't affect functionality)
+  originalConsoleError.value = console.error
+  originalConsoleWarn.value = console.warn
+
+  console.error = (...args) => {
+    const message = args.join(' ')
+    // Suppress YouTube tracking and analytics errors
+    if (
+      message.includes('net::ERR_BLOCKED_BY_CLIENT') ||
+      message.includes('youtube.com/generate_204') ||
+      message.includes('youtube.com/api/stats/qoe') ||
+      message.includes('youtube.com/youtubei/v1/log_event') ||
+      message.includes('youtube.com/ptracking') ||
+      message.includes('play.google.com/log') ||
+      message.includes("Failed to execute 'postMessage' on 'DOMWindow'")
+    ) {
+      return // Suppress these normal tracking errors
+    }
+    originalConsoleError.value?.apply(console, args)
+  }
+
+  console.warn = (...args) => {
+    const message = args.join(' ')
+    // Suppress YouTube tracking warnings
+    if (message.includes('net::ERR_BLOCKED_BY_CLIENT') || message.includes('youtube.com')) {
+      return // Suppress these normal tracking warnings
+    }
+    originalConsoleWarn.value?.apply(console, args)
+  }
+
   loadContent()
 })
 
@@ -1330,6 +1369,14 @@ onUnmounted(() => {
   // Clean up YouTube player
   if (youtubePlayer.value && youtubePlayer.value.destroy) {
     youtubePlayer.value.destroy()
+  }
+
+  // Restore console methods to avoid affecting other components
+  if (originalConsoleError.value) {
+    console.error = originalConsoleError.value
+  }
+  if (originalConsoleWarn.value) {
+    console.warn = originalConsoleWarn.value
   }
 })
 </script>

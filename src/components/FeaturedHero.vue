@@ -3,12 +3,14 @@
     class="featured-hero relative h-[50vh] md:h-[70vh] overflow-hidden"
     @mouseenter="startPreview"
     @mouseleave="endPreview"
-    @touchstart="startPreview"
-    @touchend="endPreview"
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
+    @touchmove="handleTouchMove"
+    @click="handleClick"
   >
     <!-- Background Video/Image -->
     <div class="absolute inset-0" v-if="movie">
-      <!-- Auto-playing Video (Netflix-style) - Works on both mobile and desktop -->
+      <!-- Auto-playing Video (Netflix-style) - Enhanced mobile compatibility -->
       <video
         v-if="videoUrl && !videoError"
         ref="heroVideo"
@@ -17,10 +19,13 @@
         muted
         loop
         playsinline
+        webkit-playsinline="true"
+        preload="metadata"
         :poster="getMovieBackdrop(movie.backdrop_path)"
         @loadstart="videoLoading = true"
         @canplay="videoLoading = false"
         @error="handleVideoError"
+        @loadedmetadata="onVideoReady"
       ></video>
 
       <!-- Fallback Image (if video fails) -->
@@ -236,6 +241,9 @@ const isMobile = ref(false)
 const isPreviewMode = ref(false)
 const heroVideo = ref<HTMLVideoElement>()
 const previewTimer = ref<NodeJS.Timeout>()
+const touchStartTime = ref<number>(0)
+const touchStartPos = ref({ x: 0, y: 0 })
+const userHasInteracted = ref(false)
 
 // Sample video URL - in a real app, you'd get this from the movie data
 const videoUrl = ref<string | null>(null)
@@ -275,6 +283,19 @@ const handleVideoError = () => {
   console.warn('Hero video failed to load, falling back to image')
 }
 
+const onVideoReady = () => {
+  // Video metadata is loaded - prepare for mobile playback
+  if (heroVideo.value && isMobile.value) {
+    // Set all mobile-friendly attributes
+    heroVideo.value.muted = true
+    heroVideo.value.playsInline = true
+    heroVideo.value.setAttribute('webkit-playsinline', 'true')
+    heroVideo.value.setAttribute('x-webkit-airplay', 'allow')
+
+    console.log('Video ready for mobile playback')
+  }
+}
+
 const checkMobile = () => {
   isMobile.value =
     window.innerWidth < 768 ||
@@ -291,21 +312,34 @@ const initVideo = () => {
   }
 }
 
-const startPreview = () => {
+const startPreview = async () => {
   if (!videoUrl.value || videoError.value) return
+
+  // On mobile with user interaction, try immediate preview
+  if (isMobile.value && userHasInteracted.value) {
+    isPreviewMode.value = true
+    await tryVideoPlay()
+    return
+  }
 
   // Shorter delay on mobile for better responsiveness
   const delay = isMobile.value ? 800 : 1500
 
   // Start preview mode after a delay
-  previewTimer.value = setTimeout(() => {
+  previewTimer.value = setTimeout(async () => {
     isPreviewMode.value = true
-    if (heroVideo.value) {
-      heroVideo.value.play().catch(() => {
-        // Handle play error silently - especially important on mobile
-        console.warn('Video autoplay failed - this is normal on some mobile devices')
-      })
-      isPlaying.value = true
+
+    if (isMobile.value) {
+      // On mobile, use enhanced play method
+      await tryVideoPlay()
+    } else {
+      // On desktop, use original method
+      if (heroVideo.value) {
+        heroVideo.value.play().catch(() => {
+          console.warn('Video autoplay failed - this is normal on some mobile devices')
+        })
+        isPlaying.value = true
+      }
     }
   }, delay)
 }
@@ -324,6 +358,87 @@ const endPreview = () => {
   if (heroVideo.value && isPlaying.value) {
     heroVideo.value.pause()
     isPlaying.value = false
+  }
+}
+
+// Enhanced mobile touch handlers for better preview functionality
+const handleTouchStart = (event: TouchEvent) => {
+  if (!isMobile.value) return
+
+  const touch = event.touches[0]
+  touchStartTime.value = Date.now()
+  touchStartPos.value = { x: touch.clientX, y: touch.clientY }
+
+  // Mark user interaction for video autoplay permission
+  userHasInteracted.value = true
+
+  startPreview()
+}
+
+const handleTouchEnd = (event: TouchEvent) => {
+  if (!isMobile.value) return
+
+  const touchDuration = Date.now() - touchStartTime.value
+  const touch = event.changedTouches[0]
+  const touchEndPos = { x: touch.clientX, y: touch.clientY }
+
+  // Calculate distance moved
+  const distance = Math.sqrt(
+    Math.pow(touchEndPos.x - touchStartPos.value.x, 2) +
+      Math.pow(touchEndPos.y - touchStartPos.value.y, 2)
+  )
+
+  // If it's a short tap (less than 500ms) and didn't move much (less than 20px)
+  // treat it as a tap to start/maintain preview
+  if (touchDuration < 500 && distance < 20) {
+    if (!isPreviewMode.value) {
+      startPreview()
+    }
+    // Don't end preview on tap - let user interact with preview
+    return
+  }
+
+  // For longer touches or swipes, end preview after delay
+  setTimeout(() => {
+    if (!isPreviewMode.value) return
+    endPreview()
+  }, 2000) // Keep preview for 2 seconds after touch end
+}
+
+const handleTouchMove = (event: TouchEvent) => {
+  // Prevent default to avoid scrolling issues during preview
+  if (isPreviewMode.value) {
+    event.preventDefault()
+  }
+}
+
+const handleClick = () => {
+  // For desktop clicks or mobile taps that bypass touch events
+  if (!isMobile.value) return
+
+  userHasInteracted.value = true
+
+  if (!isPreviewMode.value) {
+    startPreview()
+  }
+}
+
+// Enhanced video initialization with better mobile support
+const tryVideoPlay = async (): Promise<boolean> => {
+  if (!heroVideo.value || !videoUrl.value || videoError.value) return false
+
+  try {
+    // Ensure video is muted and has correct attributes for mobile
+    heroVideo.value.muted = true
+    heroVideo.value.playsInline = true
+    heroVideo.value.setAttribute('webkit-playsinline', 'true')
+
+    await heroVideo.value.play()
+    isPlaying.value = true
+    return true
+  } catch (error) {
+    console.warn('Video autoplay failed:', error)
+    return false
   }
 }
 

@@ -52,7 +52,6 @@
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
-          @view-all="() => router.push('/favorites')"
         />
 
         <!-- AI Recommendations Row -->
@@ -66,7 +65,6 @@
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
-          @view-all="() => router.push('/recommendations')"
         />
 
         <!-- Continue Watching Row (Placeholder) -->
@@ -89,10 +87,16 @@
           :movies="moviesStore.popularMovies.slice(0, 12)"
           :loading="moviesStore.loading"
           :error="moviesStore.error"
+          :show-pagination="true"
+          :current-page="popularPage"
+          :total-pages="popularTotalPages"
+          :total-results="popularTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="() => loadPopularMovies(popularPage - 1)"
+          @next-page="() => loadPopularMovies(popularPage + 1)"
           @retry="loadPopularMovies"
         />
 
@@ -102,10 +106,16 @@
           icon="star"
           :movies="topRatedMovies"
           :loading="topRatedLoading"
+          :show-pagination="true"
+          :current-page="topRatedPage"
+          :total-pages="topRatedTotalPages"
+          :total-results="topRatedTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="() => loadTopRatedMovies(topRatedPage - 1)"
+          @next-page="() => loadTopRatedMovies(topRatedPage + 1)"
         />
 
         <!-- Action Movies Row -->
@@ -114,10 +124,20 @@
           icon="bolt"
           :movies="actionMovies"
           :loading="actionLoading"
+          :show-pagination="true"
+          :current-page="actionPage"
+          :total-pages="actionTotalPages"
+          :total-results="actionTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="
+            () => loadGenreMovies(28, actionMovies, actionLoading, actionPage - 1, 'action')
+          "
+          @next-page="
+            () => loadGenreMovies(28, actionMovies, actionLoading, actionPage + 1, 'action')
+          "
         />
 
         <!-- Comedy Movies Row -->
@@ -126,10 +146,20 @@
           icon="laugh"
           :movies="comedyMovies"
           :loading="comedyLoading"
+          :show-pagination="true"
+          :current-page="comedyPage"
+          :total-pages="comedyTotalPages"
+          :total-results="comedyTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="
+            () => loadGenreMovies(35, comedyMovies, comedyLoading, comedyPage - 1, 'comedy')
+          "
+          @next-page="
+            () => loadGenreMovies(35, comedyMovies, comedyLoading, comedyPage + 1, 'comedy')
+          "
         />
 
         <!-- Drama Movies Row -->
@@ -138,10 +168,16 @@
           icon="theater-masks"
           :movies="dramaMovies"
           :loading="dramaLoading"
+          :show-pagination="true"
+          :current-page="dramaPage"
+          :total-pages="dramaTotalPages"
+          :total-results="dramaTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="() => loadGenreMovies(18, dramaMovies, dramaLoading, dramaPage - 1, 'drama')"
+          @next-page="() => loadGenreMovies(18, dramaMovies, dramaLoading, dramaPage + 1, 'drama')"
         />
 
         <!-- Horror Movies Row -->
@@ -150,10 +186,20 @@
           icon="ghost"
           :movies="horrorMovies"
           :loading="horrorLoading"
+          :show-pagination="true"
+          :current-page="horrorPage"
+          :total-pages="horrorTotalPages"
+          :total-results="horrorTotal"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"
           @watch-movie="handleWatchMovie"
           @toggle-like="handleMovieLike"
+          @prev-page="
+            () => loadGenreMovies(27, horrorMovies, horrorLoading, horrorPage - 1, 'horror')
+          "
+          @next-page="
+            () => loadGenreMovies(27, horrorMovies, horrorLoading, horrorPage + 1, 'horror')
+          "
         />
       </div>
     </div>
@@ -190,7 +236,7 @@ const searchResults = ref<Movie[]>([])
 const searchLoading = ref(false)
 const searchError = ref('')
 
-// Genre-specific movies
+// Genre-specific movies with pagination
 const topRatedMovies = ref<Movie[]>([])
 const actionMovies = ref<Movie[]>([])
 const comedyMovies = ref<Movie[]>([])
@@ -204,22 +250,54 @@ const comedyLoading = ref(false)
 const dramaLoading = ref(false)
 const horrorLoading = ref(false)
 
+// Pagination states
+const popularPage = ref(1)
+const topRatedPage = ref(1)
+const actionPage = ref(1)
+const comedyPage = ref(1)
+const dramaPage = ref(1)
+const horrorPage = ref(1)
+
+// Total results for pagination
+const popularTotal = ref(0)
+const topRatedTotal = ref(0)
+const actionTotal = ref(0)
+const comedyTotal = ref(0)
+const dramaTotal = ref(0)
+const horrorTotal = ref(0)
+
+// Total pages
+const popularTotalPages = ref(0)
+const topRatedTotalPages = ref(0)
+const actionTotalPages = ref(0)
+const comedyTotalPages = ref(0)
+const dramaTotalPages = ref(0)
+const horrorTotalPages = ref(0)
+
 // Methods
-const loadPopularMovies = async () => {
-  await moviesStore.loadPopularMovies()
+const loadPopularMovies = async (page: number = 1) => {
+  popularPage.value = page
+  await moviesStore.loadPopularMovies(page)
 
   // Set featured movie from popular movies
-  if (moviesStore.popularMovies.length > 0) {
+  if (moviesStore.popularMovies.length > 0 && page === 1) {
     featuredMovie.value = moviesStore.popularMovies[0]
   }
+
+  // Update pagination info
+  popularTotal.value = moviesStore.totalResults
+  popularTotalPages.value = moviesStore.totalPages
 }
 
-const loadTopRatedMovies = async () => {
+const loadTopRatedMovies = async (page: number = 1) => {
+  topRatedPage.value = page
   topRatedLoading.value = true
   try {
-    const response = await TMDBAPI.getTopRatedMovies(1)
+    const response = await TMDBAPI.getTopRatedMovies(page)
     if (response.success && response.data) {
       topRatedMovies.value = response.data.results.slice(0, 12)
+      topRatedTotal.value = response.data.total_results
+      topRatedTotalPages.value = response.data.total_pages
     }
   } catch (error) {
     console.warn('Failed to load top rated movies:', error)
@@ -228,15 +306,57 @@ const loadTopRatedMovies = async () => {
   }
 }
 
-const loadGenreMovies = async (genreId: number, targetArray: any, loadingRef: any) => {
+const loadGenreMovies = async (
+  genreId: number,
+  targetArray: any,
+  loadingRef: any,
+  page: number = 1,
+  genreType: string
+) => {
+  // Update page for the specific genre
+  switch (genreType) {
+    case 'action':
+      actionPage.value = page
+      break
+    case 'comedy':
+      comedyPage.value = page
+      break
+    case 'drama':
+      dramaPage.value = page
+      break
+    case 'horror':
+      horrorPage.value = page
+      break
+  }
+
   loadingRef.value = true
   try {
     // For now, use popular movies and randomize for different genres
-    const response = await TMDBAPI.getPopularMovies(1)
+    const response = await TMDBAPI.getPopularMovies(page)
     if (response.success && response.data) {
       // Simulate different genre movies by shuffling popular movies
       const shuffled = [...response.data.results].sort(() => Math.random() - 0.5)
       targetArray.value = shuffled.slice(0, 12)
+
+      // Update pagination info for the specific genre
+      switch (genreType) {
+        case 'action':
+          actionTotal.value = response.data.total_results
+          actionTotalPages.value = response.data.total_pages
+          break
+        case 'comedy':
+          comedyTotal.value = response.data.total_results
+          comedyTotalPages.value = response.data.total_pages
+          break
+        case 'drama':
+          dramaTotal.value = response.data.total_results
+          dramaTotalPages.value = response.data.total_pages
+          break
+        case 'horror':
+          horrorTotal.value = response.data.total_results
+          horrorTotalPages.value = response.data.total_pages
+          break
+      }
     }
   } catch (error) {
     console.warn(`Failed to load genre ${genreId} movies:`, error)
@@ -346,10 +466,10 @@ const loadContentProgressively = async () => {
   setTimeout(() => loadTopRatedMovies(), 500)
 
   // Load genre movies with staggered delays to prevent mobile lag
-  setTimeout(() => loadGenreMovies(28, actionMovies, actionLoading), 1000) // Action
-  setTimeout(() => loadGenreMovies(35, comedyMovies, comedyLoading), 1500) // Comedy
-  setTimeout(() => loadGenreMovies(18, dramaMovies, dramaLoading), 2000) // Drama
-  setTimeout(() => loadGenreMovies(27, horrorMovies, horrorLoading), 2500) // Horror
+  setTimeout(() => loadGenreMovies(28, actionMovies, actionLoading, 1, 'action'), 1000) // Action
+  setTimeout(() => loadGenreMovies(35, comedyMovies, comedyLoading, 1, 'comedy'), 1500) // Comedy
+  setTimeout(() => loadGenreMovies(18, dramaMovies, dramaLoading, 1, 'drama'), 2000) // Drama
+  setTimeout(() => loadGenreMovies(27, horrorMovies, horrorLoading, 1, 'horror'), 2500) // Horror
 
   // Load AI recommendations last (delayed for better UX)
   if (userStore.canGetRecommendations && aiRecommendations.value.length === 0) {

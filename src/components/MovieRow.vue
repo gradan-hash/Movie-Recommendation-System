@@ -5,19 +5,33 @@
       <h2 class="text-lg md:text-2xl font-bold text-white flex items-center gap-2 md:gap-3">
         <font-awesome-icon v-if="icon" :icon="icon" class="text-base md:text-2xl text-red-400" />
         {{ title }}
-        <span v-if="movies.length" class="text-gray-400 text-sm md:text-lg font-normal">
-          ({{ movies.length }})
+        <span v-if="totalResults" class="text-gray-400 text-sm md:text-lg font-normal">
+          ({{ totalResults }})
         </span>
       </h2>
 
-      <!-- View All Link -->
-      <button
-        v-if="showViewAll && movies.length > 6"
-        @click="$emit('view-all')"
-        class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors hidden md:block"
-      >
-        View All →
-      </button>
+      <!-- Pagination Controls -->
+      <div v-if="showPagination && totalPages > 1" class="flex items-center gap-2">
+        <button
+          @click="$emit('prev-page')"
+          :disabled="currentPage <= 1"
+          class="w-8 h-8 bg-gray-700/50 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-colors"
+        >
+          <font-awesome-icon icon="chevron-left" class="text-xs" />
+        </button>
+
+        <span class="text-gray-400 text-sm whitespace-nowrap">
+          {{ currentPage }}/{{ totalPages }}
+        </span>
+
+        <button
+          @click="$emit('next-page')"
+          :disabled="currentPage >= totalPages"
+          class="w-8 h-8 bg-gray-700/50 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-colors"
+        >
+          <font-awesome-icon icon="chevron-right" class="text-xs" />
+        </button>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -109,7 +123,10 @@ interface Props {
   loading?: boolean
   error?: string | null
   emptyMessage?: string
-  showViewAll?: boolean
+  showPagination?: boolean
+  currentPage?: number
+  totalPages?: number
+  totalResults?: number
   isMovieLiked?: (id: number) => boolean
 }
 
@@ -117,7 +134,10 @@ withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
   emptyMessage: '',
-  showViewAll: true,
+  showPagination: false,
+  currentPage: 1,
+  totalPages: 1,
+  totalResults: 0,
 })
 
 // Emits
@@ -126,7 +146,8 @@ defineEmits<{
   'view-details': [movie: Movie]
   'toggle-like': [movie: Movie]
   'watch-movie': [movie: Movie]
-  'view-all': []
+  'prev-page': []
+  'next-page': []
   retry: []
 }>()
 

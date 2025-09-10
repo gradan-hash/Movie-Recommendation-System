@@ -292,13 +292,14 @@ export const usePerformance = () => {
     // Update metrics every 5 seconds
     const metricsInterval = setInterval(updateMetrics, 5000)
 
-    onUnmounted(() => {
+    // Return cleanup function
+    return () => {
       clearInterval(metricsInterval)
       stopFPSMonitoring()
       if (performanceObserver.value) {
         performanceObserver.value.disconnect()
       }
-    })
+    }
   }
 
   // Critical performance optimizations
@@ -345,11 +346,20 @@ export const usePerformance = () => {
     document.head.appendChild(style)
   }
 
+  // Import onUnmounted for proper cleanup
+  let cleanupMonitoring: (() => void) | null = null
+
   onMounted(() => {
     nextTick(() => {
-      startMonitoring()
+      cleanupMonitoring = startMonitoring()
       applyCriticalOptimizations()
     })
+  })
+
+  onUnmounted(() => {
+    if (cleanupMonitoring) {
+      cleanupMonitoring()
+    }
   })
 
   return {

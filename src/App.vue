@@ -192,13 +192,13 @@
 
     <!-- Main Content Router View with Smooth Transitions -->
     <main class="relative">
-      <PageTransition type="cinema">
-        <router-view v-slot="{ Component, route }">
+      <router-view v-slot="{ Component, route }">
+        <PageTransition type="cinema">
           <KeepAlive :include="['HomeView', 'SearchView']" :max="3">
             <component :is="Component" :key="route.path" />
           </KeepAlive>
-        </router-view>
-      </PageTransition>
+        </PageTransition>
+      </router-view>
     </main>
 
     <!-- Enhanced Professional Footer -->
@@ -325,8 +325,8 @@ import { usePerformance } from '@/composables/usePerformance'
 const userStore = useUserStore()
 const router = useRouter()
 
-// Performance optimization
-const { startMonitoring, preloadResource, applyCriticalOptimizations } = usePerformance()
+// Performance optimization (automatically initialized)
+usePerformance()
 
 // State
 const showMobileMenu = ref(false)
@@ -419,13 +419,8 @@ onMounted(async () => {
   userStore.initializeAuth()
   userStore.loadFromLocalStorage()
 
-  // Apply performance optimizations
-  applyCriticalOptimizations()
-  startMonitoring()
-
-  // Preload critical resources
-  preloadResource('/api/movies/popular', 'fetch')
-  preloadResource('https://www.youtube.com/iframe_api', 'script')
+  // Note: Performance optimizations and monitoring are automatically initialized
+  // by the usePerformance composable's onMounted hook
 
   // Add click outside listener for mobile menu
   document.addEventListener('click', handleClickOutside)
