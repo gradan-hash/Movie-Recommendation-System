@@ -100,25 +100,6 @@ describe('SearchBar', () => {
     })
   })
 
-  describe('search results display', () => {
-    it('should show no results message when no results found', async () => {
-      // Set searchQuery via input first
-      const input = wrapper.find('input[type="text"]')
-      await input.setValue('nonexistent')
-
-      await wrapper.setProps({
-        showStats: true,
-        isSearching: false,
-        totalResults: 0,
-      })
-
-      await wrapper.vm.$nextTick()
-
-      const noResultsText = wrapper.text()
-      expect(noResultsText).toContain('No movies found')
-    })
-  })
-
   describe('keyboard interactions', () => {
     it('should search on Enter key press', async () => {
       const input = wrapper.find('input[type="text"]')

@@ -3,18 +3,30 @@
     <!-- Header Navigation -->
     <header class="bg-gradient-to-r from-red-600 to-red-700 p-4 shadow-2xl sticky top-0 z-40">
       <div class="container mx-auto">
-        <nav class="flex items-center justify-between">
+        <nav class="flex items-center justify-between gap-4">
           <!-- Logo -->
           <router-link
             to="/"
-            class="text-2xl font-bold flex items-center gap-2 hover:text-yellow-300 transition-colors"
+            class="text-2xl font-bold flex items-center gap-2 hover:text-yellow-300 transition-colors flex-shrink-0"
           >
-            🎬
+            <font-awesome-icon icon="film" />
             <span
               class="bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent"
               >CinemaAI</span
             >
           </router-link>
+
+          <!-- Search Bar - Hidden on mobile (shown in mobile menu), visible on desktop -->
+          <div class="hidden md:block flex-1 max-w-md mx-8">
+            <SearchBar
+              :is-searching="searchLoading"
+              :total-results="searchResults"
+              placeholder="Search movies..."
+              :show-stats="false"
+              @search="onNavbarSearch"
+              @clear="onNavbarSearchClear"
+            />
+          </div>
 
           <!-- Navigation Links -->
           <div class="hidden md:flex items-center gap-6">
@@ -103,7 +115,19 @@
           ref="mobileMenuRef"
           class="md:hidden mt-4 pb-4 border-t border-red-500"
         >
-          <div class="flex flex-col gap-3 mt-4">
+          <!-- Mobile Search Bar -->
+          <div class="mt-4 mb-4">
+            <SearchBar
+              :is-searching="searchLoading"
+              :total-results="searchResults"
+              placeholder="Search movies..."
+              :show-stats="false"
+              @search="onNavbarSearch"
+              @clear="onNavbarSearchClear"
+            />
+          </div>
+
+          <div class="flex flex-col gap-3">
             <router-link
               to="/"
               @click="closeMobileMenu"
@@ -288,15 +312,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, KeepAlive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import AuthModal from '@/components/AuthModal.vue'
 import GlobalLoader from '@/components/GlobalLoader.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 import PageTransition from '@/components/PageTransition.vue'
+import SearchBar from '@/components/SearchBar.vue'
 import { usePerformance } from '@/composables/usePerformance'
 
-// Store
+// Store and Router
 const userStore = useUserStore()
+const router = useRouter()
 
 // Performance optimization
 const { startMonitoring, preloadResource, applyCriticalOptimizations } = usePerformance()
@@ -304,6 +331,8 @@ const { startMonitoring, preloadResource, applyCriticalOptimizations } = usePerf
 // State
 const showMobileMenu = ref(false)
 const loggingOut = ref(false)
+const searchLoading = ref(false)
+const searchResults = ref(0)
 
 // Template refs
 const mobileMenuRef = ref<HTMLElement>()
@@ -352,6 +381,37 @@ const handleLogout = async () => {
 }
 
 const onAuthSuccess = (_type: 'login' | 'register' | 'reset') => {}
+
+// Search functionality - Update homepage instead of navigating
+const onNavbarSearch = async (query: string) => {
+  searchLoading.value = true
+
+  // Navigate to home if not already there
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/')
+  }
+
+  // Use a global event to update the homepage with search
+  window.dispatchEvent(
+    new CustomEvent('homepage-search', {
+      detail: { query, loading: true },
+    })
+  )
+
+  searchLoading.value = false
+}
+
+const onNavbarSearchClear = () => {
+  searchResults.value = 0
+
+  // Navigate to home if not already there
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/')
+  }
+
+  // Clear the search on homepage
+  window.dispatchEvent(new CustomEvent('homepage-search-clear'))
+}
 
 // Initialize user store and performance optimizations
 onMounted(async () => {

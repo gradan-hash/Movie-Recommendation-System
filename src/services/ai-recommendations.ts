@@ -31,15 +31,11 @@ export class AIRecommendationService {
   private static pendingRequests = new Map<string, Promise<AIRecommendationResponse>>()
   private static requestCount = 0
   private static readonly MAX_REQUESTS_PER_MINUTE = 3
-  private static rateLimitResetTimer: NodeJS.Timeout | null = null
 
   // Initialize rate limit reset timer
   static {
     // Reset request count every minute
     if (typeof window !== 'undefined') {
-      this.rateLimitResetTimer = setInterval(() => {
-        this.resetRateLimit()
-      }, 60000) // 1 minute
     }
   }
 

@@ -1,46 +1,32 @@
 <template>
   <div class="search-bar">
-    <!-- Search Input -->
-    <div class="relative max-w-4xl mx-auto">
-      <div class="relative group">
+    <!-- Search Input - Clean Mobile-First Design -->
+    <div class="relative w-full">
+      <div class="relative">
         <!-- Search Icon -->
-        <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
-          <svg
-            class="h-6 w-6 text-gray-300 group-focus-within:text-red-400 transition-colors"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
-          </svg>
+        <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+          <font-awesome-icon
+            icon="search"
+            class="h-4 w-4 md:h-5 md:w-5 text-gray-400 transition-colors"
+          />
         </div>
 
-        <!-- Background Glow Effect -->
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-red-500/20 via-purple-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-all duration-500"
-        ></div>
-
-        <!-- Input Field -->
+        <!-- Input Field - Mobile Optimized -->
         <input
           ref="searchInput"
           v-model="searchQuery"
           type="text"
           :placeholder="placeholder"
           :disabled="disabled"
-          class="relative w-full bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-sm border-2 border-gray-700/50 rounded-2xl py-6 pl-16 pr-16 text-white placeholder-gray-300 focus:outline-none focus:border-red-500/70 focus:ring-4 focus:ring-red-500/20 transition-all duration-300 text-lg font-medium shadow-2xl"
+          class="w-full bg-gray-800/80 backdrop-blur border border-gray-600/50 rounded-lg py-2.5 md:py-3 pl-10 md:pl-12 pr-10 md:pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:bg-gray-800 transition-all duration-200 text-sm md:text-base"
           @keyup.enter="onEnterPress"
           @keyup.escape="clearSearch"
         />
 
         <!-- Loading Spinner -->
-        <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-6 flex items-center z-10">
+        <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-3 md:pr-4 flex items-center">
           <div
-            class="w-6 h-6 border-2 border-red-400 border-t-transparent rounded-full animate-spin"
+            class="w-4 h-4 md:w-5 md:h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"
           ></div>
         </div>
 
@@ -48,46 +34,12 @@
         <button
           v-else-if="searchQuery"
           @click="clearSearch"
-          class="absolute inset-y-0 right-0 pr-6 flex items-center text-gray-400 hover:text-red-400 transition-all duration-200 z-10"
+          class="absolute inset-y-0 right-0 pr-3 md:pr-4 flex items-center text-gray-400 hover:text-red-400 transition-colors"
           type="button"
         >
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
+          <font-awesome-icon icon="times" class="h-4 w-4 md:h-5 md:w-5" />
         </button>
-
-        <!-- Keyboard Shortcut Hint -->
-        <div
-          v-if="!searchQuery && !isSearching"
-          class="absolute inset-y-0 right-0 pr-6 flex items-center pointer-events-none z-10"
-        >
-          <div class="hidden md:flex items-center gap-1 text-gray-500 text-sm">
-            <kbd class="px-2 py-1 bg-gray-700/50 rounded text-xs">⌘</kbd>
-            <kbd class="px-2 py-1 bg-gray-700/50 rounded text-xs">K</kbd>
-          </div>
-        </div>
       </div>
-    </div>
-
-    <!-- Search Stats -->
-    <div
-      v-if="showStats && (totalResults > 0 || searchQuery)"
-      class="text-center mt-4 text-gray-400 text-sm"
-    >
-      <span v-if="totalResults > 0"> </span>
-      <span v-else-if="searchQuery && !isSearching"> No movies found for "{{ searchQuery }}" </span>
-      <button
-        v-if="searchQuery"
-        @click="clearSearch"
-        class="ml-2 text-red-400 hover:text-red-300 underline"
-      >
-        Clear search
-      </button>
     </div>
   </div>
 </template>
@@ -108,14 +60,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '🎬 Discover your next favorite movie...',
+  placeholder: 'Discover your next favorite movie...',
   disabled: false,
   showStats: true,
   showSuggestions: true,
   showQuickFilters: true,
   totalResults: 0,
   isSearching: false,
-  debounceMs: 500,
+  debounceMs: 300,
 })
 
 // Emits
@@ -207,34 +159,29 @@ defineExpose({
   @apply relative;
 }
 
-/* Custom animations */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
+/* Mobile-first search bar optimizations */
+@media (max-width: 768px) {
+  .search-bar input {
+    font-size: 16px; /* Prevents iOS zoom */
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 0.5rem;
   }
-  to {
-    transform: rotate(360deg);
+
+  .search-bar input:focus {
+    transform: none; /* Disable transforms on mobile for better performance */
   }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
+/* Smooth animations for desktop only */
+@media (min-width: 769px) {
+  .search-bar input {
+    transition: all 0.2s ease;
+  }
 
-/* Search suggestions scrollbar */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  @apply bg-gray-800;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded-full;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  .search-bar input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
 }
 </style>
