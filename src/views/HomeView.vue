@@ -60,7 +60,7 @@
           v-if="userStore.canGetRecommendations && aiRecommendations.length > 0"
           title="AI Recommendations"
           icon="robot"
-          :movies="aiRecommendations.map(r => r.movie)"
+          :movies="aiRecommendations.map((r: { movie: any }) => r.movie)"
           :loading="aiLoading"
           :is-movie-liked="(id: number) => userStore.isMovieLiked(id)"
           @movie-click="viewMovieDetails"

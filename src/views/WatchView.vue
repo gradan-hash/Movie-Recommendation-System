@@ -345,7 +345,7 @@
                 <div v-if="content?.production_companies?.length">
                   <span class="text-gray-400 font-medium">Production:</span>
                   <p class="text-gray-300 mt-1">
-                    {{ content.production_companies.map(c => c.name).join(', ') }}
+                    {{ content.production_companies.map((c: { name: any }) => c.name).join(', ') }}
                   </p>
                 </div>
               </div>
@@ -427,7 +427,7 @@
               <div
                 class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 bg-gray-700 rounded-lg flex items-center justify-center text-white font-bold text-xs md:text-sm group-hover:bg-red-600 transition-colors"
               >
-                {{ sortedVideos.findIndex(v => v.key === video.key) + 1 }}
+                {{ sortedVideos.findIndex((v: { key: any }) => v.key === video.key) + 1 }}
               </div>
 
               <!-- Video Thumbnail - Mobile Smaller -->

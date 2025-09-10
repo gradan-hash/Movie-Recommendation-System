@@ -113,7 +113,7 @@ interface Props {
   isMovieLiked?: (id: number) => boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
   emptyMessage: '',

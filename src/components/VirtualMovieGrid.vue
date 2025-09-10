@@ -202,7 +202,7 @@ const handleScroll = throttle((event: Event) => {
   updateVisibleRange()
 }, 16) // ~60fps
 
-const isMovieLiked = (movieId: number): boolean => {
+const isMovieLiked = (_movieId: number): boolean => {
   // This should be injected or passed as prop in real implementation
   return false
 }
